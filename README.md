@@ -13,3 +13,9 @@ To make a library of models that aim to understand the spread of COVID19 in adeq
 ## Overview
 
   The propagation of an infectious disease in a population depends on many factors. These factors range from the conditions the pathogen behaves in  the individual to levels of the dissemination in mass that may depend on demographic-social-economic factors. There are many approaches to understand how the disease spread among the individuals and how  to control it. Here we want to present models that are used in the literature to try to contribute to the understanding of the spread of COVID19. In particular, we want to present a comparison of a variety of results that our team is producing with those found on the literature. 
+
+## Mathematical modeling: compartimental models
+
+  In this section, we gradatively show the application of compartimental models for disease transmission. We start illustrating the use of the well known Susceptible, infected and Recovered model, increasing to more complex systems involving other divisions of the population as quarantined individuals, Isolated individuals, and so on. 
+
+### The Susceptible-Infected-Recovered model
