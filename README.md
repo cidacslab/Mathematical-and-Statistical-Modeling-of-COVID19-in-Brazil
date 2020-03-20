@@ -8,7 +8,7 @@
 
 ## Objective
 
-To make a library of models that aim to understand the spread of COVID19 in adequate scenarios of the Brazilian population.
+To make a library of models that aim to understand the spread of COVID19 in adequate scenarios of the Brazilian population, and also to compare our results in the literature for possible validations in real time.
 
 ## Overview
 
