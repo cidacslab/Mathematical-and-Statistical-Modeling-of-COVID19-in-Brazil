@@ -28,9 +28,21 @@ To make a library of models that aim to understand the spread of COVID19 in adeq
 
   * the susceptible, S, individuals who can catch the disease;
   * the infectives, I, who have the disease and can transmit it; 
-  * and the removed, R, which comprises the ones that recovered with immunity.
+  * and the removed, R, which comprises the ones that no longer is infectious due to isolation or immunity.
 
 
+##### Fitted values for Brazil and Brazilian States
 
++-----------------------------------------------------------------------------------------------------------+
+|                                            General model Exp1:                                            |
+|                                              f(x) = a*exp(b*x)                                            |
++-------------+---------+---------+--------------------------------------------+----------------------------+
+| Date of Fit | UF Code | UF Name | Coefficients (with 95% confidence bounds): | Goodness of fit:           |
++-------------+---------+---------+--------------------------------------------+----------------------------+
+| 2020-03-21  | BR      | Brazil  | a =      0.6918  (0.07204, 1.312)          | SSE: 5517                  |
+|             |         |         | b =      0.2905  (0.2452, 0.3357)          |  R-square: 0.964           |
+|             |         |         |                                            |  Adjusted R-square: 0.9621 |
+|             |         |         |                                            |  RMSE: 17.04               |
++-------------+---------+---------+--------------------------------------------+----------------------------+
 
 
