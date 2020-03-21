@@ -33,11 +33,7 @@ To make a library of models that aim to understand the spread of COVID19 in adeq
 
 ##### Fitted values for Brazil and Brazilian States
 
-\begin{table}[]
-\begin{tabular}{|l|l|l|l|l|}
-\hline
-\multicolumn{5}{|c|}{\begin{tabular}[c]{@{}c@{}}General model Exp1:\\   f(x) = a*exp(b*x)\end{tabular}}                                                                                                                                                                        \\ \hline
-Date of Fit & UF Code & UF Name & Coefficients (with 95\% confidence bounds):                                                                      & Goodness of fit:                                                                                                          \\ \hline
-2020-03-21  & BR      & Brazil  & \begin{tabular}[c]{@{}l@{}}a =      0.6918  (0.07204, 1.312)\\ \\ b =      0.2905  (0.2452, 0.3357)\end{tabular} & \begin{tabular}[c]{@{}l@{}}SSE: 5517\\ \\ R-square: 0.964\\ \\ Adjusted R-square: 0.9621\\ \\ \\ RMSE: 17.04\end{tabular} \\ \hline
-\end{tabular}
-\end{table}
+| General model Exp1:   f(x) = a*exp(b*x) |         |         |                                                                         |                                                                             |
+|:---------------------------------------:|---------|---------|-------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| Date of Fit                             | UF Code | UF Name | Coefficients (with 95% confidence bounds):                              | Goodness of fit:                                                            |
+| 2020-03-21                              | BR      | Brazil  | a =      0.6918  (0.07204, 1.312) \\  b =      0.2905  (0.2452, 0.3357) | SSE: 5517 \\  R-square: 0.964 \\  Adjusted R-square: 0.9621 \\  RMSE: 17.04 |
