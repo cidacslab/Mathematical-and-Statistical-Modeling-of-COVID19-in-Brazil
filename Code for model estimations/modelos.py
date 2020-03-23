@@ -1,4 +1,8 @@
+"""
+Created on Sat Mar 21 13:22:11 2020
 
+@author: Rafael Veiga
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
@@ -16,7 +20,6 @@ def ler_banco(arq='datastate.csv',var='state'):
     banco =banco[banco[var].notnull()]
     if var=='cod_city':
         banco[var] = pd.to_numeric(banco[var],downcast='integer')
-    nome_local =list(banco[var].unique())
     for i in banco.index:
         banco.date[i] = dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date()
     nome_local =list(banco[var].unique())
@@ -38,7 +41,8 @@ def ler_banco(arq='datastate.csv',var='state'):
             df.cod_city =pd.to_numeric(df.cod_city,downcast='integer')
         else:
             estado = [est for di in range(dias)]
-            df = pd.DataFrame({'date':d,var:estado})
+            uf = [aux.UF.iloc[0] for di in range(dias)]
+            df = pd.DataFrame({'date':d,var:estado,'UF':uf})
         
         casos = []
         caso = 0 
@@ -50,6 +54,11 @@ def ler_banco(arq='datastate.csv',var='state'):
                 i_aux=i_aux+1
             else:
                 casos.append(caso)
+        newcases = []
+        newcases.append(casos[0])
+        for indice in range(1,len(casos)):
+            newcases.append(casos[indice] - casos[indice-1])
+        df['novosCasos'] = newcases
         df['totalcasos'] = casos
         local.append(df)
     return nome_local, local    
