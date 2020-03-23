@@ -30,7 +30,7 @@ Depending on the disease and the research scope, after the contact of the suscep
   * the infectives, I, who have the disease and can transmit it; 
   * and the removed, R, which comprises the ones that no longer is infectious due to isolation or immunity.
 
-The amount of new individuals that get infected in time varies at a rate $\beta  S  I$. Analogously, the number of individuals that get recovered, changes in time with a recovery rate \gamma (implying that the mean infectious period is $1/\gamma$ days). Therefore, an infected individual is expected to infect $R_{0} = \beta /  \gamma$ individuals in the period of $1 / \gamma$ days.
+The amount of new individuals that get infected in time varies at a rate $\beta  S  I$. Analogously, the number of individuals that get recovered, changes in time with a recovery rate $\gamma$ (implying that the mean infectious period is $1/\gamma$ days). Therefore, an infected individual is expected to infect $R_{0} = \beta /  \gamma$ individuals in the period of $1 / \gamma$ days.
 
 Summarising, we have two parameters in this simple SIR model: 
 
