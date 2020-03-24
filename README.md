@@ -12,7 +12,7 @@ A library for compartimental models to understand the spread of transmission dis
 
 ## If you like to:
 
- - Learn about the models used herin [Description](tutorials/Mathematical%20and%20Statistical%20Modeling%20of%20COVID19%20in%20Brazil.ipynb)
+ - Learn about the models used herin [Description](docs/Mathematical%20and%20Statistical%20Modeling%20of%20COVID19%20in%20Brazil.ipynb)
  - See how it's works in pratice [Painel Covid-19](http://covid19br.org/)
  - Learn by doing [Tutorials](/tutorials)
  
