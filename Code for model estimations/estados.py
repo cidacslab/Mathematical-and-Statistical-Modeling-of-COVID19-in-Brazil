@@ -50,28 +50,40 @@ previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 for i in range(len(novo_nome)):
     print("\n\n"+str(nome[i])+'\n')
-    modelo = md.SEQIJR_EDO(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
+    modelo1 = md.SIR_EDO(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
+    modelo2 = md.SEQIJR_EDO(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
+    modelo3 = md.SIR(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
-    modelo.fit(x,y)
-    modelos.append(modelo)
+    modelo1.fit(x,y)
+    modelo2.fit(x,y)
+    modelo3.fit(x,y)
+    modelos.append(modelo1)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
-    y_pred =modelo.predict(x_pred)
-    plt.plot(y_pred,c='r',label='Predição Infectados')
-    plt.plot(y,c='b',label='Infectados')
-    plt.legend(fontsize=15)
-    plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=20)
-    plt.ylabel('Casos COnfirmados',fontsize=15)
+    y_pred1 =modelo1.predict(x_pred)
+    y_pred2 =modelo2.predict(x_pred)
+    y_pred3 =modelo3.predict(x_pred)
+    plt.plot(y_pred2,c='g',label='Predição Infectados - SEQIJR')
+    plt.text(x_pred[-1],y_pred2[-1],int(y_pred2[-1])) 
+    plt.plot(y_pred1,c='r',label='Predição Infectados - SIR')
+    plt.text(x_pred[-1],y_pred1[-1],int(y_pred1[-1])) 
+    plt.plot(y_pred3,c='k',label='Predição Infectados - SIR_exp')
+    plt.text(x_pred[-1]-1,y_pred3[-1],int(y_pred3[-1])) 
+    plt.plot(y,c='b',label='Infectados',linewidth = 3)
+    plt.text(len(x)-1,y.tolist()[-1],int(y.tolist()[-1])) 
+    plt.legend(fontsize=12)
+    plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=18)
+    plt.ylabel('Casos Confirmados',fontsize=15)
     plt.xlabel('Dias',fontsize=15)
+    plt.grid(alpha = 0.5,which='both')
     plt.show()
-    
-    novo_local[i]['casos_preditos'] = y_pred[0:len(novo_local[i])]
+    novo_local[i]['casos_preditos'] = y_pred1[0:len(novo_local[i])]
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
     for d in range(1,dias):
         di = d+len(x)-1
-        novo_local[i]=novo_local[i].append({'casos_preditos':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
+        novo_local[i]=novo_local[i].append({'casos_preditos':y_pred1[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
 brasil =   novo_local[0]
 del brasil['UF']  
