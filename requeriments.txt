@@ -1,0 +1,8 @@
+functools
+matplotlib>=3.2.1
+numpy>=1.17
+pandas>=0.25.3
+scipy>=1.4.1
+platypus #The best way to way to install playtpus is following https://github.com/Project-Platypus/Platypus
+pyswarms>=1.11.0
+

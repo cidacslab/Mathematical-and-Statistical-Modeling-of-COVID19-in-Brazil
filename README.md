@@ -22,6 +22,10 @@ A library for compartimental models to understand the spread of transmission dis
 Currently the library is on production, so the easiest way to use is clone our repository or copy the functions avaliable [here](/main/modelos.py)
 
 
+# Dependencies
+
+Models were implemented under Python > 3.5 and depends on a Pandas, SciPy, Numpy, Matplotlib etc. For the full list of depndencies as weel libraries version check requirements.txt.
+
 
 
 # Contributors
