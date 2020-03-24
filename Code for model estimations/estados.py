@@ -50,33 +50,41 @@ previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 for i in range(len(novo_nome)):
     print("\n\n"+str(nome[i])+'\n')
-    modelo1 = md.SIR_EDO(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
-    modelo2 = md.SEQIJR_EDO(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
-    modelo3 = md.SIR(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
+    modelo1 = md.SIR(14873064)       
+    modelo2 = md.SIR_EDO(14873064)  
+    modelo3 = md.SEIR_EDO(14873064) 
+    modelo4 = md.SEQIJR_EDO(14873064) 
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
     modelo1.fit(x,y)
     modelo2.fit(x,y)
     modelo3.fit(x,y)
+    modelo4.fit(x,y)
     modelos.append(modelo1)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
     y_pred1 =modelo1.predict(x_pred)
     y_pred2 =modelo2.predict(x_pred)
     y_pred3 =modelo3.predict(x_pred)
-    plt.plot(y_pred2,c='g',label='Predição Infectados - SEQIJR')
+    y_pred4 =modelo4.predict(x_pred)
+    
+    fig = plt.figure(figsize=(7,5))
+    plt.plot(y_pred1,c='g',label='SIR_exp')
+    plt.text(x_pred[-1]-1,y_pred1[-1],int(y_pred1[-1])) 
+    plt.plot(y_pred2,c='r',label='SIR')
     plt.text(x_pred[-1],y_pred2[-1],int(y_pred2[-1])) 
-    plt.plot(y_pred1,c='r',label='Predição Infectados - SIR')
-    plt.text(x_pred[-1],y_pred1[-1],int(y_pred1[-1])) 
-    plt.plot(y_pred3,c='k',label='Predição Infectados - SIR_exp')
-    plt.text(x_pred[-1]-1,y_pred3[-1],int(y_pred3[-1])) 
-    plt.plot(y,c='b',label='Infectados',linewidth = 3)
+    plt.plot(y_pred3,c='c',label='SEIR')
+    plt.text(x_pred[-1],y_pred3[-1],int(y_pred3[-1])) 
+    plt.plot(y_pred4,c='y',label='SEQIJR')
+    plt.text(x_pred[-1],y_pred4[-1],int(y_pred4[-1])) 
+    plt.plot(y,c='b',label='Infectados - {}'.format(nome[i]),linewidth = 3)
     plt.text(len(x)-1,y.tolist()[-1],int(y.tolist()[-1])) 
     plt.legend(fontsize=12)
     plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=18)
     plt.ylabel('Casos Confirmados',fontsize=15)
     plt.xlabel('Dias',fontsize=15)
     plt.grid(alpha = 0.5,which='both')
+    fig.savefig('\plots\{}.png'.format(nome[i]), bbox_inches='tight')
     plt.show()
     novo_local[i]['casos_preditos'] = y_pred1[0:len(novo_local[i])]
     ultimo_dia = novo_local[i].date.iloc[-1]

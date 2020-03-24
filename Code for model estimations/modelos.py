@@ -397,14 +397,14 @@ class SEQIJR_EDO:
        self.DJ = self.sigma2 + self.d2 + self.mu
        self.DQ = self.mu + self.kappa2
        
-       result_fit = spi.odeint(self.SEQIJR_diff_eqs, (self.S0,self.E0,
-                                                          self.Q0,self.I0,self.J0,
-                      self.R0,self.N0,self.D0), t_range,args=(self.beta, 
-                       self.epsilon_E, self.epsilon_Q, self.epsilon_J, 
-                       self.Pi, self.mu, self.v, self.gamma1, self.gamma2,
-                       self.kappa1, self.kappa2, self.d1, self.d2, 
-                       self.sigma1, self.sigma2, self.DS, self.DE,
-                       self.DI, self.DJ, self.DQ))
+#       result_fit = spi.odeint(self.SEQIJR_diff_eqs, (self.S0,self.E0,
+#                                                          self.Q0,self.I0,self.J0,
+#                      self.R0,self.N0,self.D0), t_range,args=(self.beta, 
+#                       self.epsilon_E, self.epsilon_Q, self.epsilon_J, 
+#                       self.Pi, self.mu, self.v, self.gamma1, self.gamma2,
+#                       self.kappa1, self.kappa2, self.d1, self.d2, 
+#                       self.sigma1, self.sigma2, self.DS, self.DE,
+#                       self.DI, self.DJ, self.DQ))
        
        alphaE = self.DI / self.kappa1
        alphaS = self.DE * alphaE
@@ -472,4 +472,154 @@ class SEQIJR_EDO:
            
            
            return result_fit[:, 3]
+
+
+class SEIR_EDO:
+
+    def __init__(self,N):
+        """
+        Parameters
+        ----------
+        N : int
+            População Inicial
+        """
+        self.N = N
+        self.R = 0     # 5  R = removed
+        self.D = 0     # 3  D = publicPerception
+        self.C = 0     # 4  C = cumulativeCases
+        self.I = 1     # 1  I = infectious
+        self.E = 2*self.I   # 2  E = exposed
+        self.S = 0.9*self.N # 0  S = susceptible
+        self.R = 0     # removed
+
+    
+
+    def SEIR_diff_eqs(self,INP,t, beta0, alpha, kappa, gamma, sigma, lamb,mu,d):  
+      '''The main set of equations'''
+      Y=np.zeros((7))
+      V = INP    
+      beta = beta0*(1-alpha)*(1 -self.D/self.N)**kappa
+      Y[0] = - beta * V[0] * V[1]/self.N  - mu* V[0] * V[1]  #Susceptibles
+      Y[1] = sigma * V[2] - (gamma + mu)*V[1]            #Infectious 
+      Y[2] = beta * V[0] * V[1]/self.N  - (sigma + mu) * V[2] #exposed
+      Y[3] = d*gamma * V[1] - lamb * V[3]                #publicPerception
+      Y[4] = -sigma * V[2]                               #cumulativeCases
+      Y[5] = gamma * V[1] - mu*V[5]                      #Removed
+      Y[6] = mu * V[6]                                  #Population size
+
+      return Y   # For odeint
+
+
+    def fitness_function(self, x, y, Model_Input, t_range):
+      
+        beta0 = x[0]     
+        alpha = x[1]     
+        kappa = x[2]     
+        gamma = x[3]     
+        sigma = x[4]     
+        lamb  = x[5]     
+        mu = x[6]     
+        d  = x[7]        
+
+        result = spi.odeint(self.SEIR_diff_eqs,Model_Input,
+                           t_range,args=(beta0, alpha, kappa ,gamma, sigma, lamb,mu,d))
+
+
+        mean_squared_error = ((np.array(y)-result[:,1])**2).mean()    
+
+        return [mean_squared_error]
+
+    def fit(self, x,y):
+        
+        TS = 1
+        ND = len(y) - 1
+        
+    
+        t_start = 0.0
+        t_end = ND
+        t_inc = TS
+        t_range = np.arange(t_start, t_end + t_inc, t_inc)
+    
+        INPUT = (self.S, self.I, self.E, self.D, self.C, self.R, self.N)
+
+        input_variables = ['beta0', 'alpha', 'kappa', 'gamma', 'sigma',
+                           'lamb', 'mu','d']
+    
+        # GA Parameters
+        number_of_generations = 1000
+        ga_population_size = 100
+        number_of_objective_targets = 1
+        number_of_constraints = 0
+        number_of_input_variables = len(input_variables)
+
+        problem = Problem(number_of_input_variables,number_of_objective_targets,number_of_constraints)
+
+        problem.types[0] = Real(0, 10)           #beta0
+        problem.types[1] = Real(0, 1)           #alpha
+        problem.types[2] = Real(0, 2000)           #kappa
+        problem.types[3] = Real(0, 10)           #gamma
+        problem.types[4] = Real(0, 1)           #sigma
+        problem.types[5] = Real(0, 1)           #lamb
+        problem.types[6] = Real(0, 1)           #mu
+        problem.types[7] = Real(0, 1)           #d
+
+
+        problem.function = functools.partial(self.fitness_function,
+                                             y=y, Model_Input=INPUT,
+                                             t_range=t_range)
+        algorithm = NSGAII(problem, population_size = ga_population_size)
+        algorithm.run(number_of_generations)
+
+        feasible_solutions = [s for s in algorithm.result if s.feasible]
+
+
+        self.beta0 = feasible_solutions[0].variables[0]      
+        self.alpha = feasible_solutions[0].variables[1]         
+        self.kappa = feasible_solutions[0].variables[2]    
+        self.gamma = feasible_solutions[0].variables[3]         
+        self.sigma = feasible_solutions[0].variables[4]     
+        self.lamb  = feasible_solutions[0].variables[5] 
+        self.mu = feasible_solutions[0].variables[6]       
+        self.d  = feasible_solutions[0].variables[7]  
+
+#        result_fit = spi.odeint(self.SEIR_diff_eqs,INPUT,t_range,
+#                                args=(beta0, alpha, kappa, gamma, sigma, lamb,mu,d))
+
+
+#        plt.plot(result_fit[:,1], label='Infectious')
+#        plt.plot(y, c = 'red', label='Dados')
+#        plt.legend(fontsize=15)
+#        plt.show()
+        
+            
+    def predict(self,x):
+        """
+        Parameters
+        ----------
+        x : int
+            Número de dias para a predição desde o primeiro caso (Dia 1)
+        """
+        
+        if (self.beta0 == None or self.lamb == None):
+            
+            print('The model needs to be fitted before predicting\n\n')
+            return 0
+            
+        else:
+        
+            ND = len(x)+1
+            t_start = 0.0
+            t_end = ND
+            t_inc = 1
+            t_range = np.arange(t_start, t_end + t_inc, t_inc)
+            result_fit = spi.odeint(self.SEIR_diff_eqs,
+                                    (self.S, self.I, self.E, self.D, self.C, 
+                                     self.R, self.N),t_range,
+                                args=(self.beta0, self.alpha, self.kappa,
+                                      self.gamma, self.sigma, self.lamb,
+                                      self.mu,self.d))
+
+            return result_fit[:, 1]
+        
+
        
