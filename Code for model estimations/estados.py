@@ -49,7 +49,7 @@ previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 for i in range(len(novo_nome)):
     print("\n\n"+str(nome[i])+'\n')
-    modelo = md.SIR(10000)
+    modelo = md.SIR_EDO(10000)   # SIR, SIR_EDO ou SEQIJR_EDO
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
     modelo.fit(x,y)
