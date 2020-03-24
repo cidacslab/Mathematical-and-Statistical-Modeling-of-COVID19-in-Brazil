@@ -10,8 +10,11 @@ import datetime as dt
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
 
 # parametros
+modelo_usado = 'SIR' # SIR, SIR_EDO ou SEQIJR_EDO
+N_inicial = 1000
 min_cases = 5
 min_dias = 10
 arq_saida = 'estados.csv'
@@ -50,48 +53,38 @@ previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 for i in range(len(novo_nome)):
     print("\n\n"+str(nome[i])+'\n')
-    modelo1 = md.SIR(14873064)       
-    modelo2 = md.SIR_EDO(14873064)  
-    modelo3 = md.SEIR_EDO(14873064) 
-    modelo4 = md.SEQIJR_EDO(14873064) 
+    modelo = None
+    if modelo_usado =='SIR':
+        modelo = md.SIR(N_inicial)
+    elif modelo_usado =='SIR_EDO':
+        modelo = md.SIR_EDO(N_inicial)
+    elif modelo_usado=='SEQIJR_EDO':
+        modelo = md.SEQIJR_EDO(N_inicial)
+    else:
+        print('Modelo desconhecido '+modelo_usado)
+        sys.exit(1)
+    
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
-    modelo1.fit(x,y)
-    modelo2.fit(x,y)
-    modelo3.fit(x,y)
-    modelo4.fit(x,y)
-    modelos.append(modelo1)
+    modelo.fit(x,y)
+    modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
-    y_pred1 =modelo1.predict(x_pred)
-    y_pred2 =modelo2.predict(x_pred)
-    y_pred3 =modelo3.predict(x_pred)
-    y_pred4 =modelo4.predict(x_pred)
+    y_pred =modelo.predict(x_pred)
+    # plt.plot(y_pred,c='r',label='Predição Infectados')
+    # plt.plot(y,c='b',label='Infectados')
+    # plt.legend(fontsize=15)
+    # plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=20)
+    # plt.ylabel('Casos COnfirmados',fontsize=15)
+    # plt.xlabel('Dias',fontsize=15)
+    # plt.show()
     
-    fig = plt.figure(figsize=(7,5))
-    plt.plot(y_pred1,c='g',label='SIR_exp')
-    plt.text(x_pred[-1]-1,y_pred1[-1],int(y_pred1[-1])) 
-    plt.plot(y_pred2,c='r',label='SIR')
-    plt.text(x_pred[-1],y_pred2[-1],int(y_pred2[-1])) 
-    plt.plot(y_pred3,c='c',label='SEIR')
-    plt.text(x_pred[-1],y_pred3[-1],int(y_pred3[-1])) 
-    plt.plot(y_pred4,c='y',label='SEQIJR')
-    plt.text(x_pred[-1],y_pred4[-1],int(y_pred4[-1])) 
-    plt.plot(y,c='b',label='Infectados - {}'.format(nome[i]),linewidth = 3)
-    plt.text(len(x)-1,y.tolist()[-1],int(y.tolist()[-1])) 
-    plt.legend(fontsize=12)
-    plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=18)
-    plt.ylabel('Casos Confirmados',fontsize=15)
-    plt.xlabel('Dias',fontsize=15)
-    plt.grid(alpha = 0.5,which='both')
-    fig.savefig('\plots\{}.png'.format(nome[i]), bbox_inches='tight')
-    plt.show()
-    novo_local[i]['casos_preditos'] = y_pred1[0:len(novo_local[i])]
+    novo_local[i]['casos_preditos'] = y_pred[0:len(novo_local[i])]
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
     for d in range(1,dias):
         di = d+len(x)-1
-        novo_local[i]=novo_local[i].append({'casos_preditos':y_pred1[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
+        novo_local[i]=novo_local[i].append({'casos_preditos':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
 brasil =   novo_local[0]
 del brasil['UF']  
@@ -103,17 +96,22 @@ df.to_csv(arq_saida,index=False)
 
 su = pd.DataFrame()
 su['state'] = novo_nome
-a = []
-b = []
-rmse = []
+
+coef_list = []
 y = []
+coef_name = None
 for i in range(len(novo_nome)):
-    a.append(modelos[i].a)
-    b.append(modelos[i].b)
-    rmse.append(modelos[i].rmse)
     y.append(';'.join(map(str, modelos[i].y)))
-su['coef_a'] = a
-su['coef_b'] = b
-su['rmse'] = rmse
+    coef, coef_name = modelos[i].getCoef()
+    coef_list.append(coef)
+
+for c in range(len(coef_name)):
+    l = []
+    for i in range(len(coef_list)):
+        l.append(coef_list[i][c])
+    su[coef_name[c]]=l
 su['y'] = y
 su.to_csv(arq_sumario,index=False)
+
+modelos[0].plot(nome[0])
+modelos[1].plot(nome[1])
