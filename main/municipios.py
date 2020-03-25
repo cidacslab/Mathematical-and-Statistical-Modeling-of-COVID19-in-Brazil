@@ -8,11 +8,15 @@ Created on Sat Mar 21 13:22:11 2020
 import modelos as md
 import datetime as dt
 import pandas as pd
+import sys
 
 # parametros
+modelo_usado = 'SIR' # SIR, SIR_EDO ou SEQIJR_EDO
+N_inicial = 1000
 min_cases = 5
 min_dias = 10
 arq_saida = 'municipios.csv'
+arq_sumario = 'municipios_sumario.csv'
 previsao_ate = dt.date(2020,3,25)
 
 #carregar dados
@@ -26,13 +30,24 @@ for i in range(len(nome)):
         novo_local.append(local[i])
         novo_nome.append(nome[i])
 previsao_ate = previsao_ate + dt.timedelta(1)
-
+modelos=[]
 for i in range(len(novo_nome)):
     print("\n"+str(novo_local[i].city[0])+'\n')
-    modelo = md.SIR(10000)
+    modelo = None
+    if modelo_usado =='SIR':
+        modelo = md.SIR(N_inicial)
+    elif modelo_usado =='SIR_EDO':
+        modelo = md.SIR_EDO(N_inicial)
+    elif modelo_usado=='SEQIJR_EDO':
+        modelo = md.SEQIJR_EDO(N_inicial)
+    else:
+        print('Modelo desconhecido '+modelo_usado)
+        sys.exit(1)
+    # SIR, SIR_EDO ou SEQIJR_EDO
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
     modelo.fit(x,y)
+    modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
     y_pred =modelo.predict(x_pred)
@@ -49,3 +64,22 @@ df = novo_local[0]
 for i in range(1,len(novo_local)):
     df = df.append(novo_local[i],ignore_index=True)
 df.to_csv(arq_saida)
+
+su = pd.DataFrame()
+su['state'] = novo_nome
+
+coef_list = []
+y = []
+coef_name = None
+for i in range(len(novo_nome)):
+    y.append(';'.join(map(str, modelos[i].y)))
+    coef, coef_name = modelos[i].getCoef()
+    coef_list.append(coef)
+
+for c in range(len(coef_name)):
+    l = []
+    for i in range(len(coef_list)):
+        l.append(coef_list[i][c])
+    su[coef_name[c]]=l
+su['y'] = y
+su.to_csv(arq_sumario,index=False)

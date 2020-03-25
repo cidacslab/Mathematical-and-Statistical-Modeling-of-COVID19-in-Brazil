@@ -9,8 +9,12 @@ import modelos as md
 import datetime as dt
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import sys
 
 # parametros
+modelo_usado = 'SIR' # SIR, SIR_EDO ou SEQIJR_EDO
+N_inicial = 1000
 min_cases = 5
 min_dias = 10
 arq_saida = 'estados.csv'
@@ -49,7 +53,17 @@ previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 for i in range(len(novo_nome)):
     print("\n\n"+str(nome[i])+'\n')
-    modelo = md.SIR(10000)
+    modelo = None
+    if modelo_usado =='SIR':
+        modelo = md.SIR(N_inicial)
+    elif modelo_usado =='SIR_EDO':
+        modelo = md.SIR_EDO(N_inicial)
+    elif modelo_usado=='SEQIJR_EDO':
+        modelo = md.SEQIJR_EDO(N_inicial)
+    else:
+        print('Modelo desconhecido '+modelo_usado)
+        sys.exit(1)
+    
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
     modelo.fit(x,y)
@@ -57,6 +71,14 @@ for i in range(len(novo_nome)):
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
     y_pred =modelo.predict(x_pred)
+    # plt.plot(y_pred,c='r',label='Predição Infectados')
+    # plt.plot(y,c='b',label='Infectados')
+    # plt.legend(fontsize=15)
+    # plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=20)
+    # plt.ylabel('Casos COnfirmados',fontsize=15)
+    # plt.xlabel('Dias',fontsize=15)
+    # plt.show()
+    
     novo_local[i]['casos_preditos'] = y_pred[0:len(novo_local[i])]
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
@@ -74,17 +96,22 @@ df.to_csv(arq_saida,index=False)
 
 su = pd.DataFrame()
 su['state'] = novo_nome
-a = []
-b = []
-rmse = []
+
+coef_list = []
 y = []
+coef_name = None
 for i in range(len(novo_nome)):
-    a.append(modelos[i].a)
-    b.append(modelos[i].b)
-    rmse.append(modelos[i].rmse)
     y.append(';'.join(map(str, modelos[i].y)))
-su['coef_a'] = a
-su['coef_b'] = b
-su['rmse'] = rmse
+    coef, coef_name = modelos[i].getCoef()
+    coef_list.append(coef)
+
+for c in range(len(coef_name)):
+    l = []
+    for i in range(len(coef_list)):
+        l.append(coef_list[i][c])
+    su[coef_name[c]]=l
 su['y'] = y
 su.to_csv(arq_sumario,index=False)
+
+modelos[0].plot(nome[0])
+modelos[1].plot(nome[1])
