@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEQIJR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
@@ -106,11 +106,18 @@ for i in range(len(novo_nome)):
     coef_name, coef  = modelos[i].getCoef()
     coef_list.append(coef)
 
-for c in range(len(coef_name)):
+for c in range(len(coef_name)-1):
     l = []
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
     su[coef_name[c]]=l
+coef_name = coef_name[-1]
+for c in range(len(coef_name)):
+    l=[]
+    for i in range(len(coef_list)):
+       l.append(coef_list[i][-1][c]) 
+    su[coef_name[c]] = l
+
 su['y'] = y
 su.to_csv(arq_sumario,index=False)
 

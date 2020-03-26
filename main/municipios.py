@@ -15,12 +15,12 @@ modelo_usado = 'SIR' # SIR, SIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
-arq_saida = 'municipios.csv'
-arq_sumario = 'municipios_sumario.csv'
+arq_saida = '../data/municipios.csv'
+arq_sumario = '../data/municipios_sumario.csv'
 previsao_ate = dt.date(2020,3,25)
 
 #carregar dados
-nome, local = md.ler_banco('datamun.csv','cod_city')
+nome, local = md.ler_banco('../data/datamun.csv','cod_city')
 
 novo_nome = []
 novo_local = []
@@ -73,13 +73,23 @@ y = []
 coef_name = None
 for i in range(len(novo_nome)):
     y.append(';'.join(map(str, modelos[i].y)))
-    coef, coef_name = modelos[i].getCoef()
+    coef_name, coef  = modelos[i].getCoef()
     coef_list.append(coef)
 
-for c in range(len(coef_name)):
+for c in range(len(coef_name)-1):
     l = []
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
     su[coef_name[c]]=l
+coef_name = coef_name[-1]
+for c in range(len(coef_name)):
+    l=[]
+    for i in range(len(coef_list)):
+       l.append(coef_list[i][-1][c]) 
+    su[coef_name[c]] = l
+
 su['y'] = y
 su.to_csv(arq_sumario,index=False)
+
+modelos[0].plot(nome[0])
+modelos[1].plot(nome[1])

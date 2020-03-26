@@ -127,7 +127,7 @@ class SIR:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['a','b'], [self.a,self.b]
+        return ['a','b',['casos']], [self.a,self.b,[self.y]]
    
     
 class SIR_EDO:
@@ -154,6 +154,7 @@ class SIR_EDO:
         Y[0] = - beta * V[0] * V[1]                 #S
         Y[1] = beta * V[0] * V[1] - gamma * V[1]    #I
         Y[2] = gamma * V[1]                         #R
+        self.Y = Y
         return Y
 
 
@@ -249,7 +250,7 @@ class SIR_EDO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma'], [self.beta,self.gamma]
+        return ['beta','gamma','R0',['S','I','R']], [self.beta,self.gamma,self.gamma/self.beta,self.Y]
         
 
 class SEIR_EDO:
@@ -285,7 +286,8 @@ class SEIR_EDO:
       Y[4] = -sigma * V[2]                               #cumulativeCases
       Y[5] = gamma * V[1] - mu*V[5]                      #Removed
       Y[6] = mu * V[6]                                  #Population size
-
+      
+      self.Y = Y
       return Y   # For odeint
 
 
@@ -415,8 +417,8 @@ class SEIR_EDO:
     def getCoef(self):
         
         return ['beta0','alpha', 'kappa', 'gamma','sigma','lamb', 'mu',
-                         'd'],[self.beta0, self.alpha, self.kappa,self.gamma, 
-                          self.sigma, self.lamb,self.mu,self.d]
+                         'd',['Susceptibles','Infectious','exposed','publicPerception','cumulativeCases','Removed','Population_size']],[self.beta0, self.alpha, self.kappa,self.gamma, 
+                          self.sigma, self.lamb,self.mu,self.d,self.Y]
         
 
 
