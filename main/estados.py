@@ -13,14 +13,14 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SEQIJR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
 arq_brasil_saida = '../data/brasil.csv'
-previsao_ate = dt.date(2020,3,25)
+previsao_ate = dt.date(2020,4,5)
 
 #carregar dados
 nome, local = md.ler_banco('../data/datastate.csv','state')

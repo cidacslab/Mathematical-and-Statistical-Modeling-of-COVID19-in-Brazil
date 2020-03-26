@@ -238,11 +238,12 @@ class SIR_EDO:
             result_fit = spi.odeint(self.SIR_diff_eqs, (self.S0, self.I0,
                             self.R0), t_range, args=(self.beta, self.gamma))
             
+            self.ypred = result_fit[:, 1]*self.N
+
             return result_fit[:, 1]*self.N
         
     def plot(self,local):
-        ypred = self.predict(self.x)
-        plt.plot(ypred,c='b',label='Predição Infectados')
+        plt.plot(self.ypred,c='b',label='Predição Infectados')
         plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
         plt.legend(fontsize=15)
         plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
@@ -402,11 +403,12 @@ class SEIR_EDO:
                                       self.gamma, self.sigma, self.lamb,
                                       self.mu,self.d))
 
+            self.ypred = result_fit[:, 1]
+
             return result_fit[:, 1]
         
     def plot(self,local):
-        ypred = self.predict(self.x)
-        plt.plot(ypred,c='b',label='Predição Infectados')
+        plt.plot(self.ypred,c='b',label='Predição Infectados')
         plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
         plt.legend(fontsize=15)
         plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
@@ -670,12 +672,12 @@ class SEQIJR_EDO:
                        self.sigma1, self.sigma2, self.DS, self.DE,
                        self.DI, self.DJ, self.DQ))
            
-           
+           self.ypred = result_fit[:, 3]
+
            return result_fit[:, 3]
        
    def plot(self,local):
-        ypred = self.predict(self.x)
-        plt.plot(ypred,c='b',label='Predição Infectados')
+        plt.plot(self.ypred,c='b',label='Predição Infectados')
         plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
         plt.legend(fontsize=15)
         plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
