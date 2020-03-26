@@ -13,17 +13,17 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR' # SIR, SIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SEQIJR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
-arq_saida = 'estados.csv'
-arq_sumario = 'estado_sumario.csv'
-arq_brasil_saida = 'brasil.csv'
+arq_saida = '../data/estados.csv'
+arq_sumario = '../data/estado_sumario.csv'
+arq_brasil_saida = '../data/brasil.csv'
 previsao_ate = dt.date(2020,3,25)
 
 #carregar dados
-nome, local = md.ler_banco()
+nome, local = md.ler_banco('../data/datastate.csv','state')
 
 novo_nome = []
 nome.insert(0,'Brasil')
@@ -58,6 +58,8 @@ for i in range(len(novo_nome)):
         modelo = md.SIR(N_inicial)
     elif modelo_usado =='SIR_EDO':
         modelo = md.SIR_EDO(N_inicial)
+    elif modelo_usado =='SEIR_EDO':
+        modelo = md.SEIR_EDO(N_inicial)
     elif modelo_usado=='SEQIJR_EDO':
         modelo = md.SEQIJR_EDO(N_inicial)
     else:
@@ -71,14 +73,13 @@ for i in range(len(novo_nome)):
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
     y_pred =modelo.predict(x_pred)
-    # plt.plot(y_pred,c='r',label='Predição Infectados')
-    # plt.plot(y,c='b',label='Infectados')
-    # plt.legend(fontsize=15)
-    # plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=20)
-    # plt.ylabel('Casos COnfirmados',fontsize=15)
-    # plt.xlabel('Dias',fontsize=15)
-    # plt.show()
-    
+#    plt.plot(y_pred,c='r',label='Predição Infectados')
+#    plt.plot(y,c='b',label='Infectados')
+#    plt.legend(fontsize=15)
+#    plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=20)
+#    plt.ylabel('Casos COnfirmados',fontsize=15)
+#    plt.xlabel('Dias',fontsize=15)
+#    plt.show()    
     novo_local[i]['casos_preditos'] = y_pred[0:len(novo_local[i])]
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
@@ -102,7 +103,7 @@ y = []
 coef_name = None
 for i in range(len(novo_nome)):
     y.append(';'.join(map(str, modelos[i].y)))
-    coef, coef_name = modelos[i].getCoef()
+    coef_name, coef  = modelos[i].getCoef()
     coef_list.append(coef)
 
 for c in range(len(coef_name)):
