@@ -2083,3 +2083,154 @@
 2020-03-27 15:00:54,144 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.200155
 2020-03-27 15:00:54,453 - Platypus - INFO - NSGAII starting
 2020-03-27 15:00:57,620 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.166632
+2020-03-27 15:58:08,602 - Platypus - INFO - NSGAII starting
+2020-03-27 16:00:15,295 - Platypus - INFO - NSGAII starting
+2020-03-27 16:00:42,451 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:27.155936
+2020-03-27 16:12:58,573 - Platypus - INFO - NSGAII starting
+2020-03-27 16:14:42,621 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:01:44.047701
+2020-03-27 16:45:46,243 - Platypus - INFO - NSGAII starting
+2020-03-27 16:46:12,133 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:25.889437
+2020-03-27 16:55:54,359 - Platypus - INFO - NSGAII starting
+2020-03-27 16:56:20,599 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:26.239492
+2020-03-27 16:58:48,118 - Platypus - INFO - NSGAII starting
+2020-03-27 16:59:14,071 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:25.952603
+2020-03-27 17:06:41,780 - Platypus - INFO - NSGAII starting
+2020-03-27 17:07:06,869 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:25.089843
+2020-03-27 17:08:06,176 - Platypus - INFO - NSGAII starting
+2020-03-27 17:08:31,568 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:25.391528
+2020-03-27 17:09:04,722 - Platypus - INFO - NSGAII starting
+2020-03-27 17:09:30,728 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:26.005344
+2020-03-27 17:12:24,685 - Platypus - INFO - NSGAII starting
+2020-03-27 17:12:59,128 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:34.442517
+2020-03-27 17:13:55,150 - Platypus - INFO - NSGAII starting
+2020-03-27 17:14:36,693 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:41.543197
+2020-03-27 17:27:58,558 - Platypus - INFO - NSGAII starting
+2020-03-27 17:28:26,645 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:28.087138
+2020-03-27 17:28:39,085 - Platypus - INFO - NSGAII starting
+2020-03-27 17:29:08,087 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:29.001772
+2020-03-27 18:09:31,829 - Platypus - INFO - NSGAII starting
+2020-03-27 18:10:52,955 - Platypus - INFO - NSGAII starting
+2020-03-27 18:11:18,039 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:25.084514
+2020-03-27 18:11:40,250 - Platypus - INFO - NSGAII starting
+2020-03-27 18:12:07,094 - Platypus - INFO - NSGAII finished; Total NFE: 10000, Elapsed Time: 0:00:26.844034
+2020-03-27 23:11:40,522 - Platypus - INFO - NSGAII starting
+2020-03-27 23:11:45,924 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:05.402240
+2020-03-27 23:11:46,076 - Platypus - INFO - NSGAII starting
+2020-03-27 23:11:53,196 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:07.120106
+2020-03-27 23:11:53,487 - Platypus - INFO - NSGAII starting
+2020-03-27 23:11:58,936 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:05.449595
+2020-03-27 23:11:59,043 - Platypus - INFO - NSGAII starting
+2020-03-27 23:12:02,730 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.687788
+2020-03-27 23:12:02,865 - Platypus - INFO - NSGAII starting
+2020-03-27 23:12:06,794 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.929005
+2020-03-27 23:12:06,904 - Platypus - INFO - NSGAII starting
+2020-03-27 23:12:10,441 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.537822
+2020-03-27 23:12:10,564 - Platypus - INFO - NSGAII starting
+2020-03-27 23:12:13,911 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.347093
+2020-03-27 23:32:05,637 - Platypus - INFO - NSGAII starting
+2020-03-27 23:32:30,360 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:24.723391
+2020-03-27 23:35:21,578 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:21,943 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.365029
+2020-03-27 23:35:22,397 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.818964
+2020-03-27 23:35:22,903 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:01.324579
+2020-03-27 23:35:23,440 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.862163
+2020-03-27 23:35:23,943 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:02.365451
+2020-03-27 23:35:24,445 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:02.867217
+2020-03-27 23:35:24,945 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:03.367223
+2020-03-27 23:35:25,415 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:03.836773
+2020-03-27 23:35:25,879 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:04.300950
+2020-03-27 23:35:26,379 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.801252
+2020-03-27 23:35:26,380 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.802356
+2020-03-27 23:35:26,508 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:26,959 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.450207
+2020-03-27 23:35:27,406 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.897835
+2020-03-27 23:35:27,859 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:01.350992
+2020-03-27 23:35:28,365 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.856182
+2020-03-27 23:35:28,852 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:02.343470
+2020-03-27 23:35:29,364 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:02.855795
+2020-03-27 23:35:29,872 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:03.363364
+2020-03-27 23:35:30,372 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:03.863902
+2020-03-27 23:35:30,860 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:04.351141
+2020-03-27 23:35:31,358 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.849360
+2020-03-27 23:35:31,359 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.850585
+2020-03-27 23:35:31,482 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:31,758 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.276208
+2020-03-27 23:35:32,121 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.638959
+2020-03-27 23:35:32,473 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:00.991180
+2020-03-27 23:35:32,848 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.365631
+2020-03-27 23:35:33,240 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:01.757740
+2020-03-27 23:35:33,590 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:02.107650
+2020-03-27 23:35:33,935 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:02.452555
+2020-03-27 23:35:34,289 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:02.806584
+2020-03-27 23:35:34,638 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:03.156215
+2020-03-27 23:35:35,030 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.548337
+2020-03-27 23:35:35,032 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.550094
+2020-03-27 23:35:35,182 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:35,450 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.268576
+2020-03-27 23:35:35,821 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.639271
+2020-03-27 23:35:36,206 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:01.024301
+2020-03-27 23:35:36,590 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.408673
+2020-03-27 23:35:36,988 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:01.806461
+2020-03-27 23:35:37,390 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:02.208076
+2020-03-27 23:35:38,007 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:02.825820
+2020-03-27 23:35:38,657 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:03.474929
+2020-03-27 23:35:39,190 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:04.008169
+2020-03-27 23:35:39,568 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.385965
+2020-03-27 23:35:39,570 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.388467
+2020-03-27 23:35:39,691 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:39,955 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.264763
+2020-03-27 23:35:40,352 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.660995
+2020-03-27 23:35:40,722 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:01.031377
+2020-03-27 23:35:41,098 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.407852
+2020-03-27 23:35:41,485 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:01.794109
+2020-03-27 23:35:41,878 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:02.187651
+2020-03-27 23:35:42,276 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:02.585512
+2020-03-27 23:35:42,639 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:02.948616
+2020-03-27 23:35:42,995 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:03.304379
+2020-03-27 23:35:43,336 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.645577
+2020-03-27 23:35:43,337 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.646631
+2020-03-27 23:35:43,453 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:43,711 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.257852
+2020-03-27 23:35:44,065 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.611799
+2020-03-27 23:35:44,417 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:00.964153
+2020-03-27 23:35:44,756 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.303412
+2020-03-27 23:35:45,095 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:01.641869
+2020-03-27 23:35:45,451 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:01.998503
+2020-03-27 23:35:45,806 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:02.352959
+2020-03-27 23:35:46,180 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:02.727432
+2020-03-27 23:35:46,573 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:03.119973
+2020-03-27 23:35:46,933 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.479987
+2020-03-27 23:35:46,934 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.481278
+2020-03-27 23:35:47,072 - Platypus - INFO - NSGAII starting
+2020-03-27 23:35:47,275 - Platypus - INFO - NSGAII running; NFE Complete: 100, Elapsed Time: 0:00:00.203747
+2020-03-27 23:35:47,649 - Platypus - INFO - NSGAII running; NFE Complete: 200, Elapsed Time: 0:00:00.577132
+2020-03-27 23:35:47,983 - Platypus - INFO - NSGAII running; NFE Complete: 300, Elapsed Time: 0:00:00.910826
+2020-03-27 23:35:48,334 - Platypus - INFO - NSGAII running; NFE Complete: 400, Elapsed Time: 0:00:01.262384
+2020-03-27 23:35:48,679 - Platypus - INFO - NSGAII running; NFE Complete: 500, Elapsed Time: 0:00:01.606985
+2020-03-27 23:35:49,027 - Platypus - INFO - NSGAII running; NFE Complete: 600, Elapsed Time: 0:00:01.955512
+2020-03-27 23:35:49,367 - Platypus - INFO - NSGAII running; NFE Complete: 700, Elapsed Time: 0:00:02.295154
+2020-03-27 23:35:49,707 - Platypus - INFO - NSGAII running; NFE Complete: 800, Elapsed Time: 0:00:02.635477
+2020-03-27 23:35:50,068 - Platypus - INFO - NSGAII running; NFE Complete: 900, Elapsed Time: 0:00:02.995894
+2020-03-27 23:35:50,404 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.332053
+2020-03-27 23:35:50,405 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.333499
+2020-03-27 23:36:51,591 - Platypus - INFO - NSGAII starting
+2020-03-27 23:36:55,961 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.370202
+2020-03-27 23:36:55,963 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.371734
+2020-03-27 23:36:56,099 - Platypus - INFO - NSGAII starting
+2020-03-27 23:37:00,631 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.532630
+2020-03-27 23:37:00,632 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.533651
+2020-03-27 23:37:00,750 - Platypus - INFO - NSGAII starting
+2020-03-27 23:37:04,188 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.437615
+2020-03-27 23:37:04,189 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.438681
+2020-03-27 23:37:04,309 - Platypus - INFO - NSGAII starting
+2020-03-27 23:37:07,982 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.672880
+2020-03-27 23:37:07,983 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.674194
+2020-03-27 23:37:08,112 - Platypus - INFO - NSGAII starting
+2020-03-27 23:37:11,769 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:03.656969
+2020-03-27 23:37:11,776 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.663600
+2020-03-27 23:37:11,921 - Platypus - INFO - NSGAII starting
+2020-03-27 23:37:15,984 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.063423
+2020-03-27 23:37:15,991 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.070547
+2020-03-27 23:37:16,206 - Platypus - INFO - NSGAII starting
+2020-03-27 23:37:20,258 - Platypus - INFO - NSGAII running; NFE Complete: 1000, Elapsed Time: 0:00:04.051458
+2020-03-27 23:37:20,259 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.052558
