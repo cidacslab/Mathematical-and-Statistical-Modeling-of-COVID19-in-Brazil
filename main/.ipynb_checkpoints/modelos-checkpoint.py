@@ -11,15 +11,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
 import pandas as pd
-import logging
 import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
 from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.utils.plotters import plot_cost_history
 
-
-
-logging.disable()
+# Ler dados
 
 
 def ler_banco(arq,var):
@@ -66,9 +63,10 @@ def ler_banco(arq,var):
     return nome_local, local    
 
 
-class EXP:
+class SIR:
     ''' f(x) = a*exp(b*x) '''
-    def __init__(self):
+    def __init__(self,tamanhoPop):
+        self.tamanhoPop = tamanhoPop
         self.a = None
         self.b = None
         
@@ -81,7 +79,7 @@ class EXP:
     
 
 
-    def fit(self, x,y , bound = None):
+    def fit(self, x,y ,bound = None,name = ''):
         
         '''
         x = dias passados do dia inicial 1
@@ -109,6 +107,20 @@ class EXP:
             self.y = df
             self.rmse = cost
             self.optimize = optimizer
+            
+        input_variables = ['a','b']
+            
+        file_address = 'optimised_coefficients/'
+        filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SIR',name,len(x))
+        if not os.path.exists(file_address):
+            os.makedirs(file_address)
+        file_optimised_parameters = open(file_address+filename, "w")
+        file_optimised_parameters.close()
+       
+        with open(file_address+filename, "a") as file_optimised_parameters:
+            for i in range(len(input_variables)):
+                message ='{}:{:.4f}\n'.format(input_variables[i],pos[i])    
+                file_optimised_parameters.write(message)
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
@@ -131,93 +143,6 @@ class EXP:
     def getCoef(self):
         return ['a','b',['casos']], [self.a,self.b,[self.y]]
    
-class SIR_PSO:
-    ''' SIR Model'''
-    def __init__(self,tamanhoPop):
-        self.tamanhoPop = tamanhoPop
-        self.beta = None
-        self.gamma = None
-        
-    
-    def __cal_EDO(self,x,y,beta,gamma):
-        I0 = y[0]
-        S0 = self.tamanhoPop - I0
-        R0 = 0
-        def funct(y,x):
-            S=y[0]
-            I=y[1]   
-            f0 = - beta * S * I        
-            f1 = beta * S * I - gamma * I
-            f2 = gamma * I
-            return [f0, f1, f2]
-        initial_cond = [S0,I0,R0]
-     #integrate------------------------------------
-        self.teste = (funct,initial_cond,x)
-        ds = spi.odeint(funct,initial_cond,x)
-        return (ds[:,0],ds[:,1],ds[:2])
-    
-    def __objectiveFunction(self,coef,x ,y):
-        tam = len(y)
-        soma = []
-        for i in range(len(coef[:,0])):
-            res = []
-            S,I,R = self.__cal_EDO(x,y,coef[i,0],coef[i,1])
-            for j in range(tam):
-                res.append((I[j] - y[j])**2)
-            soma.append(sum(res)/tam)
-        return np.array(soma)
-    
-
-    def fit(self, x,y , bound = None):
-        
-        '''
-        x = dias passados do dia inicial 1
-        y = numero de casos
-        bound = intervalo de limite para procura de cada parametro, onde None = sem limite
-        
-        bound => (lista_min_bound, lista_max_bound) '''
-        df = np.array(y)
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
-        if bound==None:
-            optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
-            self.beta = pos[0]
-            self.gamma = pos[1]
-            self.x = x
-            self.y = df
-            self.rmse = cost
-            self.optimize = optimizer
-            self.S, self.I,self.R = self.__cal_EDO(x,df,self.beta,self.gamma,self)
-        else:
-            optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options,bounds=bound)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
-            self.beta = pos[0]
-            self.gamma = pos[1]
-            self.x = x
-            self.y = df
-            self.rmse = cost
-            self.optimize = optimizer
-            self.S, self.I,self.R = self.__cal_EDO(x,df,self.beta,self.gamma)
-            
-    def predict(self,x):
-        ''' x = dias passados do dia inicial 1'''
-        S,I,R = self.__cal_EDO(x,self.y,self.beta,self.gamma)         
-        return (S,I,R)
-    
-    def plotCost(self):
-        plot_cost_history(cost_history=self.optimize.cost_history)
-        plt.show()
-    def plot(self,local):
-        ypred = self.predict(self.x)
-        plt.plot(ypred,c='b',label='Predição Infectados')
-        plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
-        plt.legend(fontsize=15)
-        plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
-        plt.ylabel('Casos COnfirmados',fontsize=15)
-        plt.xlabel('Dias',fontsize=15)
-        plt.show()
-    def getCoef(self):
-        return ['beta','gamma',['casos']], [self.beta,self.gamma,[self.y]]
     
 class SIR_EDO:
 
