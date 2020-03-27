@@ -52,7 +52,7 @@ for i in range(len(nome)):
 previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 for i in range(len(novo_nome)):
-    print("\n\n"+str(nome[i])+'\n')
+    print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
     if modelo_usado =='SIR':
         modelo = md.SIR(N_inicial)
