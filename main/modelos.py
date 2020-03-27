@@ -6,7 +6,7 @@ Created on Tue Mar 24 09:18:44 2020
 @author: Rafael Veiga
 @author: matheustorquato matheusft@gmail.com
 """
-import functools
+import functools, os
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
@@ -79,7 +79,7 @@ class SIR:
     
 
 
-    def fit(self, x,y , bound = None):
+    def fit(self, x,y ,bound = None,name = ''):
         
         '''
         x = dias passados do dia inicial 1
@@ -107,6 +107,20 @@ class SIR:
             self.y = df
             self.rmse = cost
             self.optimize = optimizer
+            
+        input_variables = ['a','b']
+            
+        file_address = 'optimised_coefficients/'
+        filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SIR',name,len(x))
+        if not os.path.exists(file_address):
+            os.makedirs(file_address)
+        file_optimised_parameters = open(file_address+filename, "w")
+        file_optimised_parameters.close()
+       
+        with open(file_address+filename, "a") as file_optimised_parameters:
+            for i in range(len(input_variables)):
+                message ='{}:{:.4f}\n'.format(input_variables[i],pos[i])    
+                file_optimised_parameters.write(message)
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
@@ -172,7 +186,7 @@ class SIR_EDO:
     
         return [mean_squared_error]
 
-    def fit(self, x,y , bound = None):
+    def fit(self, x,y ,bound = None,name = None):
         
         self.y=np.array(y)
         self.x = x
@@ -213,6 +227,23 @@ class SIR_EDO:
         
         self.beta = feasible_solutions[0].variables[0]
         self.gamma = feasible_solutions[0].variables[1]
+        
+        input_variables = ['beta','gamma']
+        file_address = 'optimised_coefficients/'
+        filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SIR_EDO',name,len(x))        
+
+        if not os.path.exists(file_address):
+            os.makedirs(file_address)
+        
+
+        file_optimised_parameters = open(file_address+filename, "w")
+        file_optimised_parameters.close()
+        if not os.path.exists(file_address):
+            os.makedirs(file_address)
+        with open(file_address+filename, "a") as file_optimised_parameters:
+            for i in range(len(input_variables)):
+                message ='{}:{:.4f}\n'.format(input_variables[i],feasible_solutions[0].variables[i])    
+                file_optimised_parameters.write(message)
         
             
     def predict(self,x):
@@ -256,7 +287,6 @@ class SIR_EDO:
 
 class SEIR_EDO:
     
-
     def __init__(self,N):
         """
         Parameters
@@ -273,7 +303,6 @@ class SEIR_EDO:
         self.S = 0.9*self.N # 0  S = susceptible
         self.R = 0     # removed
 
-    
 
     def SEIR_diff_eqs(self,INP,t, beta0, alpha, kappa, gamma, sigma, lamb,mu,d):  
       '''The main set of equations'''
@@ -289,6 +318,7 @@ class SEIR_EDO:
       Y[6] = mu * V[6]                                  #Population size
       
       self.Y = Y
+      
       return Y   # For odeint
 
 
@@ -311,7 +341,7 @@ class SEIR_EDO:
 
         return [mean_squared_error]
 
-    def fit(self, x,y):
+    def fit(self, x,y ,bound = None,name = ''):
 
         self.y=np.array(y)
         self.x = x
@@ -338,14 +368,14 @@ class SEIR_EDO:
 
         problem = Problem(number_of_input_variables,number_of_objective_targets,number_of_constraints)
 
-        problem.types[0] = Real(0, 10)           #beta0
-        problem.types[1] = Real(0, 1)           #alpha
+        problem.types[0] = Real(0, 2)           #beta0
+        problem.types[1] = Real(0, 2)           #alpha
         problem.types[2] = Real(0, 2000)           #kappa
-        problem.types[3] = Real(0, 10)           #gamma
-        problem.types[4] = Real(0, 1)           #sigma
-        problem.types[5] = Real(0, 1)           #lamb
-        problem.types[6] = Real(0, 1)           #mu
-        problem.types[7] = Real(0, 1)           #d
+        problem.types[3] = Real(0, 2)           #gamma
+        problem.types[4] = Real(0, 2)           #sigma
+        problem.types[5] = Real(0, 2)           #lamb
+        problem.types[6] = Real(0, 2)           #mu
+        problem.types[7] = Real(0, 2)           #d
 
 
         problem.function = functools.partial(self.fitness_function,
@@ -366,15 +396,32 @@ class SEIR_EDO:
         self.mu = feasible_solutions[0].variables[6]       
         self.d  = feasible_solutions[0].variables[7]  
 
-#        result_fit = spi.odeint(self.SEIR_diff_eqs,INPUT,t_range,
-#                                args=(beta0, alpha, kappa, gamma, sigma, lamb,mu,d))
+        file_address = 'optimised_coefficients/'
+        filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SEIR_EDO',name,len(x))
+        if not os.path.exists(file_address):
+            os.makedirs(file_address)
+        file_optimised_parameters = open(file_address+filename, "w")
+        file_optimised_parameters.close()
+       
+        with open(file_address+filename, "a") as file_optimised_parameters:
+            for i in range(len(input_variables)):
+                message ='{}:{:.4f}\n'.format(input_variables[i],feasible_solutions[0].variables[i])    
+                file_optimised_parameters.write(message)
+                
+        result_fit = spi.odeint(self.SEIR_diff_eqs,
+                                    (self.S, self.I, self.E, self.D, self.C, 
+                                     self.R, self.N),t_range,
+                                args=(self.beta0, self.alpha, self.kappa,
+                                      self.gamma, self.sigma, self.lamb,
+                                      self.mu,self.d))
+                                    
+        plt.plot(result_fit[:, 1],c='b',label='Predição Infectados')
+        plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
+        plt.legend(fontsize=15)
+        plt.ylabel('Casos COnfirmados',fontsize=15)
+        plt.xlabel('Dias',fontsize=15)
+        plt.show()
 
-
-#        plt.plot(result_fit[:,1], label='Infectious')
-#        plt.plot(y, c = 'red', label='Dados')
-#        plt.legend(fontsize=15)
-#        plt.show()
-        
             
     def predict(self,x):
         """
@@ -522,7 +569,7 @@ class SEQIJR_EDO:
 
        return [mean_squared_error]
 
-   def fit(self, x,y , bound = None):
+   def fit(self, x,y ,bound = None,name = ''):
        
        self.y=np.array(y)
        self.x = x
@@ -592,32 +639,46 @@ class SEQIJR_EDO:
        self.sigma1 = feasible_solutions[0].variables[13]  # Rate of recovery of symptomatic individuals
        self.sigma2 = feasible_solutions[0].variables[14]  # Rate of recovery of isolated individuals
        
-       
        self.DS = self.mu + self.v
        self.DE = self.gamma1 + self.kappa1 + self.mu
        self.DI = self.gamma2 + self.d1 + self.sigma1 + self.mu
        self.DJ = self.sigma2 + self.d2 + self.mu
        self.DQ = self.mu + self.kappa2
        
-       result_fit = spi.odeint(self.SEQIJR_diff_eqs, (self.S0,self.E0,
-                                                          self.Q0,self.I0,self.J0,
-                      self.R0,self.N0,self.D0), t_range,args=(self.beta, 
-                       self.epsilon_E, self.epsilon_Q, self.epsilon_J, 
-                       self.Pi, self.mu, self.v, self.gamma1, self.gamma2,
-                       self.kappa1, self.kappa2, self.d1, self.d2, 
-                       self.sigma1, self.sigma2, self.DS, self.DE,
-                       self.DI, self.DJ, self.DQ))
+       file_address = 'optimised_coefficients/'
+       filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SEQIJR_EDO',name,len(x))
+       if not os.path.exists(file_address):
+           os.makedirs(file_address)
+       file_optimised_parameters = open(file_address+filename, "w")
+       file_optimised_parameters.close()
        
-       alphaE = self.DI / self.kappa1
-       alphaS = self.DE * alphaE
-       alphaQ = (self.gamma1 / self.DQ) * alphaE
-       alphaJ = (self.gamma2 + self.kappa2 * alphaQ) / self.DJ
-#       alphaN = self.d1 + self.d2 * alphaJ
-#        alphaR = (1 / self.mu) * ((self.v * alphaS / self.DS) - 
-#                  self.sigma1 - self.sigma2 * alphaJ)
-       alphaL = self.beta * (1 + self.epsilon_E * alphaE + \
-                             self.epsilon_Q * alphaQ + self.epsilon_J  * \
-                             alphaJ)
+       with open(file_address+filename, "a") as file_optimised_parameters:
+           for i in range(len(input_variables)):
+               message ='{}:{:.4f}\n'.format(input_variables[i],feasible_solutions[0].variables[i])    
+               file_optimised_parameters.write(message)
+       
+       
+
+#       
+#       result_fit = spi.odeint(self.SEQIJR_diff_eqs, (self.S0,self.E0,
+#                                                          self.Q0,self.I0,self.J0,
+#                      self.R0,self.N0,self.D0), t_range,args=(self.beta, 
+#                       self.epsilon_E, self.epsilon_Q, self.epsilon_J, 
+#                       self.Pi, self.mu, self.v, self.gamma1, self.gamma2,
+#                       self.kappa1, self.kappa2, self.d1, self.d2, 
+#                       self.sigma1, self.sigma2, self.DS, self.DE,
+#                       self.DI, self.DJ, self.DQ))
+#       
+#       alphaE = self.DI / self.kappa1
+#       alphaS = self.DE * alphaE
+#       alphaQ = (self.gamma1 / self.DQ) * alphaE
+#       alphaJ = (self.gamma2 + self.kappa2 * alphaQ) / self.DJ
+##       alphaN = self.d1 + self.d2 * alphaJ
+##        alphaR = (1 / self.mu) * ((self.v * alphaS / self.DS) - 
+##                  self.sigma1 - self.sigma2 * alphaJ)
+#       alphaL = self.beta * (1 + self.epsilon_E * alphaE + \
+#                             self.epsilon_Q * alphaQ + self.epsilon_J  * \
+#                             alphaJ)
    
 #        I2 = (self.Pi * (self.mu * alphaL - self.DS * 
 #                        alphaS)) / (self.alphaS * (self.mu *
@@ -635,9 +696,9 @@ class SEQIJR_EDO:
    
 #        R2 = ((self.v * self.Pi) / (self.mu * self.DS)) - alphaR * I2
    
-       Rdf = (self.mu * alphaL) / (self.DS * alphaS)
+#       Rdf = (self.mu * alphaL) / (self.DS * alphaS)
    
-       R0 = alphaL / alphaS
+#       R0 = alphaL / alphaS
        
 #       print('Rdf = {:.4f}, R0 = {:.4f}'.format(Rdf, R0))
        

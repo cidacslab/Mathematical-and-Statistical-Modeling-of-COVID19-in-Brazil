@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEQIJR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SEIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
@@ -68,7 +68,7 @@ for i in range(len(novo_nome)):
     
     y = novo_local[i].totalcasos
     x = range(1,len(y)+1)
-    modelo.fit(x,y)
+    modelo.fit(x,y,name=novo_nome[i])
     modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)

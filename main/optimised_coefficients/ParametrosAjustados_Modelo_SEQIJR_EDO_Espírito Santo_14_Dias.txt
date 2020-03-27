@@ -1,0 +1,15 @@
+beta:0.2848
+epsilon_E:0.0545
+epsilon_Q:0.3555
+epsilon_J:0.4922
+Pi:334.1897
+mu:0.0000
+v:0.0256
+gamma1:0.0004
+gamma2:0.2848
+kappa1:0.2192
+kappa2:0.1309
+d1:0.0650
+d2:0.0314
+sigma1:0.0102
+sigma2:0.0554

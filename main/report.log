@@ -1851,3 +1851,235 @@
 2020-03-26 15:57:13,580 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.07845249041204788, best pos: [1.1701701  0.14343103]
 2020-03-26 15:57:13,639 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
 2020-03-26 15:57:14,589 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 4.508510816952463, best pos: [3.20597295 0.22368196]
+2020-03-27 14:09:01,822 - Platypus - INFO - NSGAII starting
+2020-03-27 14:09:24,417 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:22.594715
+2020-03-27 14:12:41,456 - Platypus - INFO - NSGAII starting
+2020-03-27 14:13:01,794 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:20.338020
+2020-03-27 14:15:03,601 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:07,613 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.012361
+2020-03-27 14:15:07,706 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:11,423 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.716823
+2020-03-27 14:15:11,529 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:14,226 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.697608
+2020-03-27 14:15:14,309 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:17,209 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.899935
+2020-03-27 14:15:17,285 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:20,152 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.867456
+2020-03-27 14:15:20,235 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:23,002 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.767049
+2020-03-27 14:15:23,083 - Platypus - INFO - NSGAII starting
+2020-03-27 14:15:25,880 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.796774
+2020-03-27 14:23:04,266 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:07,099 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 140.75640212961082, best pos: [0.70224668 0.28542794]
+2020-03-27 14:23:07,198 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:10,017 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 87.60697293604737, best pos: [0.64617107 0.25678489]
+2020-03-27 14:23:10,142 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:12,671 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.41478783085940124, best pos: [0.22942775 0.27717675]
+2020-03-27 14:23:12,783 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:15,118 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 17.148470880914214, best pos: [1.82314859 0.24357234]
+2020-03-27 14:23:15,234 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:17,546 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 2.0397899142395106, best pos: [0.22655133 0.35724363]
+2020-03-27 14:23:17,646 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:19,905 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 2.29374158667061, best pos: [0.2787909  0.34820618]
+2020-03-27 14:23:20,004 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:23:22,235 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.6293838997671232, best pos: [0.1587664  0.43665611]
+2020-03-27 14:26:48,360 - Platypus - INFO - NSGAII starting
+2020-03-27 14:26:49,610 - Platypus - INFO - NSGAII finished; Total NFE: 1032, Elapsed Time: 0:00:01.249481
+2020-03-27 14:30:22,753 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:24,931 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 140.75640212961082, best pos: [0.70224671 0.28542794]
+2020-03-27 14:30:25,100 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:27,646 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 87.60697293604736, best pos: [0.64617105 0.25678489]
+2020-03-27 14:30:27,729 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:29,892 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.41478783085940124, best pos: [0.22942775 0.27717675]
+2020-03-27 14:30:29,989 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:32,083 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 17.148470880913898, best pos: [1.82314883 0.24357232]
+2020-03-27 14:30:32,175 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:34,356 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 2.039789914239534, best pos: [0.22655136 0.35724362]
+2020-03-27 14:30:34,434 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:36,488 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 2.293741586670608, best pos: [0.27879088 0.34820618]
+2020-03-27 14:30:36,583 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:30:38,637 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.6293838997671233, best pos: [0.15876641 0.4366561 ]
+2020-03-27 14:31:03,827 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:05,184 - Platypus - INFO - NSGAII finished; Total NFE: 1045, Elapsed Time: 0:00:01.357569
+2020-03-27 14:31:05,319 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:06,649 - Platypus - INFO - NSGAII finished; Total NFE: 1037, Elapsed Time: 0:00:01.330680
+2020-03-27 14:31:06,730 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:07,668 - Platypus - INFO - NSGAII finished; Total NFE: 1043, Elapsed Time: 0:00:00.937714
+2020-03-27 14:31:07,736 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:08,776 - Platypus - INFO - NSGAII finished; Total NFE: 1039, Elapsed Time: 0:00:01.039676
+2020-03-27 14:31:08,857 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:09,861 - Platypus - INFO - NSGAII finished; Total NFE: 1025, Elapsed Time: 0:00:01.004185
+2020-03-27 14:31:09,929 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:10,882 - Platypus - INFO - NSGAII finished; Total NFE: 1036, Elapsed Time: 0:00:00.953250
+2020-03-27 14:31:10,959 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:11,903 - Platypus - INFO - NSGAII finished; Total NFE: 1031, Elapsed Time: 0:00:00.943986
+2020-03-27 14:31:46,487 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:50,908 - Platypus - INFO - NSGAII finished; Total NFE: 1097, Elapsed Time: 0:00:04.420266
+2020-03-27 14:31:51,062 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:55,199 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.137840
+2020-03-27 14:31:55,283 - Platypus - INFO - NSGAII starting
+2020-03-27 14:31:59,010 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.726162
+2020-03-27 14:31:59,094 - Platypus - INFO - NSGAII starting
+2020-03-27 14:32:02,370 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.276085
+2020-03-27 14:32:02,445 - Platypus - INFO - NSGAII starting
+2020-03-27 14:32:06,561 - Platypus - INFO - NSGAII finished; Total NFE: 1096, Elapsed Time: 0:00:04.115471
+2020-03-27 14:32:06,647 - Platypus - INFO - NSGAII starting
+2020-03-27 14:32:10,233 - Platypus - INFO - NSGAII finished; Total NFE: 1096, Elapsed Time: 0:00:03.586440
+2020-03-27 14:32:10,311 - Platypus - INFO - NSGAII starting
+2020-03-27 14:32:13,627 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.315477
+2020-03-27 14:32:55,641 - Platypus - INFO - NSGAII starting
+2020-03-27 14:32:59,303 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.661955
+2020-03-27 14:33:59,391 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:03,460 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.068718
+2020-03-27 14:34:03,545 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:07,103 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.557681
+2020-03-27 14:34:07,195 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:11,969 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.773741
+2020-03-27 14:34:12,107 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:16,116 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:04.008167
+2020-03-27 14:34:16,234 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:19,077 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.843099
+2020-03-27 14:34:19,165 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:21,756 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.590571
+2020-03-27 14:34:21,830 - Platypus - INFO - NSGAII starting
+2020-03-27 14:34:24,393 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.563514
+2020-03-27 14:35:30,980 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:36,140 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:05.159720
+2020-03-27 14:35:36,237 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:40,736 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:04.498758
+2020-03-27 14:35:40,824 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:44,537 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.713241
+2020-03-27 14:35:44,633 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:48,145 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.512312
+2020-03-27 14:35:48,229 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:51,798 - Platypus - INFO - NSGAII finished; Total NFE: 1096, Elapsed Time: 0:00:03.569221
+2020-03-27 14:35:51,880 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:55,228 - Platypus - INFO - NSGAII finished; Total NFE: 1097, Elapsed Time: 0:00:03.347374
+2020-03-27 14:35:55,310 - Platypus - INFO - NSGAII starting
+2020-03-27 14:35:58,287 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.976431
+2020-03-27 14:38:05,061 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:06,356 - Platypus - INFO - NSGAII finished; Total NFE: 1020, Elapsed Time: 0:00:01.294878
+2020-03-27 14:38:06,430 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:07,558 - Platypus - INFO - NSGAII finished; Total NFE: 1045, Elapsed Time: 0:00:01.128798
+2020-03-27 14:38:07,626 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:08,557 - Platypus - INFO - NSGAII finished; Total NFE: 1044, Elapsed Time: 0:00:00.930557
+2020-03-27 14:38:08,639 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:09,710 - Platypus - INFO - NSGAII finished; Total NFE: 1035, Elapsed Time: 0:00:01.070475
+2020-03-27 14:38:09,790 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:10,791 - Platypus - INFO - NSGAII finished; Total NFE: 1043, Elapsed Time: 0:00:01.000991
+2020-03-27 14:38:10,865 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:11,899 - Platypus - INFO - NSGAII finished; Total NFE: 1057, Elapsed Time: 0:00:01.033710
+2020-03-27 14:38:11,977 - Platypus - INFO - NSGAII starting
+2020-03-27 14:38:12,935 - Platypus - INFO - NSGAII finished; Total NFE: 1033, Elapsed Time: 0:00:00.958316
+2020-03-27 14:38:31,994 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:34,641 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 140.75640212961068, best pos: [0.70224669 0.28542794]
+2020-03-27 14:38:34,826 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:37,696 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 87.60697293604736, best pos: [0.64617106 0.25678489]
+2020-03-27 14:38:37,807 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:39,937 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.41478783085940146, best pos: [0.22942774 0.27717675]
+2020-03-27 14:38:40,039 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:42,541 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 17.148470880913894, best pos: [1.82314888 0.24357232]
+2020-03-27 14:38:42,634 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:44,893 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 2.039789914239511, best pos: [0.22655133 0.35724363]
+2020-03-27 14:38:44,988 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:47,175 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 2.2937415866706083, best pos: [0.27879089 0.34820618]
+2020-03-27 14:38:47,284 - pyswarms.single.global_best - INFO - Optimize for 1000 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-03-27 14:38:49,782 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 0.6293838997671233, best pos: [0.1587664  0.43665611]
+2020-03-27 14:39:25,104 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:29,912 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:04.807658
+2020-03-27 14:39:30,203 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:34,122 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.919258
+2020-03-27 14:39:34,411 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:37,283 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.871302
+2020-03-27 14:39:37,563 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:40,857 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.294739
+2020-03-27 14:39:41,132 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:44,476 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.344588
+2020-03-27 14:39:44,765 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:48,230 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.465192
+2020-03-27 14:39:48,501 - Platypus - INFO - NSGAII starting
+2020-03-27 14:39:51,895 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.393558
+2020-03-27 14:40:08,687 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:14,028 - Platypus - INFO - NSGAII finished; Total NFE: 1097, Elapsed Time: 0:00:05.340731
+2020-03-27 14:40:14,123 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:19,606 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:05.483081
+2020-03-27 14:40:19,692 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:22,963 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.271422
+2020-03-27 14:40:23,050 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:27,190 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:04.139699
+2020-03-27 14:40:27,261 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:31,350 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:04.089691
+2020-03-27 14:40:31,437 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:34,825 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.387611
+2020-03-27 14:40:34,909 - Platypus - INFO - NSGAII starting
+2020-03-27 14:40:39,185 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:04.276157
+2020-03-27 14:50:04,716 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:09,075 - Platypus - INFO - NSGAII finished; Total NFE: 1097, Elapsed Time: 0:00:04.358443
+2020-03-27 14:50:09,358 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:14,252 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:04.894131
+2020-03-27 14:50:14,529 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:17,953 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.423731
+2020-03-27 14:50:18,217 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:21,900 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.683299
+2020-03-27 14:50:22,161 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:25,257 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.096298
+2020-03-27 14:50:25,538 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:28,884 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.345671
+2020-03-27 14:50:29,214 - Platypus - INFO - NSGAII starting
+2020-03-27 14:50:31,916 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:02.701765
+2020-03-27 14:51:38,260 - Platypus - INFO - NSGAII starting
+2020-03-27 14:52:20,304 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:42.043903
+2020-03-27 14:52:20,998 - Platypus - INFO - NSGAII starting
+2020-03-27 14:52:56,270 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:35.271903
+2020-03-27 14:52:56,759 - Platypus - INFO - NSGAII starting
+2020-03-27 14:53:20,413 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:23.653397
+2020-03-27 14:53:20,908 - Platypus - INFO - NSGAII starting
+2020-03-27 14:53:56,778 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:35.869744
+2020-03-27 14:53:57,318 - Platypus - INFO - NSGAII starting
+2020-03-27 14:54:22,093 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:24.774117
+2020-03-27 14:54:22,608 - Platypus - INFO - NSGAII starting
+2020-03-27 14:54:48,695 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:26.086884
+2020-03-27 14:54:49,385 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:05,887 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:16.501894
+2020-03-27 14:55:14,360 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:18,206 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.846352
+2020-03-27 14:55:18,542 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:22,974 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:04.432346
+2020-03-27 14:55:23,251 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:26,804 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.553363
+2020-03-27 14:55:27,115 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:30,226 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.111484
+2020-03-27 14:55:30,527 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:33,424 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.896829
+2020-03-27 14:55:33,754 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:36,819 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:03.064820
+2020-03-27 14:55:37,141 - Platypus - INFO - NSGAII starting
+2020-03-27 14:55:40,135 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:02.994023
+2020-03-27 14:56:04,354 - Platypus - INFO - NSGAII starting
+2020-03-27 14:56:18,421 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:14.067227
+2020-03-27 14:56:18,775 - Platypus - INFO - NSGAII starting
+2020-03-27 14:56:31,597 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:12.822254
+2020-03-27 14:56:31,934 - Platypus - INFO - NSGAII starting
+2020-03-27 14:56:38,137 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:06.202242
+2020-03-27 14:56:38,431 - Platypus - INFO - NSGAII starting
+2020-03-27 14:56:46,701 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:08.270679
+2020-03-27 14:56:47,033 - Platypus - INFO - NSGAII starting
+2020-03-27 14:56:53,769 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:06.736417
+2020-03-27 14:56:54,191 - Platypus - INFO - NSGAII starting
+2020-03-27 14:57:02,061 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:07.870173
+2020-03-27 14:57:02,367 - Platypus - INFO - NSGAII starting
+2020-03-27 14:57:08,244 - Platypus - INFO - NSGAII finished; Total NFE: 1097, Elapsed Time: 0:00:05.877069
+2020-03-27 15:00:21,882 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:27,833 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:05.950462
+2020-03-27 15:00:28,802 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:38,335 - Platypus - INFO - NSGAII finished; Total NFE: 1098, Elapsed Time: 0:00:09.533083
+2020-03-27 15:00:38,848 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:42,946 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:04.098264
+2020-03-27 15:00:43,262 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:46,718 - Platypus - INFO - NSGAII finished; Total NFE: 1096, Elapsed Time: 0:00:03.456209
+2020-03-27 15:00:46,988 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:50,666 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.678599
+2020-03-27 15:00:50,943 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:54,144 - Platypus - INFO - NSGAII finished; Total NFE: 1000, Elapsed Time: 0:00:03.200155
+2020-03-27 15:00:54,453 - Platypus - INFO - NSGAII starting
+2020-03-27 15:00:57,620 - Platypus - INFO - NSGAII finished; Total NFE: 1099, Elapsed Time: 0:00:03.166632
