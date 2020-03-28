@@ -25,6 +25,9 @@ previsao_ate = dt.date(2020,4,5)
 #carregar dados
 nome, local = md.ler_banco('../data/datastate.csv','state')
 
+#carregar dados alternativa
+timeseries,populacao = md.ler_banco_alternativa()
+
 novo_nome = []
 nome.insert(0,'Brasil')
 novo_local = []

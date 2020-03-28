@@ -66,6 +66,44 @@ def ler_banco(arq,var):
     return nome_local, local    
 
 
+def ler_banco_alternativa():
+    
+    try:
+        url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv'
+        df = pd.read_csv(url)
+    except:
+        return None,None
+    
+    df.drop(['country','city'],axis=1,inplace=True)
+    df['date'] = pd.to_datetime(df['date'],format='%Y/%m/%d')
+    
+    filename = '../data/populações.csv'
+    populacoes = pd.read_csv(filename,index_col=0)
+    populacoes = populacoes.transpose()
+    
+    timeseries = pd.DataFrame(columns=np.sort(df['state'].unique()),index=df['date'].unique())
+    timeseries.fillna(0,inplace=True)
+    cols = timeseries.columns.tolist()
+    timeseries.columns = cols[-1:] + cols[:-1]
+    del cols, url 
+    
+    
+    for i in df.index:
+        
+        if(timeseries[df.iloc[i]['state']].sum() == 0):
+        
+            timeseries.loc[df.iloc[i]['date']][df.iloc[i]['state']] = \
+            df.iloc[i]['newCases']
+    
+        else:
+            
+            timeseries.loc[df.iloc[i]['date']][df.iloc[i]['state']] = \
+            df.iloc[i]['newCases'] + timeseries[df.iloc[i]['state']][timeseries[df.iloc[i]['state']]!=0][-1]
+    
+    return timeseries,populacoes
+            
+            
+
 class EXP:
     ''' f(x) = a*exp(b*x) '''
     def __init__(self):
