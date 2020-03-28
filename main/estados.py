@@ -13,8 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEQIJR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
-N_inicial = 1000
+modelo_usado = 'SIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
@@ -24,7 +23,7 @@ previsao_ate = dt.date(2020,4,5)
 
 #carregar dados
 nome, local = md.ler_banco('../data/datastate.csv','state')
-
+df_pop = pd.read_csv('../data/populações.csv')
 #carregar dados alternativa
 timeseries,populacao = md.ler_banco_alternativa()
 
@@ -54,7 +53,12 @@ for i in range(len(nome)):
         novo_nome.append(nome[i])
 previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
+N_inicial = 0
 for i in range(len(novo_nome)):
+    if i==0:
+        N_inicial = 217026005
+    else:
+        N_inicial = int(df_pop['População'][df_pop.Estado==novo_nome[i]])
     print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
     if modelo_usado =='SIR':

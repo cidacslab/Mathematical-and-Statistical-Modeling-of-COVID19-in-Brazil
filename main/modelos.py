@@ -22,6 +22,7 @@ from pyswarms.utils.plotters import plot_cost_history
 logging.disable()
 
 
+
 def ler_banco(arq,var):
     banco = pd.read_csv(arq)
     banco =banco[banco[var].notnull()]
@@ -872,4 +873,5 @@ class SEQIJR_EDO:
                 'sigma2'],[self.beta,self.epsilon_E, self.epsilon_Q, self.epsilon_J, 
                 self.Pi, self.mu, self.v, self.gamma1, self.gamma2,self.kappa1,
                 self.kappa2, self.d1, self.d2,self.sigma1, self.sigma2]
-       
+ 
+                           
