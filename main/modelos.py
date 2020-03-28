@@ -11,12 +11,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
 import pandas as pd
+import logging
 import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
 from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.utils.plotters import plot_cost_history
 
-# Ler dados
+
+
+logging.disable()
 
 
 def ler_banco(arq,var):

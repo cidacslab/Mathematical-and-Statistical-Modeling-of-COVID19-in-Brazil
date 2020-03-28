@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SEQIJR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
