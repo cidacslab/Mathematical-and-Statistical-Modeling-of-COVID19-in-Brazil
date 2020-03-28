@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SIR_EDO' # SIR, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
@@ -97,7 +97,7 @@ df.to_csv(arq_saida,index=False)
 
 su = pd.DataFrame()
 su['state'] = novo_nome
-
+pop = []
 coef_list = []
 y = []
 coef_name = None
@@ -105,7 +105,8 @@ for i in range(len(novo_nome)):
     y.append(';'.join(map(str, modelos[i].y)))
     coef_name, coef  = modelos[i].getCoef()
     coef_list.append(coef)
-
+    pop.append(modelos[i].N)
+su['populacao']= pop
 for c in range(len(coef_name)-1):
     l = []
     for i in range(len(coef_list)):
@@ -115,11 +116,9 @@ coef_name = coef_name[-1]
 for c in range(len(coef_name)):
     l=[]
     for i in range(len(coef_list)):
-       l.append(coef_list[i][-1][c]) 
+       l.append(str(list(coef_list[i][-1][c])).replace('  ',' ').replace(' ',';').replace('[','').replace(']','').replace('\n','').replace(',','')) 
     su[coef_name[c]] = l
 
 su['y'] = y
 su.to_csv(arq_sumario,index=False)
 
-modelos[0].plot(nome[0])
-modelos[1].plot(nome[1])

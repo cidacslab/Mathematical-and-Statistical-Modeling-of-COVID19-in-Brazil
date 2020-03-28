@@ -184,7 +184,7 @@ class SIR_PSO:
             self.y = df
             self.rmse = cost
             self.optimize = optimizer
-            self.S, self.I,self.R = self.__cal_EDO(x,df,self.beta,self.gamma,self)
+            
         else:
             optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options,bounds=bound)
             cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
@@ -194,12 +194,15 @@ class SIR_PSO:
             self.y = df
             self.rmse = cost
             self.optimize = optimizer
-            self.S, self.I,self.R = self.__cal_EDO(x,df,self.beta,self.gamma)
+            
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
-        S,I,R = self.__cal_EDO(x,self.y,self.beta,self.gamma)         
-        return (S,I,R)
+        S,I,R = self.__cal_EDO(x,self.y,self.beta,self.gamma)
+        self.S = S
+        self.I = I
+        self.R = R         
+        return I
     
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
@@ -214,7 +217,7 @@ class SIR_PSO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma',['casos']], [self.beta,self.gamma,[self.y]]
+        return ['beta','gamma',['suscetivel','infectados','recuperados','casos']], [self.beta,self.gamma,self.Y]
     
 class SIR_EDO:
 
@@ -342,6 +345,8 @@ class SIR_EDO:
                             self.R0), t_range, args=(self.beta, self.gamma))
             
             self.ypred = result_fit[:, 1]*self.N
+            self.S=result_fit[:, 0]*self.N
+            self.R=result_fit[:, 2]*self.N
 
             return result_fit[:, 1]*self.N
         
@@ -354,7 +359,7 @@ class SIR_EDO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma','R0',['S','I','R']], [self.beta,self.gamma,self.gamma/self.beta,self.Y]
+        return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,self.gamma/self.beta,(self.S,self.ypred,self.R)]
         
 
 class SEIR_EDO:
