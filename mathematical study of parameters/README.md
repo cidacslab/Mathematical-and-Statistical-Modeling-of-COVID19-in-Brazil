@@ -14,7 +14,7 @@ In this folder we adapt codes from the main directory folder in order to deeply 
 
     * gama  = recovery rate (inverse of mean infectious period)
             
-            ** range_{1} = (⅕ - epsilon, 1/21 + epsilon)
+            ** range_{1} = (1/5 - epsilon, 1/21 + epsilon)
             ** range_{2} = (1/14 - epsilon, 1/14+epsilon)
             ** range_{3} = (1/21-epsilon, 1/21+epsilon)
 
