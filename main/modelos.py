@@ -303,7 +303,7 @@ class SIR_EDO:
     
         return [mean_squared_error]
 
-    def fit(self, x,y ,bound = None,name = None):
+    def fit(self, x,y ,bound = ([0,1/14-0.0001],[1,1/5+0.0001]),name = None):
         
         self.y=np.array(y)
         self.x = x
@@ -333,9 +333,9 @@ class SIR_EDO:
                                              t_range=t_range)
     
         algorithm = NSGAII(problem, population_size=ga_population_size)
-    
-        problem.types[0] = Real(0, 1)  # beta initial Range
-        problem.types[1] = Real(1/5, 1/14)  # gamma initial Range
+        
+        problem.types[0] = Real(bound[0][0], bound[1][0])  # beta initial Range
+        problem.types[1] = Real(bound[0][1], bound[1][1])  # gamma initial Range
     
         # Running the GA
         algorithm.run(number_of_generations)
