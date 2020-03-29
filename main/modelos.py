@@ -113,8 +113,8 @@ def ler_banco_estados():
         df['mortes'] = mortes
         df['TOTAL'] = casos
         local.append(df)
-        nome_local[0]='Brasil'
-        local[0].state='Brasil'
+        nome_local[0]='TOTAL'
+        local[0].state='TOTAL'
     return nome_local, local    
 
 
