@@ -59,7 +59,7 @@ def ler_banco_municipios():
                 i_aux=i_aux+1
             else:
                 casos.append(caso)
-        df['totalcasos'] = casos
+        df['TOTAL'] = casos
         local.append(df)
     return nome_local, local    
 
@@ -106,8 +106,12 @@ def ler_banco_estados():
             else:
                 casos.append(caso)
                 mortes.append(morte)
+        new = [casos[0]]        
+        for i in range(1,dias):
+            new.append(casos[i]-casos[i-1])
+        df['newCases'] = new
         df['mortes'] = mortes
-        df['totalcasos'] = casos
+        df['TOTAL'] = casos
         local.append(df)
         nome_local[0]='Brasil'
         local[0].state='Brasil'

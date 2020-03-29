@@ -11,22 +11,28 @@ import pandas as pd
 import sys
 
 # parametros
-modelo_usado = 'SIR' # SIR, SIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SIR_EDO' #EXP, SIR_PSO, SIR_EDO ou SEQIJR_EDO
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/municipios.csv'
 arq_sumario = '../data/municipios_sumario.csv'
-previsao_ate = dt.date(2020,3,25)
+previsao_ate = dt.date(2020,4,5)
 
 #carregar dados
-nome, local = md.ler_banco('../data/datamun.csv','cod_city')
-
+nome, local = md.ler_banco_municipios()
+df = pd.read_csv('../data/populacao_municipio.csv')
+pop_local =df.Armenor.unique()
+pop = {}
+for o in pop_local:
+    aux = df[df.Armenor==o]
+    pop[o] = sum(aux.Total)
+    
 novo_nome = []
 novo_local = []
 
 for i in range(len(nome)):
-    if (local[i].totalcasos.iloc[-1]>=min_cases) & (len(local[i])>=10):
+    if (local[i].TOTAL.iloc[-1]>=min_cases) & (len(local[i])>=10):
         novo_local.append(local[i])
         novo_nome.append(nome[i])
 previsao_ate = previsao_ate + dt.timedelta(1)
@@ -34,39 +40,52 @@ modelos=[]
 for i in range(len(novo_nome)):
     print("\n"+str(novo_local[i].city[0])+'\n')
     modelo = None
-    if modelo_usado =='SIR':
-        modelo = md.SIR(N_inicial)
+    N = 0
+    if novo_nome[i] in pop:
+        N = pop[novo_nome[i]]
+    else:
+        print('não achou pop da cidade '+str(novo_nome[i]))
+        N=10000
+    if modelo_usado =='SIR_PSO':
+        modelo = md.SIR_PSO(N)
     elif modelo_usado =='SIR_EDO':
-        modelo = md.SIR_EDO(N_inicial)
+        modelo = md.SIR_EDO(N)
+    elif modelo_usado =='EXP':
+        modelo = md.EXP(N)
     elif modelo_usado=='SEQIJR_EDO':
-        modelo = md.SEQIJR_EDO(N_inicial)
+        modelo = md.SEQIJR_EDO(N)
     else:
         print('Modelo desconhecido '+modelo_usado)
         sys.exit(1)
     # SIR, SIR_EDO ou SEQIJR_EDO
-    y = novo_local[i].totalcasos
+    y = novo_local[i].TOTAL
     x = range(1,len(y)+1)
     modelo.fit(x,y)
     modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
     y_pred =modelo.predict(x_pred)
-    novo_local[i]['casos_preditos'] = y_pred[0:len(novo_local[i])]
+    novo_local[i]['totalCasesPred'] = y_pred[0:len(novo_local[i])]
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
     for d in range(1,dias):
         di = d+len(x)-1
-        novo_local[i]=novo_local[i].append({'casos_preditos':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0],'UF':novo_local[i].UF.iloc[0],'city':novo_local[i].city.iloc[0],'cod_city':novo_local[i].cod_city.iloc[0]}, ignore_index=True)
+        novo_local[i]=novo_local[i].append({'totalCasesPred':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'UF':novo_local[i].UF.iloc[0],'city':novo_local[i].city.iloc[0],'ibgeID':novo_local[i].ibgeID.iloc[0]}, ignore_index=True)
     
-    novo_local[i].cod_city = pd.to_numeric(novo_local[i].cod_city,downcast='integer')
+    novo_local[i].ibgeID = pd.to_numeric(novo_local[i].ibgeID,downcast='integer')
     
 df = novo_local[0]
 for i in range(1,len(novo_local)):
     df = df.append(novo_local[i],ignore_index=True)
-df.to_csv(arq_saida)
+for i in range(1,len(modelos)):
+    novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
+    novo_local[i]['Recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
+
+df.to_csv(arq_saida,index=False)
+
 
 su = pd.DataFrame()
-su['state'] = novo_nome
+su['ibgeID'] = novo_nome
 pop = []
 coef_list = []
 y = []
@@ -82,13 +101,6 @@ for c in range(len(coef_name)-1):
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
     su[coef_name[c]]=l
-coef_name = coef_name[-1]
-for c in range(len(coef_name)):
-    l=[]
-    for i in range(len(coef_list)):
-       l.append(str(list(coef_list[i][-1][c])).replace('  ',' ').replace(' ',';').replace('[','').replace(']','').replace('\n','').replace(',','')) 
-    su[coef_name[c]] = l
 
-su['y'] = y
 su.to_csv(arq_sumario,index=False)
 
