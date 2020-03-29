@@ -43,8 +43,10 @@ for i in range(len(novo_nome)):
         N_inicial = int(df_pop['População'][df_pop.Sigla==novo_nome[i]])
     print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
-    if modelo_usado =='SIR':
-        modelo = md.SIR(N_inicial)
+    if modelo_usado =='SIR_PSO':
+        modelo = md.SIR_PSO(N_inicial)
+    elif modelo_usado =='EXP':
+        modelo = md.EXP(N_inicial)
     elif modelo_usado =='SIR_EDO':
         modelo = md.SIR_EDO(N_inicial)
     elif modelo_usado =='SEIR_EDO':

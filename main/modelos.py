@@ -20,6 +20,49 @@ from pyswarms.utils.plotters import plot_cost_history
 
 
 logging.disable()
+def ler_banco_municipios():
+    try:
+        url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv'
+        banco = pd.read_csv(url)
+    except:
+        return None,None
+    
+    
+    banco =banco[banco['ibgeID'].notnull()]
+    banco = banco[banco.city!='TOTAL']
+    nome_local =list(banco['ibgeID'].unique())
+    
+    for i in banco.index:
+        banco.date[i] = dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date()
+    local = []
+    for est in nome_local:
+        
+    
+        aux = banco[banco['ibgeID']==est].sort_values('date')
+        data_ini = aux.date.iloc[0]
+        data_fim = aux.date.iloc[-1]
+        dias = (data_fim-data_ini).days + 1
+        d = [(data_ini + dt.timedelta(di)) for di in range(dias)]
+        
+        estado = [aux.state.iloc[0] for di in range(dias)]
+        city = [aux.city.iloc[0] for di in range(dias)]
+        ibgeID = [est for di in range(dias)]
+        df = pd.DataFrame({'date':d,'UF':estado,'city':city,'ibgeID':ibgeID})
+        
+        casos = []
+        caso = 0
+        i_aux = 0
+        for i in range(dias):
+            if (d[i]-aux.date.iloc[i_aux]).days==0:
+                caso = aux['totalCases'].iloc[i_aux]
+                casos.append(caso)
+                i_aux=i_aux+1
+            else:
+                casos.append(caso)
+        df['totalcasos'] = casos
+        local.append(df)
+    return nome_local, local    
+
 
 def ler_banco_estados():
     try:
@@ -351,7 +394,7 @@ class SIR_EDO:
     
         return [mean_squared_error]
 
-    def fit(self, x,y ,bound = ([0,1/14-0.0001],[1,1/5+0.0001]),name = None):
+    def fit(self, x,y ,bound = ([0,1/21-0.0001],[1,1/5+0.0001]),name = None):
         
         self.y=np.array(y)
         self.x = x
@@ -449,7 +492,7 @@ class SIR_EDO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,self.gamma/self.beta,(self.S,self.ypred,self.R)]
+        return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,self.beta/self.gamma,(self.S,self.ypred,self.R)]
         
 
 class SEIR_EDO:
