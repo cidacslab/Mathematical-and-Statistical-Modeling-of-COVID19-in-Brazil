@@ -21,6 +21,54 @@ from pyswarms.utils.plotters import plot_cost_history
 
 logging.disable()
 
+def ler_banco_estados():
+    try:
+        url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv'
+        banco = pd.read_csv(url)
+    except:
+        return None,None
+    
+    
+
+    nome_local =list(banco['state'].unique())
+    nome_local.remove('TOTAL')
+    nome_local.insert(0,'TOTAL')
+    for i in banco.index:
+        banco.date[i] = dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date()
+    local = []
+    for est in nome_local:
+        
+    
+        aux = banco[banco['state']==est].sort_values('date')
+        data_ini = aux.date.iloc[0]
+        data_fim = aux.date.iloc[-1]
+        dias = (data_fim-data_ini).days + 1
+        d = [(data_ini + dt.timedelta(di)) for di in range(dias)]
+        
+        estado = [est for di in range(dias)]
+        df = pd.DataFrame({'date':d,'state':estado})
+        
+        casos = []
+        mortes = []
+        caso = 0
+        morte=0
+        i_aux = 0
+        for i in range(dias):
+            if (d[i]-aux.date.iloc[i_aux]).days==0:
+                caso = aux['totalCases'].iloc[i_aux]
+                morte = aux.deaths.iloc[i_aux]
+                casos.append(caso)
+                mortes.append(morte)
+                i_aux=i_aux+1
+            else:
+                casos.append(caso)
+                mortes.append(morte)
+        df['mortes'] = mortes
+        df['totalcasos'] = casos
+        local.append(df)
+        nome_local[0]='Brasil'
+        local[0].state='Brasil'
+    return nome_local, local    
 
 
 def ler_banco(arq,var):

@@ -22,31 +22,13 @@ arq_brasil_saida = '../data/brasil.csv'
 previsao_ate = dt.date(2020,4,5)
 
 #carregar dados
-nome, local = md.ler_banco('../data/datastate.csv','state')
+nome, local = md.ler_banco_estados()
 df_pop = pd.read_csv('../data/populações.csv')
 #carregar dados alternativa
-timeseries,populacao = md.ler_banco_alternativa()
+#timeseries,populacao = md.ler_banco_alternativa()
 
 novo_nome = []
-nome.insert(0,'Brasil')
 novo_local = []
-#brasil
-br = local[0]
-for i in range(1,len(local)):
-    br = br.append(local[i],ignore_index=True)
-x = list(br.date.unique())
-x = sorted(x)
-y = []
-for d in x:
-    y.append(sum(br[br.date==d].totalcasos))
-
-newy = [y[0]]
-for i in range(1,len(y)):
-    newy.append(y[i]-y[i-1])
-state = ['Brasil' for i in y]
-UF = [np.nan for i in y]
-brasil = pd.DataFrame({'date':x,'state':state,'UF':UF,'novosCasos':newy,'totalcasos':y})
-local.insert(0,brasil)
 for i in range(len(nome)):
     if (local[i].totalcasos.iloc[-1]>=min_cases) & (len(local[i])>=10):
         novo_local.append(local[i])
@@ -58,7 +40,7 @@ for i in range(len(novo_nome)):
     if i==0:
         N_inicial = 217026005
     else:
-        N_inicial = int(df_pop['População'][df_pop.Estado==novo_nome[i]])
+        N_inicial = int(df_pop['População'][df_pop.Sigla==novo_nome[i]])
     print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
     if modelo_usado =='SIR':
@@ -94,8 +76,7 @@ for i in range(len(novo_nome)):
         di = d+len(x)-1
         novo_local[i]=novo_local[i].append({'casos_preditos':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
-brasil =   novo_local[0]
-del brasil['UF']  
+brasil =   novo_local[0] 
 brasil.to_csv(arq_brasil_saida,index=False)    
 df = novo_local[1]
 for i in range(2,len(novo_local)):
