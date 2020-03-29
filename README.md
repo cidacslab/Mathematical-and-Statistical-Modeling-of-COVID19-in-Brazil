@@ -16,6 +16,7 @@ A library for compartimental models to understand the spread of transmission dis
  - See how it works in pratice [Painel Covid-19](http://covid19br.org/)
  - Learn by doing 
      - [A simple SIR computaion](/tutorials/SIR.ipynb)
+     - [SIR with 95 CI](/tutorials/CIForSIR.ipynb)
  
  
 # Installation
