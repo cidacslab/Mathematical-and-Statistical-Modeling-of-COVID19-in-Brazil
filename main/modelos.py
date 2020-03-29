@@ -22,6 +22,7 @@ from pyswarms.utils.plotters import plot_cost_history
 logging.disable()
 
 def ler_banco_estados():
+    
     try:
         url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv'
         banco = pd.read_csv(url)
@@ -449,7 +450,8 @@ class SIR_EDO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,self.gamma/self.beta,(self.S,self.ypred,self.R)]
+        return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,
+                self.gamma/self.beta,(self.S,self.ypred,self.R)]
         
 
 class SEIR_EDO:
@@ -533,7 +535,8 @@ class SEIR_EDO:
         number_of_constraints = 0
         number_of_input_variables = len(input_variables)
 
-        problem = Problem(number_of_input_variables,number_of_objective_targets,number_of_constraints)
+        problem = Problem(number_of_input_variables,number_of_objective_targets,
+                          number_of_constraints)
 
         problem.types[0] = Real(0, 2)           #beta0
         problem.types[1] = Real(0, 2)           #alpha
@@ -728,11 +731,6 @@ class SEQIJR_EDO:
                             d2, sigma1, sigma2, DS, DE, DI, DJ, DQ))
 
        mean_squared_error = ((np.array(y) - result[:, 3]) ** 2).mean()
-       
-#       print(mean_squared_error)
-#       plt.plot(result[:, 3]/self.N,c='r')
-#       plt.plot(np.array(y),c='b')
-#       plt.show()
 
        return [mean_squared_error]
 
@@ -823,52 +821,6 @@ class SEQIJR_EDO:
            for i in range(len(input_variables)):
                message ='{}:{:.4f}\n'.format(input_variables[i],feasible_solutions[0].variables[i])    
                file_optimised_parameters.write(message)
-       
-       
-
-#       
-#       result_fit = spi.odeint(self.SEQIJR_diff_eqs, (self.S0,self.E0,
-#                                                          self.Q0,self.I0,self.J0,
-#                      self.R0,self.N0,self.D0), t_range,args=(self.beta, 
-#                       self.epsilon_E, self.epsilon_Q, self.epsilon_J, 
-#                       self.Pi, self.mu, self.v, self.gamma1, self.gamma2,
-#                       self.kappa1, self.kappa2, self.d1, self.d2, 
-#                       self.sigma1, self.sigma2, self.DS, self.DE,
-#                       self.DI, self.DJ, self.DQ))
-#       
-#       alphaE = self.DI / self.kappa1
-#       alphaS = self.DE * alphaE
-#       alphaQ = (self.gamma1 / self.DQ) * alphaE
-#       alphaJ = (self.gamma2 + self.kappa2 * alphaQ) / self.DJ
-##       alphaN = self.d1 + self.d2 * alphaJ
-##        alphaR = (1 / self.mu) * ((self.v * alphaS / self.DS) - 
-##                  self.sigma1 - self.sigma2 * alphaJ)
-#       alphaL = self.beta * (1 + self.epsilon_E * alphaE + \
-#                             self.epsilon_Q * alphaQ + self.epsilon_J  * \
-#                             alphaJ)
-   
-#        I2 = (self.Pi * (self.mu * alphaL - self.DS * 
-#                        alphaS)) / (self.alphaS * (self.mu *
-#                                     alphaL - self.DS * alphaN))
-   
-#        S2 = (1 / self.DS) * (self.Pi - alphaS * I2)
-   
-#        E2 = alphaE * I2
-   
-#        J2 = alphaJ * I2
-   
-#        N2 = (1 / self.mu) * (self.Pi - alphaN * I2)
-   
-#        Q2 = alphaQ * I2
-   
-#        R2 = ((self.v * self.Pi) / (self.mu * self.DS)) - alphaR * I2
-   
-#       Rdf = (self.mu * alphaL) / (self.DS * alphaS)
-   
-#       R0 = alphaL / alphaS
-       
-#       print('Rdf = {:.4f}, R0 = {:.4f}'.format(Rdf, R0))
-       
 
            
    def predict(self,x):
