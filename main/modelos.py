@@ -59,6 +59,10 @@ def ler_banco_municipios():
                 i_aux=i_aux+1
             else:
                 casos.append(caso)
+        new = [casos[0]]        
+        for i in range(1,dias):
+            new.append(casos[i]-casos[i-1])
+        df['newCases'] = new
         df['TOTAL'] = casos
         local.append(df)
     return nome_local, local    
