@@ -465,7 +465,7 @@ class SIR_EDO:
                 file_optimised_parameters.write(message)
         
             
-    def predict(self,x):
+    def predict(self,x, ci = False):
         """
         Parameters
         ----------
@@ -488,12 +488,15 @@ class SIR_EDO:
             result_fit = spi.odeint(self.SIR_diff_eqs, (self.S0, self.I0,
                             self.R0), t_range, args=(self.beta, self.gamma))
             
-            self.ypred = result_fit[:, 1]*self.N
+            
             self.S=result_fit[:, 0]*self.N
             self.R=result_fit[:, 2]*self.N
             self.I=result_fit[:, 1]*self.N
-
+        if ci == False:
             return (result_fit[:, 1]*self.N + result_fit[:, 2]*self.N)
+        else:
+            self.ypred = result_fit[:, 1]*self.N + result_fit[:, 2]*self.N
+            return(self.pred, self.I, self.R, self.S)
         
     def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')
@@ -503,6 +506,7 @@ class SIR_EDO:
         plt.ylabel('Casos COnfirmados',fontsize=15)
         plt.xlabel('Dias',fontsize=15)
         plt.show()
+        
     def getCoef(self):
         return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,self.beta/self.gamma,(self.S,self.ypred,self.R)]
     
@@ -557,21 +561,23 @@ class SEIR_EDO:
 
 
     def SEIR_diff_eqs(self,INP,t, beta0, alpha, kappa, gamma, sigma, lamb,mu,d):  
-      '''The main set of equations'''
-      Y=np.zeros((7))
-      V = INP    
-      beta = beta0*(1-alpha)*(1 -self.D/self.N)**kappa
-      Y[0] = - beta * V[0] * V[1]/self.N  - mu* V[0] * V[1]  #Susceptibles
-      Y[1] = sigma * V[2] - (gamma + mu)*V[1]            #Infectious 
-      Y[2] = beta * V[0] * V[1]/self.N  - (sigma + mu) * V[2] #exposed
-      Y[3] = d*gamma * V[1] - lamb * V[3]                #publicPerception
-      Y[4] = -sigma * V[2]                               #cumulativeCases
-      Y[5] = gamma * V[1] - mu*V[5]                      #Removed
-      Y[6] = mu * V[6]                                  #Population size
+      '''
+      The main set of equations
+      '''
+        Y=np.zeros((7))
+        V = INP    
+        beta = beta0*(1-alpha)*(1 -self.D/self.N)**kappa
+        Y[0] = - beta * V[0] * V[1]/self.N  - mu* V[0] * V[1]  #Susceptibles
+        Y[1] = sigma * V[2] - (gamma + mu)*V[1]            #Infectious 
+        Y[2] = beta * V[0] * V[1]/self.N  - (sigma + mu) * V[2] #exposed
+        Y[3] = d*gamma * V[1] - lamb * V[3]                #publicPerception
+        Y[4] = -sigma * V[2]                               #cumulativeCases
+        Y[5] = gamma * V[1] - mu*V[5]                      #Removed
+        Y[6] = mu * V[6]                                  #Population size
       
-      self.Y = Y
+        self.Y = Y
       
-      return Y   # For odeint
+        return Y   # For odeint
 
 
     def fitness_function(self, x, y, Model_Input, t_range):
