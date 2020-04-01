@@ -531,12 +531,12 @@ class SIR_EDO:
         lists = [np.random.choice(a = y, size = len(x), replace = True) for i in repeat(None, bootstrap)]
         pool =  mp.Pool(processes = n_jobs)
         results = pool.starmap(self.runSir, [(lists[i], x, ndays) for i in range(0,len(lists))])
-        df = pd.DataFrame(results)
-        self.newdf = pd.DataFrame.from_dict({"date": pd.date_range(start = start, 
-                                                                  periods = ndays + 1, freq = "D"),
-                                             "predicted": np.mean(df, axis = 0),
-                                             "lb": np.quantile(df, q = 0.0275, axis = 0),
-                                             "ub": np.quantile(df, q = 0.975, axis = 0)})
+        #df = pd.DataFrame(results)
+        #self.newdf = pd.DataFrame.from_dict({"date": pd.date_range(start = start, 
+                                                                  #periods = ndays + 1, freq = "D"),
+                                             #"predicted": np.mean(df, axis = 0),
+                                             #"lb": np.quantile(df, q = 0.0275, axis = 0),
+                                             #"ub": np.quantile(df, q = 0.975, axis = 0)})
         return self.newdf
         
 
@@ -560,10 +560,10 @@ class SEIR_EDO:
         self.R = 0     # removed
 
 
-    def SEIR_diff_eqs(self,INP,t, beta0, alpha, kappa, gamma, sigma, lamb,mu,d):  
-      '''
-      The main set of equations
-      '''
+    def SEIR_diff_eqs(self,INP,t, beta0, alpha, kappa, gamma, sigma, lamb,mu,d):
+        '''
+        The main set of equations
+        '''
         Y=np.zeros((7))
         V = INP    
         beta = beta0*(1-alpha)*(1 -self.D/self.N)**kappa
