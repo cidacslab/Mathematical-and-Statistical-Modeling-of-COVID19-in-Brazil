@@ -513,17 +513,27 @@ class SIR_EDO:
         return self.predict(newx)
         
         
-    def fit_predictCI(self, y, x, start, ndays, bootstrap, n_jobs):
-            lists = [np.random.choice(a = y, size = len(x), replace = True) for i in repeat(None, bootstrap)]
-            pool =  mp.Pool(processes = n_jobs)
-            results = pool.starmap(self.runSir, [(lists[i], x, ndays) for i in range(0,len(lists))])
-            df = pd.DataFrame(results)
-            self.newdf = pd.DataFrame.from_dict({"date": pd.date_range(start = start, 
+    def predictCI(self, y, x, start, ndays, bootstrap, n_jobs):
+        """
+        This function fits diffent models to data to get confidence interval for I + R.
+        y = an array with the series of cases
+        x = an range object with the first and last day of cases
+        start =  a date in format "YYYY-mm-dd" indicating the day of the first case reported
+        ndays = number of days to be predicted
+        bootstrap = number of times that the model will run
+        n_jobs = number of core to be used to fit the models
+        
+        """
+        lists = [np.random.choice(a = y, size = len(x), replace = True) for i in repeat(None, bootstrap)]
+        pool =  mp.Pool(processes = n_jobs)
+        results = pool.starmap(self.runSir, [(lists[i], x, ndays) for i in range(0,len(lists))])
+        df = pd.DataFrame(results)
+        self.newdf = pd.DataFrame.from_dict({"date": pd.date_range(start = start, 
                                                                   periods = ndays + 1, freq = "D"),
                                              "predicted": np.mean(df, axis = 0),
                                              "lb": np.quantile(df, q = 0.0275, axis = 0),
                                              "ub": np.quantile(df, q = 0.975, axis = 0)})
-            return self.newdf
+        return self.newdf
         
 
         
