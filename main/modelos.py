@@ -489,7 +489,7 @@ class SIR_EDO:
             result_fit = spi.odeint(self.SIR_diff_eqs, (self.S0, self.I0,
                             self.R0), t_range, args=(self.beta, self.gamma))
             
-            
+            self.ypred = result_fit[:, 1]*self.N + result_fit[:, 2]*self.N
             self.S=result_fit[:, 0]*self.N
             self.R=result_fit[:, 2]*self.N
             self.I=result_fit[:, 1]*self.N
