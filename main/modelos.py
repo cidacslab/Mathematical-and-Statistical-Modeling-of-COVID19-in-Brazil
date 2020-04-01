@@ -301,7 +301,8 @@ class SIR_PSO:
             res = []
             S,I,R = self.__cal_EDO(x,y,coef[i,0],coef[i,1])
             for j in range(tam):
-                res.append((I[j] - y[j])**2)
+               # res.append((I[j] - y[j])**2) # como era
+                res.append(((I[j] +R[j]) - y[j])**2) # como fica
             soma.append(sum(res)/tam)
         return np.array(soma)
     
@@ -343,7 +344,7 @@ class SIR_PSO:
         self.S = S
         self.I = I
         self.R = R         
-        return I
+        return I+R
     
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
@@ -398,7 +399,7 @@ class SIR_EDO:
         result = spi.odeint(self.SIR_diff_eqs, Model_Input, t_range,
                             args=(beta, gamma))
 
-        mean_squared_error = ((np.array(y) - result[:, 1]) ** 2).mean()
+        mean_squared_error = ((np.array(y) - (result[:, 1] + result[:, 2])) ** 2).mean()
     
         return [mean_squared_error]
 
@@ -488,8 +489,9 @@ class SIR_EDO:
             self.ypred = result_fit[:, 1]*self.N
             self.S=result_fit[:, 0]*self.N
             self.R=result_fit[:, 2]*self.N
+            self.I=result_fit[:, 1]*self.N
 
-            return result_fit[:, 1]*self.N
+            return (result_fit[:, 1]*self.N + result_fit[:, 2]*self.N)
         
     def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')
