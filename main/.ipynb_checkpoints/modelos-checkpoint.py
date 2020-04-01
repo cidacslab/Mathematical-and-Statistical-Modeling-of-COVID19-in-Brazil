@@ -12,6 +12,7 @@ import numpy as np
 import datetime as dt
 import pandas as pd
 import logging
+from functools import reduce
 import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
 from pyswarms.single.global_best import GlobalBestPSO
@@ -496,7 +497,8 @@ class SIR_EDO:
             return (result_fit[:, 1]*self.N + result_fit[:, 2]*self.N)
         else:
             self.ypred = result_fit[:, 1]*self.N + result_fit[:, 2]*self.N
-            return(self.pred, self.I, self.R, self.S)
+            self.res = {"pred": self.ypred, "I": self.I, "R": self.R, "S":self.S}
+            return pd.DataFrame.from_dict(self.res)
         
     def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')
@@ -514,7 +516,7 @@ class SIR_EDO:
     def runSir(self, y, x, ndays):
         newx = range(1, ndays) 
         self.fit(y = y, x = x)
-        return self.predict(newx)
+        return self.predict(newx, ci = True)
         
         
     def predictCI(self, y, x, start, ndays, bootstrap, n_jobs):
@@ -528,16 +530,45 @@ class SIR_EDO:
         n_jobs = number of core to be used to fit the models
         
         """
+        
+        #Make some parameters avaliable for returnDF
+        self.start = start
+        self.ndays = ndays
+        
+        
+        #Create a lol with data for run the model
+        #Model will be fitted and predicted so R) using ci is not consisent
         lists = [np.random.choice(a = y, size = len(x), replace = True) for i in repeat(None, bootstrap)]
+        
+        #Make cores avalible to the process
         pool =  mp.Pool(processes = n_jobs)
+        
+        #Run the model
         results = pool.starmap(self.runSir, [(lists[i], x, ndays) for i in range(0,len(lists))])
-        #df = pd.DataFrame(results)
-        #self.newdf = pd.DataFrame.from_dict({"date": pd.date_range(start = start, 
-                                                                  #periods = ndays + 1, freq = "D"),
-                                             #"predicted": np.mean(df, axis = 0),
-                                             #"lb": np.quantile(df, q = 0.0275, axis = 0),
-                                             #"ub": np.quantile(df, q = 0.975, axis = 0)})
-        return self.newdf
+        
+        #Create data frames for models
+        pred = [results[i]["pred"] for i in range(0,len(results))]
+        I = [results[i]["I"] for i in range(0,len(results))]
+        S = [results[i]["S"] for i in range(0,len(results))]
+        R = [results[i]["R"] for i in range(0,len(results))]
+        
+        pred = self.__returnDF(pred,"Pred")
+        I = self.__returnDF(I,"I")
+        R = self.__returnDF(R,"R")
+        S = self.__returnDF(S,"S")
+        
+                        
+        self.dfs = reduce(lambda df1, df2: df1.merge(df2, "left"), [pred,I,S,R])
+        return self.dfs
+    
+    
+    def __returnDF(self,lol, parName):
+        df = pd.DataFrame.from_dict({"date": pd.date_range(start = self.start, periods = self.ndays + 1, freq = "D"),
+                                     parName: np.mean(lol, axis = 0),
+                                     parName + "_lb": np.quantile(lol, q = 0.0275, axis = 0),
+                                     parName + "_ub": np.quantile(lol, q = 0.975, axis = 0)})
+        return df
+        
         
 
         
