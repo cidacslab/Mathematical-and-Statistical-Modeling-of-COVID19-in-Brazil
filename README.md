@@ -17,6 +17,7 @@ A library for compartimental models to understand the spread of transmission dis
  - Learn by doing 
      - [A simple SIR computaion](/tutorials/SIR.ipynb)
      - [SIR with 95 CI](/tutorials/CIForSIR.ipynb)
+     - [Confidence interval using multprocessing](/tutorials/SIRCIMP.ipynb)
  
  
 # Installation
