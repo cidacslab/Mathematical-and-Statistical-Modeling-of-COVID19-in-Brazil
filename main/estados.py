@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_EDO' #EXP, SIR_PSO, SIR_EDO , SEIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SIR_GA_fit_I' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
@@ -23,7 +23,7 @@ previsao_ate = dt.date(2020,4,5)
 
 #carregar dados
 nome, local = md.ler_banco_estados()
-df_pop = pd.read_csv('../data/populações.csv')
+df_pop = pd.read_csv('../data/populacoes.csv')
 #carregar dados alternativa
 #timeseries,populacao = md.ler_banco_alternativa()
 
@@ -47,12 +47,14 @@ for i in range(len(novo_nome)):
         modelo = md.SIR_PSO(N_inicial)
     elif modelo_usado =='EXP':
         modelo = md.EXP(N_inicial)
-    elif modelo_usado =='SIR_EDO':
-        modelo = md.SIR_EDO(N_inicial)
-    elif modelo_usado =='SEIR_EDO':
-        modelo = md.SEIR_EDO(N_inicial)
-    elif modelo_usado=='SEQIJR_EDO':
-        modelo = md.SEQIJR_EDO(N_inicial)
+    elif modelo_usado =='SIR_GA':
+        modelo = md.SIR_GA(N_inicial)
+    elif modelo_usado =='SIR_GA_fit_I':
+        modelo = md.SIR_GA_fit_I(N_inicial)
+    elif modelo_usado =='SEIR_GA':
+        modelo = md.SEIR_GA(N_inicial)
+    elif modelo_usado=='SEQIJR_GA':
+        modelo = md.SEQIJR_GA(N_inicial)
     else:
         print('Modelo desconhecido '+modelo_usado)
         sys.exit(1)

@@ -11,7 +11,7 @@ import pandas as pd
 import sys
 
 # parametros
-modelo_usado = 'SIR_EDO' #EXP, SIR_PSO, SIR_EDO ou SEQIJR_EDO
+modelo_usado = 'SIR_GA' #EXP, SIR_PSO, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
@@ -48,12 +48,14 @@ for i in range(len(novo_nome)):
         N=10000
     if modelo_usado =='SIR_PSO':
         modelo = md.SIR_PSO(N)
-    elif modelo_usado =='SIR_EDO':
-        modelo = md.SIR_EDO(N)
+    elif modelo_usado =='SIR_GA_fit_I':
+        modelo = md.SIR_GA_fit_I(N)
+    elif modelo_usado =='SIR_GA':
+        modelo = md.SIR_GA(N)
     elif modelo_usado =='EXP':
         modelo = md.EXP(N)
-    elif modelo_usado=='SEQIJR_EDO':
-        modelo = md.SEQIJR_EDO(N)
+    elif modelo_usado=='SEQIJR_GA':
+        modelo = md.SEQIJR_GA(N)
     else:
         print('Modelo desconhecido '+modelo_usado)
         sys.exit(1)
