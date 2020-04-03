@@ -657,7 +657,7 @@ class SIR_GA_fit_I:
         
         self.beta = feasible_solutions[0].variables[0]
         self.gamma = feasible_solutions[0].variables[1]
-        self.rmse = ((self.y - self.ypred[0:len(self.y)])**2).mean()
+        
         input_variables = ['beta','gamma']
         file_address = 'optimised_coefficients/'
         filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SIR_EDO',name,len(x))        
