@@ -89,6 +89,7 @@ df.to_csv(arq_saida,index=False)
 su = pd.DataFrame()
 su['ibgeID'] = novo_nome
 pop = []
+rmse = []
 coef_list = []
 y = []
 coef_name = None
@@ -97,7 +98,9 @@ for i in range(len(novo_nome)):
     coef_name, coef  = modelos[i].getCoef()
     coef_list.append(coef)
     pop.append(modelos[i].N)
+    rmse.append(modelos[i].rmse)
 su['populacao']= pop
+su['rmse'] = rmse
 for c in range(len(coef_name)-1):
     l = []
     for i in range(len(coef_list)):

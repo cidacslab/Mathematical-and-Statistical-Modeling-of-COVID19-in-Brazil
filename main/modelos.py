@@ -397,7 +397,7 @@ class SIR_GA:
 
         beta = x[0]
         gamma = x[1]
-
+        
         result = spi.odeint(self.SIR_diff_eqs, Model_Input, t_range,
                             args=(beta, gamma))
 
@@ -493,10 +493,11 @@ class SIR_GA:
             result_fit = spi.odeint(self.SIR_diff_eqs, (self.S0, self.I0,
                             self.R0), t_range, args=(self.beta, self.gamma))
             
-            self.ypred = result_fit[:, 1]*self.N + result_fit[:, 2]*self.N
+            self.ypred = (result_fit[:, 1] + result_fit[:, 2])*self.N
             self.S=result_fit[:, 0]*self.N
             self.R=result_fit[:, 2]*self.N
             self.I=result_fit[:, 1]*self.N
+            self.rmse = ((self.y-self.ypred[0:len(self.y)])**2).mean()
         if ci == False:
             return (result_fit[:, 1]*self.N + result_fit[:, 2]*self.N)
         else:
@@ -602,7 +603,7 @@ class SIR_GA_fit_I:
 
         beta = x[0]
         gamma = x[1]
-
+        
         result = spi.odeint(self.SIR_diff_eqs, Model_Input, t_range,
                             args=(beta, gamma))
 
@@ -656,7 +657,7 @@ class SIR_GA_fit_I:
         
         self.beta = feasible_solutions[0].variables[0]
         self.gamma = feasible_solutions[0].variables[1]
-        
+        self.rmse = ((self.y - self.ypred[0:len(self.y)])**2).mean()
         input_variables = ['beta','gamma']
         file_address = 'optimised_coefficients/'
         filename = "ParametrosAjustados_Modelo_{}_{}_{}_Dias.txt".format('SIR_EDO',name,len(x))        
@@ -702,6 +703,7 @@ class SIR_GA_fit_I:
             self.S=result_fit[:, 0]*self.N
             self.R=result_fit[:, 2]*self.N
             self.I=result_fit[:, 1]*self.N
+            self.rmse = ((self.y-self.ypred[0:len(self.y)])**2).mean()
         if ci == False:
             return (result_fit[:, 1]*self.N)
         else:

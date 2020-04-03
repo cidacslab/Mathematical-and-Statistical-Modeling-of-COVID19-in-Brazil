@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_GA_fit_I' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
+modelo_usado = 'SIR_GA' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
@@ -96,15 +96,18 @@ df.to_csv(arq_saida,index=False)
 su = pd.DataFrame()
 su['state'] = novo_nome
 pop = []
+rmse = []
 coef_list = []
 y = []
 coef_name = None
 for i in range(len(novo_nome)):
     y.append(';'.join(map(str, modelos[i].y)))
     coef_name, coef  = modelos[i].getCoef()
+    rmse.append(modelos[i].rmse)
     coef_list.append(coef)
     pop.append(modelos[i].N)
 su['populacao']= pop
+su['rmse'] = rmse
 for c in range(len(coef_name)-1):
     l = []
     for i in range(len(coef_list)):
