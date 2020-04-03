@@ -213,6 +213,7 @@ class EXP:
         self.N=N_inicial
         self.a = None
         self.b = None
+         
         
     def __objectiveFunction(self,coef,x ,y):
         tam = len(y)
@@ -225,6 +226,7 @@ class EXP:
 
     def fit(self, x,y , bound = None, name=None):
         self.name=name
+        
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -276,50 +278,60 @@ class EXP:
 class SIR_PSO:
     ''' SIR Model'''
     def __init__(self,tamanhoPop):
-        self.tamanhoPop = tamanhoPop
+        self.N = tamanhoPop
         self.beta = None
         self.gamma = None
         
     
-    def __cal_EDO(self,x,y,beta,gamma):
-        I0 = y[0]
-        S0 = self.tamanhoPop - I0
-        R0 = 0
-        def funct(y,x):
-            S=y[0]
-            I=y[1]   
-            f0 = - beta * S * I        
-            f1 = beta * S * I - gamma * I
-            f2 = gamma * I
-            return [f0, f1, f2]
-        initial_cond = [S0,I0,R0]
-     #integrate------------------------------------
-        self.teste = (funct,initial_cond,x)
-        ds = spi.odeint(funct,initial_cond,x)
-        return (ds[:,0],ds[:,1],ds[:2])
+    def __cal_EDO(self,x,beta,gamma):
+            ND = len(x)-1
+            t_start = 0.0
+            t_end = ND
+            t_inc = 1
+            t_range = np.arange(t_start, t_end + t_inc, t_inc)
+            beta = np.array(beta)
+            gamma = np.array(gamma)
+            def SIR_diff_eqs(INP, t, beta, gamma):
+                Y = np.zeros((3))
+                V = INP
+                Y[0] = - beta * V[0] * V[1]                 #S
+                Y[1] = beta * V[0] * V[1] - gamma * V[1]    #I
+                Y[2] = gamma * V[1]                         #R
+                
+                return Y
+            result_fit = spi.odeint(SIR_diff_eqs, (self.S0, self.I0,self.R0), t_range,
+                                    args=(beta, gamma))
+            
+            S=result_fit[:, 0]*self.N
+            R=result_fit[:, 2]*self.N
+            I=result_fit[:, 1]*self.N
+            
+            return S,I,R
     
     def __objectiveFunction(self,coef,x ,y):
-        tam = len(y)
-        soma = []
-        for i in range(len(coef[:,0])):
-            res = []
-            S,I,R = self.__cal_EDO(x,y,coef[i,0],coef[i,1])
-            for j in range(tam):
-               # res.append((I[j] - y[j])**2) # como era
-                res.append(((I[j] +R[j]) - y[j])**2) # como fica
-            soma.append(sum(res)/tam)
-        return np.array(soma)
+        tam2 = len(coef[:,0])
+        soma = np.zeros(tam2)
+        y = y*self.N
+        for i in range(tam2):
+            S,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1])
+            soma[i]= ((y-(I+R))**2).mean()
+        return soma
     
 
-    def fit(self, x,y , bound = None, name=None):
-        self.name=name
+    def fit(self, x,y , bound = ([0,1/21-0.0001],[1,1/5+0.0001]), name=None):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
         bound = intervalo de limite para procura de cada parametro, onde None = sem limite
         
-        bound => (lista_min_bound, lista_max_bound) '''
-        df = np.array(y)
+        bound => (lista_min_bound, lista_max_bound)
+        '''
+        self.name=name
+        self.y = y
+        df = np.array(y)/self.N
+        self.I0 = df[0]
+        self.S0 = 1-self.I0
+        self.R0 = 0
         options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
         if bound==None:
             optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options)
@@ -344,7 +356,7 @@ class SIR_PSO:
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
-        S,I,R = self.__cal_EDO(x,self.y,self.beta,self.gamma)
+        S,I,R = self.__cal_EDO(x,self.beta,self.gamma)
         self.S = S
         self.I = I
         self.R = R         
@@ -363,7 +375,7 @@ class SIR_PSO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma',['suscetivel','infectados','recuperados','casos']], [self.beta,self.gamma,self.Y]
+        return ['beta','gamma',['suscetivel','infectados','recuperados','casos']], [self.beta,self.gamma,self.y]
     
 class SIR_GA:
 
