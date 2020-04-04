@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_GA_fit_I' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
+modelo_usado = 'SEIR_GA' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
