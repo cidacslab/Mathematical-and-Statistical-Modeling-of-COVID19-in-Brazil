@@ -236,8 +236,8 @@ class EXP:
         df = np.array(y)
         options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
         if bound==None:
-            optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
+            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df)
             self.a = pos[0]
             self.b = pos[1]
             self.x = x
@@ -245,8 +245,8 @@ class EXP:
             self.rmse = cost
             self.optimize = optimizer
         else:
-            optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options,bounds=bound)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
+            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df)
             self.a = pos[0]
             self.b = pos[1]
             self.x = x
@@ -257,8 +257,23 @@ class EXP:
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
         res = [self.a*np.exp(self.b*v) for v in x]
+        self.ypred = res
          
         return res
+    
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
     
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
@@ -334,22 +349,20 @@ class SIR_PSO:
         self.R0 = 0
         options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
         if bound==None:
-            optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
+            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df,n_processes=None)
             self.beta = pos[0]
             self.gamma = pos[1]
             self.x = x
-            self.y = df
             self.rmse = cost
             self.optimize = optimizer
             
         else:
-            optimizer = GlobalBestPSO(n_particles=10, dimensions=2, options=options,bounds=bound)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 1000, x = x,y=df)
+            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df,n_processes=None)
             self.beta = pos[0]
             self.gamma = pos[1]
             self.x = x
-            self.y = df
             self.rmse = cost
             self.optimize = optimizer
             
@@ -357,10 +370,24 @@ class SIR_PSO:
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
         S,I,R = self.__cal_EDO(x,self.beta,self.gamma)
+        self.ypred = I+R
         self.S = S
         self.I = I
         self.R = R         
         return I+R
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
     
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
@@ -516,6 +543,20 @@ class SIR_GA:
             self.ypred = result_fit[:, 1]*self.N + result_fit[:, 2]*self.N
             self.res = {"pred": self.ypred, "I": self.I, "R": self.R, "S":self.S}
             return pd.DataFrame.from_dict(self.res)
+    
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
         
     def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')
@@ -722,6 +763,20 @@ class SIR_GA_fit_I:
             self.ypred = result_fit[:, 1]*self.N
             self.res = {"pred": self.ypred, "I": self.I, "R": self.R, "S":self.S}
             return pd.DataFrame.from_dict(self.res)
+        
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
         
     def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')
@@ -964,6 +1019,20 @@ class SEIR_GA:
             self.ypred = result_fit[:, 1]
 
             return result_fit[:, 1]
+        
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
         
     def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')
@@ -1247,6 +1316,20 @@ class SEQIJR_GA:
            self.ypred = result_fit[:, 3]
 
            return result_fit[:, 3]
+       
+   def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+   def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
        
    def plot(self,local):
         plt.plot(self.ypred,c='b',label='Predição Infectados')

@@ -68,6 +68,8 @@ for i in range(len(novo_nome)):
     x_pred = range(1,dias+1)
     y_pred =modelo.predict(x_pred)
     novo_local[i]['totalCasesPred'] = y_pred[0:len(novo_local[i])]
+    novo_local[i]['residuo_quadratico'] = modelo.getResiduosQuadatico()
+    novo_local[i]['res_quad_padronizado'] = modelo.getReQuadPadronizado()
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
     for d in range(1,dias):
@@ -76,13 +78,15 @@ for i in range(len(novo_nome)):
     
     novo_local[i].ibgeID = pd.to_numeric(novo_local[i].ibgeID,downcast='integer')
     
+
+if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
+    for i in range(0,len(modelos)):
+        novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['Recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
 df = novo_local[0]
 for i in range(1,len(novo_local)):
     df = df.append(novo_local[i],ignore_index=True)
-for i in range(1,len(modelos)):
-    novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    novo_local[i]['Recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-
 df.to_csv(arq_saida,index=False)
 
 

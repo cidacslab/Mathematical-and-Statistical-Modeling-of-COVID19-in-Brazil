@@ -13,13 +13,14 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_GA' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
+modelo_usado = 'SIR_GA_fit_I' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
 arq_brasil_saida = '../data/brasil.csv'
 previsao_ate = dt.date(2020,4,5)
+
 
 #carregar dados
 nome, local = md.ler_banco_estados()
@@ -40,7 +41,7 @@ for i in range(len(novo_nome)):
     if i==0:
         N_inicial = 217026005
     else:
-        N_inicial = int(df_pop['População'][df_pop.Sigla==novo_nome[i]])
+        N_inicial = int(df_pop['Pop'][df_pop.Sigla==novo_nome[i]])
     print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
     if modelo_usado =='SIR_PSO':
@@ -74,6 +75,8 @@ for i in range(len(novo_nome)):
 #    plt.xlabel('Dias',fontsize=15)
 #    plt.show()    
     novo_local[i]['totalCasesPred'] = y_pred[0:len(novo_local[i])]
+    novo_local[i]['residuo_quadratico'] = modelo.getResiduosQuadatico()
+    novo_local[i]['res_quad_padronizado'] = modelo.getReQuadPadronizado()
     ultimo_dia = novo_local[i].date.iloc[-1]
     dias = (previsao_ate-novo_local[i].date.iloc[-1]).days
     for d in range(1,dias):
@@ -81,15 +84,20 @@ for i in range(len(novo_nome)):
         novo_local[i]=novo_local[i].append({'totalCasesPred':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
 brasil =   novo_local[0]
-brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
-brasil['Recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
+if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
+    brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
+    brasil['infectado'] =  pd.to_numeric(pd.Series(modelos[0].I[0:len(brasil.TOTAL)]),downcast='integer') 
+    brasil['recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
+
 brasil.to_csv(arq_brasil_saida,index=False)    
 df = novo_local[0]
-for i in range(len(modelos)):
-    novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    novo_local[i]['Recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-for i in range(1,len(novo_local)):
-    df = df.append(novo_local[i],ignore_index=True)
+if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
+    for i in range(len(modelos)):
+        novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
+    for i in range(1,len(novo_local)):
+        df = df.append(novo_local[i],ignore_index=True)
 
 df.to_csv(arq_saida,index=False)
 
