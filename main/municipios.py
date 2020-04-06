@@ -11,7 +11,8 @@ import pandas as pd
 import sys
 
 # parametros
-modelo_usado = 'SIR_GA' #EXP, SIR_PSO, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
+modelo_usado = 'SIR_GA' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
+numeroProcessadores = None # numero de prossesadores para executar em paralelo
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
@@ -47,13 +48,15 @@ for i in range(len(novo_nome)):
         print('não achou pop da cidade '+str(novo_nome[i]))
         N=10000
     if modelo_usado =='SIR_PSO':
-        modelo = md.SIR_PSO(N)
+        modelo = md.SIR_PSO(N,numeroProcessadores)
+    elif modelo_usado =='SIR_PSO_padro':
+        modelo = md.SIR_PSO_padro(N_inicial,numeroProcessadores)
     elif modelo_usado =='SIR_GA_fit_I':
         modelo = md.SIR_GA_fit_I(N)
     elif modelo_usado =='SIR_GA':
         modelo = md.SIR_GA(N)
     elif modelo_usado =='EXP':
-        modelo = md.EXP(N)
+        modelo = md.EXP(N,numeroProcessadores)
     elif modelo_usado=='SEQIJR_GA':
         modelo = md.SEQIJR_GA(N)
     else:

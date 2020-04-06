@@ -13,13 +13,15 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEIR_GA' #EXP, SIR_PSO, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
+modelo_usado = 'SIR_PSO_padro' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
+estados = ['TOTAL','BA'] # lista de estados, None para todos
+numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
 arq_brasil_saida = '../data/brasil.csv'
-previsao_ate = dt.date(2020,4,5)
+previsao_ate = dt.date(2020,4,6)
 
 
 #carregar dados
@@ -30,10 +32,15 @@ df_pop = pd.read_csv('../data/populacoes.csv')
 
 novo_nome = []
 novo_local = []
+
 for i in range(len(nome)):
-    if (local[i].TOTAL.iloc[-1]>=min_cases) & (len(local[i])>=10):
+    if (local[i].TOTAL.iloc[-1]>=min_cases) & (len(local[i])>=10) & (estados==None):
         novo_local.append(local[i])
         novo_nome.append(nome[i])
+    elif estados!= None:
+        if nome[i] in estados:
+            novo_nome.append(nome[i])
+            novo_local.append(local[i])
 previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 N_inicial = 0
@@ -45,9 +52,11 @@ for i in range(len(novo_nome)):
     print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
     if modelo_usado =='SIR_PSO':
-        modelo = md.SIR_PSO(N_inicial)
+        modelo = md.SIR_PSO(N_inicial,numeroProcessadores)
+    elif modelo_usado =='SIR_PSO_padro':
+        modelo = md.SIR_PSO_padro(N_inicial,numeroProcessadores)
     elif modelo_usado =='EXP':
-        modelo = md.EXP(N_inicial)
+        modelo = md.EXP(N_inicial,numeroProcessadores)
     elif modelo_usado =='SIR_GA':
         modelo = md.SIR_GA(N_inicial)
     elif modelo_usado =='SIR_GA_fit_I':
