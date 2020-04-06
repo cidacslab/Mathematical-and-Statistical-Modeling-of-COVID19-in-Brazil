@@ -567,7 +567,7 @@ class SIR_GA:
         TS = 1
         ND = len(y) - 1
         
-        y = y/self.N
+        y = self.y/self.N
     
         t_start = 0.0
         t_end = ND
@@ -653,9 +653,8 @@ class SIR_GA:
             self.I=result_fit[:, 1]*self.N
             self.rmse = ((self.y-self.ypred[0:len(self.y)])**2).mean()
         if ci == False:
-            return (result_fit[:, 1]*self.N + result_fit[:, 2]*self.N)
+            return self.ypred
         else:
-            self.ypred = result_fit[:, 1]*self.N + result_fit[:, 2]*self.N
             self.res = {"pred": self.ypred, "I": self.I, "R": self.R, "S":self.S}
             return pd.DataFrame.from_dict(self.res)
     
@@ -687,7 +686,7 @@ class SIR_GA:
     
     
     def runSir(self, y, x, ndays):
-        newx = range(1, ndays) 
+        newx = range(0, len(x) + ndays) 
         self.fit(y = y, x = x)
         return self.predict(newx, ci = True)
         
@@ -706,7 +705,7 @@ class SIR_GA:
         
         #Make some parameters avaliable for returnDF
         self.start = start
-        self.ndays = ndays
+        self.ndays = len(x) + ndays
         
         
         #Create a lol with data for run the model
@@ -736,7 +735,7 @@ class SIR_GA:
     
     
     def __returnDF(self,lol, parName):
-        df = pd.DataFrame.from_dict({"date": pd.date_range(start = self.start, periods = self.ndays + 1, freq = "D"),
+        df = pd.DataFrame.from_dict({"date": pd.date_range(start = self.start, periods = self.ndays + 2, freq = "D"),
                                      parName: np.mean(lol, axis = 0),
                                      parName + "_lb": np.quantile(lol, q = 0.0275, axis = 0),
                                      parName + "_ub": np.quantile(lol, q = 0.975, axis = 0)})
@@ -787,7 +786,7 @@ class SIR_GA_fit_I:
         TS = 1
         ND = len(y) - 1
         
-        y = y/self.N
+        y = self.y/self.N
     
         t_start = 0.0
         t_end = ND
