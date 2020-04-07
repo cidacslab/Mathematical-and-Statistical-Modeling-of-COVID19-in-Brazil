@@ -11,14 +11,14 @@ import pandas as pd
 import sys
 
 # parametros
-modelo_usado = 'SIR_GA' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
+modelo_usado = 'SEIR_PSO' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 N_inicial = 1000
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/municipios.csv'
 arq_sumario = '../data/municipios_sumario.csv'
-previsao_ate = dt.date(2020,4,5)
+previsao_ate = dt.date(2020,4,24)
 
 #carregar dados
 nome, local = md.ler_banco_municipios()
@@ -57,6 +57,8 @@ for i in range(len(novo_nome)):
         modelo = md.SIR_GA(N)
     elif modelo_usado =='EXP':
         modelo = md.EXP(N,numeroProcessadores)
+    elif modelo_usado =='SEIR_PSO':
+        modelo = md.SEIR_PSO(N_inicial)
     elif modelo_usado=='SEQIJR_GA':
         modelo = md.SEQIJR_GA(N)
     else:
@@ -81,15 +83,22 @@ for i in range(len(novo_nome)):
     
     novo_local[i].ibgeID = pd.to_numeric(novo_local[i].ibgeID,downcast='integer')
     
-
+df = novo_local[0]
 if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
     for i in range(0,len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['Recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-df = novo_local[0]
-for i in range(1,len(novo_local)):
-    df = df.append(novo_local[i],ignore_index=True)
+    for i in range(1,len(novo_local)):
+        df = df.append(novo_local[i],ignore_index=True)
+if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
+    for i in range(len(modelos)):
+        novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['exposto'] = pd.to_numeric(pd.Series(modelos[i].E[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
+    for i in range(1,len(novo_local)):
+        df = df.append(novo_local[i],ignore_index=True)
 df.to_csv(arq_saida,index=False)
 
 

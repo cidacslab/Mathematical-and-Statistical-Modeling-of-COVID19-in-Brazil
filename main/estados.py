@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_PSO_padro' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA , SIR_GA_fit_I, SEIR_GA ou SEQIJR_GA
+modelo_usado = 'SEIR_PSO' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA , SIR_GA_fit_I, SEIR_GA, SEIR_PSO ou SEQIJR_GA
 estados = ['TOTAL','BA'] # lista de estados, None para todos
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
@@ -21,7 +21,7 @@ min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
 arq_brasil_saida = '../data/brasil.csv'
-previsao_ate = dt.date(2020,4,6)
+previsao_ate = dt.date(2020,4,24)
 
 
 #carregar dados
@@ -61,6 +61,8 @@ for i in range(len(novo_nome)):
         modelo = md.SIR_GA(N_inicial)
     elif modelo_usado =='SIR_GA_fit_I':
         modelo = md.SIR_GA_fit_I(N_inicial)
+    elif modelo_usado =='SEIR_PSO':
+        modelo = md.SEIR_PSO(N_inicial)
     elif modelo_usado =='SEIR_GA':
         modelo = md.SEIR_GA(N_inicial)
     elif modelo_usado=='SEQIJR_GA':
@@ -97,12 +99,25 @@ if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fi
     brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
     brasil['infectado'] =  pd.to_numeric(pd.Series(modelos[0].I[0:len(brasil.TOTAL)]),downcast='integer') 
     brasil['recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
+if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
+    brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
+    brasil['exposto'] =  pd.to_numeric(pd.Series(modelos[0].E[0:len(brasil.TOTAL)]),downcast='integer') 
+    brasil['infectado'] =  pd.to_numeric(pd.Series(modelos[0].I[0:len(brasil.TOTAL)]),downcast='integer') 
+    brasil['recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
 
 brasil.to_csv(arq_brasil_saida,index=False)    
 df = novo_local[0]
 if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
+    for i in range(1,len(novo_local)):
+        df = df.append(novo_local[i],ignore_index=True)
+if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
+    for i in range(len(modelos)):
+        novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
+        novo_local[i]['exposto'] = pd.to_numeric(pd.Series(modelos[i].E[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
     for i in range(1,len(novo_local)):
@@ -125,7 +140,7 @@ for i in range(len(novo_nome)):
     pop.append(modelos[i].N)
 su['populacao']= pop
 su['rmse'] = rmse
-for c in range(len(coef_name)-1):
+for c in range(len(coef_name)):
     l = []
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
