@@ -16,6 +16,8 @@ from functools import reduce
 import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
 from pyswarms.single.global_best import GlobalBestPSO
+from pyswarms.single.general_optimizer import GeneralOptimizerPSO
+from pyswarms.backend.topology import Star
 from pyswarms.utils.plotters import plot_cost_history
 from itertools import repeat
 import multiprocessing as mp
@@ -1002,16 +1004,16 @@ class SEIR_PSO:
             
             return S,E,I,R
     
-    def __objectiveFunction(self,coef,x ,y):
+    def __objectiveFunction(self,coef,x ,y,mu):
         tam2 = len(coef[:,0])
         soma = np.zeros(tam2)
         for i in range(tam2):
-            S,E,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3])
+            S,E,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1],mu,coef[i,2])
             soma[i]= ((y-(I+R)*self.N)**2).mean()
         return soma
     
 
-    def fit(self, x,y , bound = ([0,1/7,1/(70*365.0),1/6],[1.5,1/4,1/(70*365.0),1/4]), name=None):
+    def fit(self, x,y , bound = ([0,1/7,1/6],[1.5,1/4,1/4]), name=None):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -1027,23 +1029,23 @@ class SEIR_PSO:
         self.E0 = 0
         options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
         if bound==None:
-            optimizer = GlobalBestPSO(n_particles=50, dimensions=4, options=options)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,n_processes=self.numeroProcessadores)
+            optimizer = GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Star())
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
-            self.mu = pos[2]
-            self.sigma = pos[3]
+            self.mu = 1/(75.51*365)
+            self.sigma = pos[2]
             self.x = x
             self.rmse = cost
             self.optimize = optimizer
             
         else:
-            optimizer = GlobalBestPSO(n_particles=50, dimensions=4, options=options,bounds=bound)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,n_processes=self.numeroProcessadores)
+            optimizer = GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,bounds=bound,topology=Star())
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
-            self.mu = pos[2]
-            self.sigma = pos[3]
+            self.mu = 1/(75.51*365)
+            self.sigma = pos[2]
             self.x = x
             self.rmse = cost
             self.optimize = optimizer
