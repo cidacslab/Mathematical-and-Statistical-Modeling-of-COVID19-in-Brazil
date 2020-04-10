@@ -1,0 +1,94 @@
+2020-04-10 10:16:27,695 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 10:17:06,288 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 10:17:12,229 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9073.709283966378, best pos: [0.40305625 0.20009623]
+2020-04-10 10:18:52,156 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 10:18:59,587 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9078.900633628951, best pos: [0.40271088 0.19978387]
+2020-04-10 10:19:27,983 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 10:19:35,316 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9075.164708367134, best pos: [0.40295905 0.2000016 ]
+2020-04-10 11:26:24,324 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 11:26:34,590 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 11:26:42,301 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9074.428720147007, best pos: [0.40296    0.20004916]
+2020-04-10 11:28:19,058 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 11:28:26,501 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9077.296073638543, best pos: [0.40282206 0.19986852]
+2020-04-10 11:58:54,725 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,496 - Platypus - INFO - NSGAII finished; Total NFE: 10081, Elapsed Time: 0:00:10.771173
+2020-04-10 11:59:05,809 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,809 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,809 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,808 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,809 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,809 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,809 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:05,812 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:31,474 - Platypus - INFO - NSGAII finished; Total NFE: 10114, Elapsed Time: 0:00:25.665182
+2020-04-10 11:59:31,481 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:31,488 - Platypus - INFO - NSGAII finished; Total NFE: 10120, Elapsed Time: 0:00:25.679398
+2020-04-10 11:59:31,494 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:31,920 - Platypus - INFO - NSGAII finished; Total NFE: 10128, Elapsed Time: 0:00:26.111166
+2020-04-10 11:59:31,930 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:32,799 - Platypus - INFO - NSGAII finished; Total NFE: 10099, Elapsed Time: 0:00:26.990470
+2020-04-10 11:59:32,806 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:33,172 - Platypus - INFO - NSGAII finished; Total NFE: 10126, Elapsed Time: 0:00:27.363422
+2020-04-10 11:59:33,177 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:35,865 - Platypus - INFO - NSGAII finished; Total NFE: 10188, Elapsed Time: 0:00:30.053049
+2020-04-10 11:59:35,870 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:36,673 - Platypus - INFO - NSGAII finished; Total NFE: 10210, Elapsed Time: 0:00:30.864441
+2020-04-10 11:59:36,678 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:37,034 - Platypus - INFO - NSGAII finished; Total NFE: 10136, Elapsed Time: 0:00:31.224816
+2020-04-10 11:59:37,058 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:58,648 - Platypus - INFO - NSGAII finished; Total NFE: 10151, Elapsed Time: 0:00:27.167085
+2020-04-10 11:59:58,654 - Platypus - INFO - NSGAII starting
+2020-04-10 11:59:59,599 - Platypus - INFO - NSGAII finished; Total NFE: 10164, Elapsed Time: 0:00:28.105103
+2020-04-10 11:59:59,603 - Platypus - INFO - NSGAII starting
+2020-04-10 12:00:01,344 - Platypus - INFO - NSGAII finished; Total NFE: 10175, Elapsed Time: 0:00:29.413330
+2020-04-10 12:00:01,348 - Platypus - INFO - NSGAII starting
+2020-04-10 12:00:02,023 - Platypus - INFO - NSGAII finished; Total NFE: 10146, Elapsed Time: 0:00:28.845969
+2020-04-10 12:00:02,049 - Platypus - INFO - NSGAII starting
+2020-04-10 12:00:02,785 - Platypus - INFO - NSGAII finished; Total NFE: 10180, Elapsed Time: 0:00:29.978758
+2020-04-10 12:00:02,789 - Platypus - INFO - NSGAII starting
+2020-04-10 12:00:04,946 - Platypus - INFO - NSGAII finished; Total NFE: 10129, Elapsed Time: 0:00:29.076467
+2020-04-10 12:00:04,953 - Platypus - INFO - NSGAII starting
+2020-04-10 12:00:05,695 - Platypus - INFO - NSGAII finished; Total NFE: 10121, Elapsed Time: 0:00:28.637230
+2020-04-10 12:00:05,700 - Platypus - INFO - NSGAII starting
+2020-04-10 12:00:07,697 - Platypus - INFO - NSGAII finished; Total NFE: 10172, Elapsed Time: 0:00:31.018387
+2020-04-10 12:00:07,703 - Platypus - INFO - NSGAII starting
+2020-04-10 14:12:35,893 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 14:12:42,956 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 1774.4604132020747, best pos: [0.32120945 0.1990051 ]
+2020-04-10 15:01:59,604 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 15:02:05,620 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 1773.697873004002, best pos: [0.32205767 0.19979544]
+2020-04-10 15:58:45,271 - dautil - WARNING - Could not import plotting module No module named 'pandas_datareader'
+2020-04-10 15:58:45,273 - dautil - WARNING - Could not import report module No module named 'pandas_datareader'
+2020-04-10 15:58:45,274 - dautil - WARNING - Could not import web module No module named 'bs4'
+2020-04-10 15:58:45,275 - dautil - WARNING - Could not import db module No module named 'sqlalchemy'
+2020-04-10 15:58:45,276 - dautil - WARNING - Could not import nlp module No module named 'sklearn'
+2020-04-10 15:59:37,363 - dautil - WARNING - Could not import plotting module No module named 'pandas_datareader'
+2020-04-10 15:59:37,365 - dautil - WARNING - Could not import report module No module named 'pandas_datareader'
+2020-04-10 15:59:37,366 - dautil - WARNING - Could not import web module No module named 'bs4'
+2020-04-10 15:59:37,367 - dautil - WARNING - Could not import db module No module named 'sqlalchemy'
+2020-04-10 15:59:37,368 - dautil - WARNING - Could not import nlp module No module named 'sklearn'
+2020-04-10 16:00:05,315 - dautil - WARNING - Could not import plotting module No module named 'pandas_datareader'
+2020-04-10 16:00:05,316 - dautil - WARNING - Could not import report module No module named 'pandas_datareader'
+2020-04-10 16:00:05,318 - dautil - WARNING - Could not import web module No module named 'bs4'
+2020-04-10 16:00:05,318 - dautil - WARNING - Could not import db module No module named 'sqlalchemy'
+2020-04-10 16:00:05,322 - dautil - WARNING - Could not import nlp module No module named 'pandas_datareader'
+2020-04-10 16:00:57,295 - dautil - WARNING - Could not import plotting module No module named 'pandas_datareader'
+2020-04-10 16:00:57,297 - dautil - WARNING - Could not import report module No module named 'pandas_datareader'
+2020-04-10 16:00:57,345 - dautil - WARNING - Could not import web module No module named 'selenium'
+2020-04-10 16:00:57,426 - dautil - WARNING - Could not import nlp module No module named 'pandas_datareader'
+2020-04-10 16:02:05,404 - dautil - WARNING - Could not import nlp module No module named 'nltk'
+2020-04-10 16:02:40,253 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 16:02:47,297 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 1773.5454146284856, best pos: [0.32226118 0.19990952]
+2020-04-10 17:14:02,358 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:14:08,490 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9095.855563373309, best pos: [0.40200765 0.19887632]
+2020-04-10 17:16:51,326 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:16:58,540 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9073.471289200188, best pos: [0.40303021 0.20009925]
+2020-04-10 17:21:40,899 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:21:46,924 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9076.6787546275, best pos: [0.40284329 0.19997309]
+2020-04-10 17:21:59,991 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:22:06,507 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9074.890812803176, best pos: [0.40295082 0.20001355]
+2020-04-10 17:30:57,322 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:31:03,657 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9073.939504552338, best pos: [0.40306584 0.20009361]
+2020-04-10 17:41:01,442 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:41:07,748 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9127.98338945704, best pos: [0.40004242 0.19693153]
+2020-04-10 17:54:54,202 - pyswarms.single.global_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+2020-04-10 17:55:00,935 - pyswarms.single.global_best - INFO - Optimization finished | best cost: 9083.526926735822, best pos: [0.40247474 0.19949267]
