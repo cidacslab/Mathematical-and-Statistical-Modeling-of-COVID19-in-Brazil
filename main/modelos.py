@@ -3,7 +3,7 @@
 """
 Created on Tue Mar 24 09:18:44 2020
 
-@author: Rafael Veiga
+@author: Rafael Veiga rafaelvalenteveiga@gmail.com
 @author: matheustorquato matheusft@gmail.com
 """
 import functools, os
@@ -18,6 +18,7 @@ from platypus import NSGAII, Problem, Real
 from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.single.general_optimizer import GeneralOptimizerPSO
 from pyswarms.backend.topology import Star
+from pyswarms.backend.topology import Ring
 from pyswarms.utils.plotters import plot_cost_history
 from itertools import repeat
 import multiprocessing as mp
@@ -742,7 +743,163 @@ class SIR_GA:
                                      parName + "_lb": np.quantile(lol, q = 0.0275, axis = 0),
                                      parName + "_ub": np.quantile(lol, q = 0.975, axis = 0)})
         return df
+    
+class SIR_PSO_beta_variante:
+    ''' SIR Model com 2 betas'''
+    def __init__(self,tamanhoPop,numeroProcessadores=None):
+        self.N = tamanhoPop
+        self.beta1 = None
+        self.beta2 = None
+        self.gamma = None
+        self.numeroProcessadores = numeroProcessadores
+    
+    def __cal_EDO(self,x,beta,gamma,cond_ini):
+            ND = len(x)-1
+            t_start = 0.0
+            t_end = ND
+            t_inc = 1
+            t_range = np.arange(t_start, t_end + t_inc, t_inc)
+            beta = np.array(beta)
+            gamma = np.array(gamma)
+            def SIR_diff_eqs(INP, t, beta, gamma):
+                Y = np.zeros((3))
+                V = INP
+                Y[0] = - beta * V[0] * V[1]                 #S
+                Y[1] = beta * V[0] * V[1] - gamma * V[1]    #I
+                Y[2] = gamma * V[1]                         #R
+                
+                return Y
+            result_fit = spi.odeint(SIR_diff_eqs, cond_ini, t_range,
+                                    args=(beta, gamma))
+            
+            S=result_fit[:, 0]
+            R=result_fit[:, 2]
+            I=result_fit[:, 1]
+            
+            return S,I,R
+    
+    def __objectiveFunction(self,coef,x ,y,day_mudar):
+        tam = len(y)
+        tam2 = len(coef[:,0])
+        soma = np.zeros(tam2)
+        x1 = x[0:day_mudar]
+        x2 = x[day_mudar-1:tam]
+        ypred = np.zeros(tam)
         
+        for i in range(tam2):
+            S1,I1,R1 = self.__cal_EDO(x1,coef[i,0],coef[i,2],(self.S0,self.I0,self.R0))
+            ypred[0:day_mudar] = (I1+R1)*self.N
+            S2,I2,R2 = self.__cal_EDO(x2,coef[i,1],coef[i,2],(S1[-1],I1[-1],R1[-1]))
+            ypred[day_mudar-1:tam] = (I2+R2)*self.N
+            soma[i]= (((y-ypred)/y)**2).mean()
+        return soma
+    def fit_busca_dia(self, x,y, bound = ([0,0,1/14],[1,1,1/5]), name=None):
+        dias = x[6:-5]
+        t = x[5]
+        print(t)
+        self.fit(x,y,day_mudar=t,bound=bound,name=name)
+        aux = (self.beta1,self.beta2,self.gamma,self.rmse)
+        for d in dias:
+            print('\n'+str(d)+'\n')
+            self.fit(x,y,day_mudar=d,bound=bound,name=name)
+            if(aux[3]>self.rmse):
+                aux = (self.beta1,self.beta2,self.gamma,self.rmse)   
+        self.beta1 = aux[0]
+        self.beta2 = aux[1]
+        self.gamma = aux[2]
+        self.rmse = aux[3]
+
+    def fit(self, x,y, day_mudar=5, bound = ([0,0,1/14],[1,1,1/5]), name=None):
+        '''
+        x = dias passados do dia inicial 1
+        y = numero de casos
+        bound = intervalo de limite para procura de cada parametro, onde None = sem limite
+        
+        bound => (lista_min_bound, lista_max_bound)
+        '''
+        self.name=name
+        self.day_mudar = day_mudar
+        self.y = y
+
+        self.I0 = y[0]/self.N
+        self.S0 = 1-self.I0
+        self.R0 = 0
+        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k': 2, 'p': 1}
+        if bound==None:
+            #optimizer = GlobalBestPSO(n_particles=50, dimensions=3, options=options)
+            optimizer = GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Ring())
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,day_mudar=day_mudar,n_processes=self.numeroProcessadores)
+            self.beta1 = pos[0]
+            self.beta2 = pos[1]
+            self.gamma = pos[2]
+            self.x = x
+            self.rmse = cost
+            self.optimize = optimizer
+            
+        else:
+            #optimizer = GlobalBestPSO(n_particles=50, dimensions=3, options=options,bounds=bound)
+            optimizer = GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Ring(),bounds=bound)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,day_mudar=day_mudar,n_processes=self.numeroProcessadores)
+            self.beta1 = pos[0]
+            self.beta2 = pos[1]
+            self.gamma = pos[2]
+            self.x = x
+            self.rmse = cost
+            self.optimize = optimizer
+            
+            
+    def predict(self,x):
+        ''' x = dias passados do dia inicial 1'''
+        self.ypred = np.zeros(len(x))
+        x1 = x[0:self.day_mudar]
+        x2 = x[self.day_mudar-1:len(x)]
+        S = np.zeros(len(x))
+        I = np.zeros(len(x))
+        R=np.zeros(len(x))
+        s,i,r = self.__cal_EDO(x1,self.beta1,self.gamma,(self.S0,self.I0,self.R0))
+        self.ypred[0:self.day_mudar] = (i+r)*self.N
+        S[0:self.day_mudar] = s*self.N
+        I[0:self.day_mudar] = i*self.N
+        R[0:self.day_mudar] = r*self.N
+        
+        s,i,r = self.__cal_EDO(x2,self.beta2,self.gamma,(s[-1],i[-1],r[-1]))
+        self.ypred[self.day_mudar-1:len(x)] = (i+r)*self.N
+        S[self.day_mudar-1:len(x)] = s*self.N
+        I[self.day_mudar-1:len(x)] = i*self.N
+        R[self.day_mudar-1:len(x)] = r*self.N
+        self.S = S
+        self.I = I
+        self.R = R         
+        return self.ypred
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        return (y - ypred)**2
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        ypred = np.array(self.ypred)
+        y = y[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        res = ((y - ypred)**2)/y
+        return res 
+    
+    def plotCost(self):
+        plot_cost_history(cost_history=self.optimize.cost_history)
+        plt.show()
+    def plot(self,local):
+        ypred = self.predict(self.x)
+        plt.plot(ypred,c='b',label='Predição Infectados')
+        plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
+        plt.legend(fontsize=15)
+        plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
+        plt.ylabel('Casos COnfirmados',fontsize=15)
+        plt.xlabel('Dias',fontsize=15)
+        plt.show()
+    def getCoef(self):
+        return ['beta1','beta2','gamma','mudança_dia'], [self.beta1,self.beta2,self.gamma,self.day_mudar]
+           
 class SIR_GA_fit_I:
 
     def __init__(self,N):
@@ -990,7 +1147,7 @@ class SEIR_PSO:
                 Y[0] = mu - beta * V[0] * V[2] - mu * V[0]  # Susceptile
                 Y[1] = beta * V[0] * V[2] - sigma * V[1] - mu * V[1] # Exposed
                 Y[2] = sigma * V[1] - gamma * V[2] - mu * V[2] # Infectious
-                Y[3] = gamma * V[2]
+                Y[3] = gamma * V[2] #recuperado
                 return Y   # For odeint
 
                 return Y

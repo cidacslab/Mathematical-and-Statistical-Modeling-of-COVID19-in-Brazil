@@ -2,7 +2,7 @@
 """
 Created on Sat Mar 21 13:22:11 2020
 
-@author: rafae
+@author: rafae rafaelvalenteveiga@gmail.com
 """
 
 import modelos as md
@@ -12,6 +12,7 @@ import sys
 
 # parametros
 modelo_usado = 'SEIR_PSO' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
+day_beta_change = 6
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 N_inicial = 1000
 min_cases = 5
@@ -50,7 +51,9 @@ for i in range(len(novo_nome)):
     if modelo_usado =='SIR_PSO':
         modelo = md.SIR_PSO(N,numeroProcessadores)
     elif modelo_usado =='SIR_PSO_padro':
-        modelo = md.SIR_PSO_padro(N_inicial,numeroProcessadores)
+        modelo = md.SIR_PSO_padro(N,numeroProcessadores)
+    elif modelo_usado =='SIR_PSO_beta_variante':
+        modelo = md.SIR_PSO_beta_variante(N,numeroProcessadores)
     elif modelo_usado =='SIR_GA_fit_I':
         modelo = md.SIR_GA_fit_I(N)
     elif modelo_usado =='SIR_GA':
@@ -58,16 +61,22 @@ for i in range(len(novo_nome)):
     elif modelo_usado =='EXP':
         modelo = md.EXP(N,numeroProcessadores)
     elif modelo_usado =='SEIR_PSO':
-        modelo = md.SEIR_PSO(N_inicial)
+        modelo = md.SEIR_PSO(N)
     elif modelo_usado=='SEQIJR_GA':
         modelo = md.SEQIJR_GA(N)
     else:
         print('Modelo desconhecido '+modelo_usado)
         sys.exit(1)
-    # SIR, SIR_EDO ou SEQIJR_EDO
+    
     y = novo_local[i].TOTAL
     x = range(1,len(y)+1)
-    modelo.fit(x,y)
+    if modelo_usado == 'SIR_PSO_beta_variante':
+        if day_beta_change==None:
+            modelo.fit_busca_dia(x,y,name=novo_nome[i])
+        else:
+            modelo.fit(x,y,name=novo_nome[i],day_mudar=day_beta_change)
+    else:
+        modelo.fit(x,y,name=novo_nome[i])
     modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
@@ -84,7 +93,7 @@ for i in range(len(novo_nome)):
     novo_local[i].ibgeID = pd.to_numeric(novo_local[i].ibgeID,downcast='integer')
     
 df = novo_local[0]
-if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
+if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I'or modelo_usado=='SIR_PSO_beta_variante':
     for i in range(0,len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')

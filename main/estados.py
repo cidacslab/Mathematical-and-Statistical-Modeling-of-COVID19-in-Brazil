@@ -2,7 +2,7 @@
 """
 Created on Sat Mar 21 13:22:11 2020
 
-@author: Rafael Veiga
+@author: Rafael Veiga rafaelvalenteveiga@gmail.com
 """
 
 import modelos as md
@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEIR_PSO' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA , SIR_GA_fit_I, SEIR_GA, SEIR_PSO ou SEQIJR_GA
-estados = ['TOTAL','BA'] # lista de estados, None para todos
+modelo_usado = 'SIR_PSO_beta_variante' #EXP, SIR_PSO, SIR_PSO_padro, SIR_PSO_beta_variante, SIR_GA , SIR_GA_fit_I, SEIR_GA, SEIR_PSO ou SEQIJR_GA
+day_beta_change = 6 # dia da mudança do valor do beta se None a busca vai ser automatica (computacionalmente intensivo)
+estados = ['TOTAL'] # lista de estados, None para todos
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
 min_dias = 10
@@ -55,6 +56,8 @@ for i in range(len(novo_nome)):
         modelo = md.SIR_PSO(N_inicial,numeroProcessadores)
     elif modelo_usado =='SIR_PSO_padro':
         modelo = md.SIR_PSO_padro(N_inicial,numeroProcessadores)
+    elif modelo_usado =='SIR_PSO_beta_variante':
+        modelo = md.SIR_PSO_beta_variante(N_inicial,numeroProcessadores)
     elif modelo_usado =='EXP':
         modelo = md.EXP(N_inicial,numeroProcessadores)
     elif modelo_usado =='SIR_GA':
@@ -73,7 +76,15 @@ for i in range(len(novo_nome)):
     
     y = novo_local[i].TOTAL
     x = range(1,len(y)+1)
-    modelo.fit(x,y,name=novo_nome[i])
+    
+    if modelo_usado == 'SIR_PSO_beta_variante':
+        if day_beta_change==None:
+            modelo.fit_busca_dia(x,y,name=novo_nome[i])
+        else:
+            modelo.fit(x,y,name=novo_nome[i],day_mudar=day_beta_change)
+    else:
+        modelo.fit(x,y,name=novo_nome[i])
+
     modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
@@ -95,7 +106,7 @@ for i in range(len(novo_nome)):
         novo_local[i]=novo_local[i].append({'totalCasesPred':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
 brasil =   novo_local[0]
-if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
+if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I' or modelo_usado=='SIR_PSO_beta_variante':
     brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
     brasil['infectado'] =  pd.to_numeric(pd.Series(modelos[0].I[0:len(brasil.TOTAL)]),downcast='integer') 
     brasil['recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
@@ -107,7 +118,7 @@ if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
 
 brasil.to_csv(arq_brasil_saida,index=False)    
 df = novo_local[0]
-if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I':
+if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I'or modelo_usado=='SIR_PSO_beta_variante':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
