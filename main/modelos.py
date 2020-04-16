@@ -379,12 +379,14 @@ class SIR_PSO:
         self.I = I
         self.R = R         
         return I+R
+
     def getResiduosQuadatico(self):
         y = np.array(self.y)
         ypred = np.array(self.ypred)
         y = y[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
         return (y - ypred)**2
+
     def getReQuadPadronizado(self):
         y = np.array(self.y)
         ypred = np.array(self.ypred)
@@ -396,6 +398,7 @@ class SIR_PSO:
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
         plt.show()
+
     def plot(self,local):
         ypred = self.predict(self.x)
         plt.plot(ypred,c='b',label='Predição Infectados')
@@ -407,6 +410,20 @@ class SIR_PSO:
         plt.show()
     def getCoef(self):
         return ['beta','gamma',['suscetivel','infectados','recuperados','casos']], [self.beta,self.gamma,self.y]
+
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
+
+
+
 
 class SIR_PSO_padro:
     ''' SIR Model padronizado'''
@@ -521,7 +538,20 @@ class SIR_PSO_padro:
         plt.show()
     def getCoef(self):
         return ['beta','gamma',['suscetivel','infectados','recuperados','casos']], [self.beta,self.gamma,self.y]
+
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
     
+
+
 class SIR_GA:
 
     def __init__(self,N):
@@ -744,6 +774,17 @@ class SIR_GA:
                                      parName + "_ub": np.quantile(lol, q = 0.975, axis = 0)})
         return df
     
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
+    
 class SIR_PSO_beta_variante:
     ''' SIR Model com 2 betas'''
     def __init__(self,tamanhoPop,numeroProcessadores=None):
@@ -899,6 +940,17 @@ class SIR_PSO_beta_variante:
         plt.show()
     def getCoef(self):
         return ['beta1','beta2','gamma','mudança_dia'], [self.beta1,self.beta2,self.gamma,self.day_mudar]
+
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
            
 class SIR_GA_fit_I:
 

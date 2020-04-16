@@ -8,7 +8,7 @@ import os
 
 class EXP:
     ''' f(x) = a*exp(b*x) '''
-    def __init__(self, N_inicial,numeroProcessadores=None):
+    def __init__(self, N_inicial, numeroProcessadores=None):
         self.N=N_inicial
         self.a = None
         self.b = None
@@ -25,7 +25,7 @@ class EXP:
 
 
     def fit(self, x, y , bound = None, name = None):
-        self.name=name
+        self.name = name
         
         '''
         x = dias passados do dia inicial 1
@@ -45,8 +45,8 @@ class EXP:
             self.rmse = cost
             self.optimize = optimizer
         else:
-            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df,n_processes=self.numeroProcessadores)
+            optimizer = GlobalBestPSO(n_particles=50, dimensions = 2, options = options, bounds = bound)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y = df, n_processes = self.numeroProcessadores)
             self.a = pos[0]
             self.b = pos[1]
             self.x = x
@@ -97,9 +97,8 @@ class EXP:
         ndays = number of days to be predicted
         bootstrap = number of times that the model will run
         n_jobs = number of core to be used to fit the models
-        
         """
-        os.remove("report.log")
+
         #Make some parameters avaliable
         self.x = x
         self.y = np.array(y)
