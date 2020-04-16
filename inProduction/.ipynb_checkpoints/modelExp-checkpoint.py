@@ -23,6 +23,7 @@ class EXP:
         return sum(res)/tam
     
 
+
     def fit(self, x, y , bound = None, name = None):
         self.name = name
         
@@ -80,7 +81,6 @@ class EXP:
 
     
     def runSir(self, y, x, ndays):
-        self.__removeLog()
         self.y = y
         self.x = x
         newx = range(0, len(x) + ndays) 
@@ -130,9 +130,3 @@ class EXP:
         self.med = np.median(self.preds, axis = 0 )
         self.lim_sup = np.quantile(self.preds, q = 0.975, axis = 0)
         return (self.lim_inf, self.med, self.lim_sup)
-
-    def __removeLog(self):
-        try:
-            os.remove("report.log")
-        except:
-            pass
