@@ -252,148 +252,49 @@ class SIR:
             return S,I,R
         
     def __cal_EDO_2(self,x,beta1,gamma,beta2,tempo):
-            ND = len(x)-1
-            
-            t_start = 0.0
-            t_end = ND
-            t_inc = 1
-            t_range = np.arange(t_start, t_end + t_inc, t_inc)
-            def H(t):
-                h = 1.0/(1.0+ np.exp(-2.0*50*t))
-                return h
-            def beta(t,t1,b,b1):
-                beta = b*H(t1-t) + b1*H(t-t1) 
-                return beta
-
-            gamma = np.array(gamma)
-            def SIR_diff_eqs(INP, t, beta1, gamma,beta2,t1):
-                Y = np.zeros((3))
-                V = INP
-                Y[0] = - beta(t,t1,beta1,beta2) * V[0] * V[1]                 #S
-                Y[1] = beta(t,t1,beta1,beta2) * V[0] * V[1] - gamma * V[1]    #I
-                Y[2] = gamma * V[1]                         #R
-                
-                return Y
-            result_fit = spi.odeint(SIR_diff_eqs, (self.S0, self.I0,self.R0), t_range,
-                                    args=(beta1, gamma,beta2,tempo))
-            
-            S=result_fit[:, 0]*self.N
-            R=result_fit[:, 2]*self.N
-            I=result_fit[:, 1]*self.N
-            
-            return S,I,R
-    
-    def objectiveFunction(self,coef,x ,y,stand_error):
-        tam2 = len(coef[:,0])
-        soma = np.zeros(tam2)
-        y = y*self.N
-        if stand_error:
-            if (self.beta_variavel) & (self.day_mudar==None):
-                for i in range(tam2):
-                    S,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
-            elif self.beta_variavel:
-                for i in range(tam2):
-                    S,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar)
-                    soma[i]= (((y-(I+R))/y)**2).mean()
-            else:
-                for i in range(tam2):
-                    S,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
-        else:
-            if (self.beta_variavel) & (self.day_mudar==None):
-                for i in range(tam2):
-                    S,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3])
-                    soma[i]= (((y-(I+R)))**2).mean()
-            elif self.beta_variavel:
-                for i in range(tam2):
-                    S,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar)
-                    soma[i]= (((y-(I+R)))**2).mean()
-            else:
-                for i in range(tam2):
-                    S,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1])
-                    soma[i]= (((y-(I+R)))**2).mean()
-        return soma
-    
-
-    def fit(self, x,y , bound = None,stand_error=True, beta2=True,day_mudar = None):
-        '''
-        x = dias passados do dia inicial 1
-        y = numero de casos
-        bound = intervalo de limite para procura de cada parametro, onde None = sem limite
-        
         bound => (lista_min_bound, lista_max_bound)
-        '''
-        self.beta_variavel = beta2
-        self.day_mudar = day_mudar
+        self.name=name
         self.y = y
-        self.x = x
         df = np.array(y)/self.N
         self.I0 = df[0]
         self.S0 = 1-self.I0
         self.R0 = 0
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':3,'p':1}
-        optimizer = None
+        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
         if bound==None:
-            if (beta2) & (day_mudar==None):
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=4, options=options)
-            elif beta2:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options)
-            else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=2, options=options)                
-        else:
-            if (beta2) & (day_mudar==None):
-                bound[0].append(bound[0][0])
-                bound[1].append(bound[1][0])
-                bound[0].append(x[4])
-                bound[1].append(x[-5])
-                bound[0][3] = x[4]
-                bound[1][3] = x[-5]
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=4, options=options,bounds=bound)
-            elif beta2:
-                bound[0].append(bound[0][1])
-                bound[1].append(bound[1][1])
-                    
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options,bounds=bound)
-            else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
-                
-        cost = pos = None
-        if beta2:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
-        else:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df,n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
-        if beta2:
-            self.beta1 = pos[0]
+            self.x = x
+            self.rmse = cost
+            self.optimize = optimizer
+            
+        else:
+            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=df,n_processes=self.numeroProcessadores)
+            self.beta = pos[0]
             self.gamma = pos[1]
-            self.beta2 = pos[2]
-            if day_mudar==None:
-                self.day_mudar = pos[3]
-            else:
-                self.day_mudar = day_mudar
-        self.rmse = cost
-        self.optimize = optimizer
+            self.x = x
+            self.rmse = cost
+            self.optimize = optimizer
             
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
-        if self.beta_variavel:
-            S,I,R = self.__cal_EDO_2(x,self.beta1,self.gamma,self.beta2,self.day_mudar)
-        else:
-            S,I,R = self.__cal_EDO(x,self.beta,self.gamma)
+        S,I,R = self.__cal_EDO(x,self.beta,self.gamma)
         self.ypred = I+R
         self.S = S
         self.I = I
         self.R = R         
-        return self.ypred
+        return I+R
+
     def getResiduosQuadatico(self):
         y = np.array(self.y)
         ypred = np.array(self.ypred)
         y = y[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
         return (y - ypred)**2
+
     def getReQuadPadronizado(self):
         y = np.array(self.y)
         ypred = np.array(self.ypred)
@@ -405,6 +306,7 @@ class SIR:
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
         plt.show()
+
     def plot(self,local):
         ypred = self.predict(self.x)
         plt.plot(ypred,c='b',label='Predição Infectados')
@@ -415,12 +317,19 @@ class SIR:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        if self.beta_variavel:
-            return ['beta1','beta2','gamma','dia_mudanca'],[self.beta1,self.beta2,self.gamma,self.day_mudar]
-        return ['beta','gamma'], [self.beta,self.gamma]
+        return ['beta','gamma',['suscetivel','infectados','recuperados','casos']], [self.beta,self.gamma,self.y]
 
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
 
-       
 class SEIR_PSO:
     ''' SIR Model'''
     def __init__(self,tamanhoPop,numeroProcessadores=None):
