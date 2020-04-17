@@ -11,8 +11,10 @@ import pandas as pd
 import sys
 
 # parametros
-modelo_usado = 'SEIR_PSO' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
-day_beta_change = 6
+modelo_usado = 'EXP' #EXP, SIR_PSO, SIR_PSO_padro, SIR_GA, SIR_GA_fit_I ou SEQIJR_GA
+stand_error = True # se true usa erro ponderado, se false usa erro simples
+beta_variavel = False # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
+day_beta_change = 6 # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica (computacionalmente intensivo)
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 N_inicial = 1000
 min_cases = 5
@@ -70,13 +72,11 @@ for i in range(len(novo_nome)):
     
     y = novo_local[i].TOTAL
     x = range(1,len(y)+1)
-    if modelo_usado == 'SIR_PSO_beta_variante':
-        if day_beta_change==None:
-            modelo.fit_busca_dia(x,y,name=novo_nome[i])
-        else:
-            modelo.fit(x,y,name=novo_nome[i],day_mudar=day_beta_change)
+    if modelo_usado == 'SIR':
+        modelo.fit(x,y,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change)
     else:
-        modelo.fit(x,y,name=novo_nome[i])
+        modelo.fit(x,y,stand_error=stand_error)
+
     modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
@@ -98,16 +98,15 @@ if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fi
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['Recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    for i in range(1,len(novo_local)):
-        df = df.append(novo_local[i],ignore_index=True)
+    
 if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['exposto'] = pd.to_numeric(pd.Series(modelos[i].E[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    for i in range(1,len(novo_local)):
-        df = df.append(novo_local[i],ignore_index=True)
+for i in range(1,len(novo_local)):
+    df = df.append(novo_local[i],ignore_index=True)
 df.to_csv(arq_saida,index=False)
 
 
@@ -126,7 +125,7 @@ for i in range(len(novo_nome)):
     rmse.append(modelos[i].rmse)
 su['populacao']= pop
 su['rmse'] = rmse
-for c in range(len(coef_name)-1):
+for c in range(len(coef_name)):
     l = []
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])

@@ -8,21 +8,20 @@ Created on Sat Mar 21 13:22:11 2020
 import modelos as md
 import datetime as dt
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR_PSO_beta_variante' #EXP, SIR_PSO, SIR_PSO_padro, SIR_PSO_beta_variante, SIR_GA , SIR_GA_fit_I, SEIR_GA, SEIR_PSO ou SEQIJR_GA
-day_beta_change = 6 # dia da mudança do valor do beta se None a busca vai ser automatica (computacionalmente intensivo)
-estados = ['TOTAL'] # lista de estados, None para todos
+modelo_usado = 'SIR' #EXP, SIR, SEIR_GA, SEIR_PSO ou SEQIJR_GA
+stand_error = False # se true usa erro ponderado, se false usa erro simples
+beta_variavel = True # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
+day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica (computacionalmente intensivo)
+estados = ['RJ','BA'] # lista de estados, None para todos
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
-arq_brasil_saida = '../data/brasil.csv'
-previsao_ate = dt.date(2020,4,24)
+previsao_ate = dt.date(2020,12,24)
 
 
 #carregar dados
@@ -46,24 +45,17 @@ previsao_ate = previsao_ate + dt.timedelta(1)
 modelos = []
 N_inicial = 0
 for i in range(len(novo_nome)):
-    if i==0:
+    if novo_nome[i]=='TOTAL':
         N_inicial = 217026005
     else:
         N_inicial = int(df_pop['Pop'][df_pop.Sigla==novo_nome[i]])
     print("\n\n"+str(novo_nome[i])+'\n')
     modelo = None
-    if modelo_usado =='SIR_PSO':
-        modelo = md.SIR_PSO(N_inicial,numeroProcessadores)
-    elif modelo_usado =='SIR_PSO_padro':
-        modelo = md.SIR_PSO_padro(N_inicial,numeroProcessadores)
-    elif modelo_usado =='SIR_PSO_beta_variante':
-        modelo = md.SIR_PSO_beta_variante(N_inicial,numeroProcessadores)
+    if modelo_usado =='SIR':
+        modelo = md.SIR(N_inicial,numeroProcessadores)
+        bound = ([0,1/21],[1,1/5])
     elif modelo_usado =='EXP':
         modelo = md.EXP(N_inicial,numeroProcessadores)
-    elif modelo_usado =='SIR_GA':
-        modelo = md.SIR_GA(N_inicial)
-    elif modelo_usado =='SIR_GA_fit_I':
-        modelo = md.SIR_GA_fit_I(N_inicial)
     elif modelo_usado =='SEIR_PSO':
         modelo = md.SEIR_PSO(N_inicial)
     elif modelo_usado =='SEIR_GA':
@@ -77,13 +69,10 @@ for i in range(len(novo_nome)):
     y = novo_local[i].TOTAL
     x = range(1,len(y)+1)
     
-    if modelo_usado == 'SIR_PSO_beta_variante':
-        if day_beta_change==None:
-            modelo.fit_busca_dia(x,y,name=novo_nome[i])
-        else:
-            modelo.fit(x,y,name=novo_nome[i],day_mudar=day_beta_change)
+    if modelo_usado == 'SIR':
+        modelo.fit(x,y,bound = bound,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change)
     else:
-        modelo.fit(x,y,name=novo_nome[i])
+        modelo.fit(x,y,stand_error=stand_error)
 
     modelos.append(modelo)
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
@@ -105,34 +94,22 @@ for i in range(len(novo_nome)):
         di = d+len(x)-1
         novo_local[i]=novo_local[i].append({'totalCasesPred':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
-brasil =   novo_local[0]
-if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I' or modelo_usado=='SIR_PSO_beta_variante':
-    brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
-    brasil['infectado'] =  pd.to_numeric(pd.Series(modelos[0].I[0:len(brasil.TOTAL)]),downcast='integer') 
-    brasil['recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
-if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
-    brasil['sucetivel'] = pd.to_numeric(pd.Series(modelos[0].S[0:len(brasil.TOTAL)]),downcast='integer')
-    brasil['exposto'] =  pd.to_numeric(pd.Series(modelos[0].E[0:len(brasil.TOTAL)]),downcast='integer') 
-    brasil['infectado'] =  pd.to_numeric(pd.Series(modelos[0].I[0:len(brasil.TOTAL)]),downcast='integer') 
-    brasil['recuperado'] =  pd.to_numeric(pd.Series(modelos[0].R[0:len(brasil.TOTAL)]),downcast='integer') 
+df = pd.DataFrame()
 
-brasil.to_csv(arq_brasil_saida,index=False)    
-df = novo_local[0]
-if modelo_usado=='SIR_PSO' or modelo_usado=='SIR_GA' or modelo_usado=='SIR_GA_fit_I'or modelo_usado=='SIR_PSO_beta_variante':
+if modelo_usado=='SIR':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    for i in range(1,len(novo_local)):
-        df = df.append(novo_local[i],ignore_index=True)
+    
 if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['exposto'] = pd.to_numeric(pd.Series(modelos[i].E[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    for i in range(1,len(novo_local)):
-        df = df.append(novo_local[i],ignore_index=True)
+for i in range(0,len(novo_local)):
+    df = df.append(novo_local[i],ignore_index=True)
 
 df.to_csv(arq_saida,index=False)
 
@@ -141,10 +118,9 @@ su['state'] = novo_nome
 pop = []
 rmse = []
 coef_list = []
-y = []
+
 coef_name = None
 for i in range(len(novo_nome)):
-    y.append(';'.join(map(str, modelos[i].y)))
     coef_name, coef  = modelos[i].getCoef()
     rmse.append(modelos[i].rmse)
     coef_list.append(coef)
