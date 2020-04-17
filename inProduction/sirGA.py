@@ -1,24 +1,16 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 24 09:18:44 2020
-
-@author: Rafael Veiga
-@author: matheustorquato matheusft@gmail.com
-"""
 import functools, os
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
 import pandas as pd
 import logging
-from functools import reduce
 import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
+from pyswarms.utils.plotters import plot_cost_history
+from itertools import repeat
 import multiprocessing as mp
-import logging
+from functools import reduce
 
-logging.disable()
 
 class SIR_GA:
 
@@ -62,7 +54,7 @@ class SIR_GA:
 
     def fit(self, x,y ,bound = ([0,1/21-0.0001],[1,1/5+0.0001]),name = None):
         
-        self.y = np.array(y)
+        self.y=np.array(y)
         self.x = x
         
         TS = 1
@@ -165,7 +157,7 @@ class SIR_GA:
         y = y[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
         return (y - ypred)**2
-    
+
     def getReQuadPadronizado(self):
         y = np.array(self.y)
         ypred = np.array(self.ypred)
@@ -187,8 +179,24 @@ class SIR_GA:
         return ['beta','gamma','R0',('S','I','R')], [self.beta,self.gamma,self.beta/self.gamma,(self.S,self.ypred,self.R)]
     
     
-    
-    def __bootstratpTS(self,npArray, replicate):
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
+
+    def runSir(self, y, x, ndays):
+        newx = range(0, len(x) + ndays) 
+        self.fit(y = y, x = x)
+        return self.predict(newx, ci = True)
+
+    #Define a auxiliary function that generate simulations based on the original series
+    def __bootstratpPoisson(self,npArray, replicate):
         simList = []
         def poissonGen(npArray, replicate = None):
             simSeries = []
@@ -201,15 +209,6 @@ class SIR_GA:
         for i in range(0,replicate):
             simList.append(poissonGen(npArray))
         return np.array(simList)
-
-    
-    
-    def runSir(self, y, x, ndays):
-        self.y = y
-        self.x = x
-        newx = range(0, len(x) + ndays) 
-        self.fit(y = self.y, x = self.x)
-        return self.predict(newx, ci = True)
         
         
     def predictCI(self, y, x, start, ndays, bootstrap, n_jobs):
@@ -230,9 +229,9 @@ class SIR_GA:
         
         
         #Create a lol with data for run the model
-        lists = self.__bootstratpTS(npArray = self.y, replicate = bootstrap)
-        
         #Model will be fitted and predicted so R) using ci is not consisent
+        lists = self.__bootstratpPoisson(y, replicate = bootstrap)
+        
         #Make cores avalible to the process
         pool =  mp.Pool(processes = n_jobs)
         
@@ -257,7 +256,7 @@ class SIR_GA:
     
     def __returnDF(self,lol, parName):
         df = pd.DataFrame.from_dict({"date": pd.date_range(start = self.start, periods = self.ndays + 2, freq = "D"),
-                                     parName: np.median(lol, axis = 0),
+                                     parName: np.mean(lol, axis = 0),
                                      parName + "_lb": np.quantile(lol, q = 0.0275, axis = 0),
                                      parName + "_ub": np.quantile(lol, q = 0.975, axis = 0)})
         return df

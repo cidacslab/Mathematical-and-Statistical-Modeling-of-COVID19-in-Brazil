@@ -68,7 +68,7 @@ class SIR_PSO:
         return soma
     
 
-    def fit(self, x,y , bound = ([0,1/21-0.0001],[1,1/5+0.0001]), name=None):
+    def fit(self, x,y , bound = None, name=None):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -110,6 +110,7 @@ class SIR_PSO:
         self.I = I
         self.R = R         
         return I+R
+    
     def getResiduosQuadatico(self):
         y = np.array(self.y)
         ypred = np.array(self.ypred)
