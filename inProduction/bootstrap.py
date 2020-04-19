@@ -195,5 +195,26 @@ class bootstrapTS:
         axes[1,1].plot(x,results[2][0:len(self.meanPred)], c = "blue")
         axes[1,1].plot(x,results[4][0:len(self.meanPred)], "--", c = "black")
 
+    
+    
+    #Define a function to plot ACF and PACF
+    def plot_lagCor(self, ts, nlags):
+    
+        #Compute acf and pacf
+        lag_acf = acf(ts.dropna(), nlags = nlags)
+        lag_pacf = pacf(ts.dropna(), nlags= nlags, method = "ols")
+    
+        #Create two dataframes
+        df_acf = pd.DataFrame({"Correlation": lag_acf, "Lag": np.arange(0, len(lag_acf), 1), "Type": "ACF"})
+        df_pacf = pd.DataFrame({"Correlation": lag_pacf, "Lag": np.arange(0, len(lag_pacf), 1), "Type": "PACF"})
+        df = df_acf.append(df_pacf, ignore_index = True)
+    
+        print(ggplot(df, aes(x = "Lag", y = "Correlation"))
+                + geom_bar(stat = "identity")
+                + geom_hline(yintercept = 0)
+                + geom_hline(yintercept = -1.96/np.sqrt(len(ts.dropna())),linetype = "dashed")
+                + geom_hline(yintercept = 1.96/np.sqrt(len(ts.dropna())),linetype = "dashed")
+                + facet_wrap(facets = ["Type"], nrow = 1, ncol = 2))
+
    
     
