@@ -8,20 +8,22 @@ Created on Sat Mar 21 13:22:11 2020
 import modelos as md
 import datetime as dt
 import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 import sys
 
 # parametros
 modelo_usado = 'SIR' #EXP, SIR, SEIR_GA, SEIR_PSO ou SEQIJR_GA
 stand_error = False # se true usa erro ponderado, se false usa erro simples
 beta_variavel = True # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
-day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica (computacionalmente intensivo)
-estados = ['RJ','BA'] # lista de estados, None para todos
+day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica
+estados = ['TOTAL'] # lista de estados, None para todos
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
-previsao_ate = dt.date(2020,12,24)
+previsao_ate = dt.date(2020,4,24)
 
 
 #carregar dados
@@ -78,13 +80,7 @@ for i in range(len(novo_nome)):
     dias = (previsao_ate-novo_local[i].date.iloc[0]).days
     x_pred = range(1,dias+1)
     y_pred =modelo.predict(x_pred)
-#    plt.plot(y_pred,c='r',label='Predição Infectados')
-#    plt.plot(y,c='b',label='Infectados')
-#    plt.legend(fontsize=15)
-#    plt.title('Dinâmica do CoviD19 - {}'.format(nome[i]),fontsize=20)
-#    plt.ylabel('Casos COnfirmados',fontsize=15)
-#    plt.xlabel('Dias',fontsize=15)
-#    plt.show()    
+  
     novo_local[i]['totalCasesPred'] = y_pred[0:len(novo_local[i])]
     novo_local[i]['residuo_quadratico'] = modelo.getResiduosQuadatico()
     novo_local[i]['res_quad_padronizado'] = modelo.getReQuadPadronizado()
@@ -94,21 +90,21 @@ for i in range(len(novo_nome)):
         di = d+len(x)-1
         novo_local[i]=novo_local[i].append({'totalCasesPred':y_pred[di],'date':ultimo_dia+dt.timedelta(d),'state':novo_local[i].state.iloc[0]}, ignore_index=True)
     
-df = pd.DataFrame()
 
+df = pd.DataFrame()
 if modelo_usado=='SIR':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-    
+   
 if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['exposto'] = pd.to_numeric(pd.Series(modelos[i].E[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
-for i in range(0,len(novo_local)):
+for i in range(len(novo_local)):
     df = df.append(novo_local[i],ignore_index=True)
 
 df.to_csv(arq_saida,index=False)
@@ -118,11 +114,12 @@ su['state'] = novo_nome
 pop = []
 rmse = []
 coef_list = []
-
+dia_mudanca = []
 coef_name = None
 for i in range(len(novo_nome)):
     coef_name, coef  = modelos[i].getCoef()
     rmse.append(modelos[i].rmse)
+    dia_mudanca.append(modelos[i].day_mudar)
     coef_list.append(coef)
     pop.append(modelos[i].N)
 su['populacao']= pop
@@ -132,6 +129,6 @@ for c in range(len(coef_name)):
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
     su[coef_name[c]]=l
-
+su['dia_troca_beta'] = dia_mudanca
 su.to_csv(arq_sumario,index=False)
 

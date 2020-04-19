@@ -27,7 +27,7 @@ class bootstrapTS:
         ndays: number of days to be forecasted
         bootstrap: number of times that the model will run
         simulation: Choose among Poisson, Mixing_Poisson or Gamma_Poisson.
-        method: accepted methods are percentile or approximation
+        method: accepted methods are percentile, approximation or approximation
         """
         self.x = x
         self.y = y
@@ -126,9 +126,6 @@ class bootstrapTS:
         #create a empty list that will be fulffil with dictionaries
         self.results = []
 
-        # Compute "real prediction" to be captured inside the interval
-        pred = runSir(model,self.y, self.x)["pred"]
-
         # #Iterate over the list of simulated data
         for i in range(0,len(lists)):
             self.results.append(runSir(model, lists[i], x))
@@ -144,7 +141,10 @@ class bootstrapTS:
             self.lim_sup = [np.quantile(self.pred[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
 
         elif method == "basic":
-            errors = pred - self.pred
+            deltaL = np.array([np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))])
+            deltaU = np.array([np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))])
+            self.lim_inf  = deltaL - self.meanPred
+            self.lim_sup  = deltaU - self.meanPred
            
 
         elif method == "approximation":
@@ -165,17 +165,17 @@ class bootstrapTS:
 
 
         # #Try to get extra parameters
-        #try:
-        #    self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
-        #    self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
-        #except:
-        #    pass
+        try:
+            self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
+            self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
+        except:
+            pass
 
-        #try:
-        #    return [self.beta, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
-        #except:
-        #    return [self.meanPred, self.lim_inf, self.lim_sup]
-        return self.pred, pred
+        try:
+            return [self.beta, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
+        except:
+            return [self.meanPred, self.lim_inf, self.lim_sup]
+
         
 
 
