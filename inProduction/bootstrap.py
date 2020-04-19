@@ -12,7 +12,7 @@ import multiprocessing.dummy as mp
 import logging
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from scipy.stats import t
+from scipy import stats
 
 logging.disable()
 
@@ -27,7 +27,7 @@ class bootstrapTS:
         ndays: number of days to be forecasted
         bootstrap: number of times that the model will run
         simulation: Choose among Poisson, Mixing_Poisson or Gamma_Poisson.
-        method: accepted methods are percentile or studentized
+        method: accepted methods are percentile or approximation
         """
         self.x = x
         self.y = y
@@ -126,6 +126,9 @@ class bootstrapTS:
         #create a empty list that will be fulffil with dictionaries
         self.results = []
 
+        # Compute "real prediction" to be captured inside the interval
+        pred = runSir(model,self.y, self.x)["pred"]
+
         # #Iterate over the list of simulated data
         for i in range(0,len(lists)):
             self.results.append(runSir(model, lists[i], x))
@@ -136,33 +139,44 @@ class bootstrapTS:
       
 
         if method == "percentile":
+
             self.lim_inf = [np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))]
             self.lim_sup = [np.quantile(self.pred[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
 
-        elif method == "studentized":
-            self.std = [np.std(self.pred[:,i]) for i in range(0,len(self.meanPred))]
-            df = len(self.meanPred) - 1
-            sq = np.sqrt(len(self.meanPred))
-            lim_inf = []
-            lim_sup = []
-            for i in range(0,len(self.meanPred)):
-                lim_sup.append(self.meanPred[i] - t.ppf(0.975, df = df)*self.std[i]/sq)
-                lim_inf.append(self.meanPred[i] - t.ppf(0.025, df = df)*self.std[i]/sq)
-            self.lim_inf = np.array(lim_inf)
-            self.lim_sup = np.array(lim_sup)
+        elif method == "basic":
+            errors = pred - self.pred
+           
+
+        elif method == "approximation":
+
+            percentiles = np.array([0.025, 1.0 - 0.025])
+            norm_quantiles = stats.norm.ppf(percentiles)
+
+            errors  = self.pred - self.meanPred
+            self.std_err = np.sqrt(np.diag(errors.T.dot(errors)/bootstrap))
+
+            self.lim_inf = self.meanPred + norm_quantiles[0] * self.std_err
+            self.lim_sup = self.meanPred + norm_quantiles[1] * self.std_err
+
+        
+
+            
+            
 
 
         # #Try to get extra parameters
-        try:
-            self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
-            self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
-        except:
-            pass
+        #try:
+        #    self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
+        #    self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
+        #except:
+        #    pass
 
-        try:
-            return [self.beta, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
-        except:
-            return [self.meanPred, self.lim_inf, self.lim_sup]
+        #try:
+        #    return [self.beta, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
+        #except:
+        #    return [self.meanPred, self.lim_inf, self.lim_sup]
+        return self.pred, pred
+        
 
 
     def plotParam(self, results):
@@ -180,4 +194,6 @@ class bootstrapTS:
         axes[1,1].plot(x,results[3][0:len(self.meanPred)], "--", c = "black")
         axes[1,1].plot(x,results[2][0:len(self.meanPred)], c = "blue")
         axes[1,1].plot(x,results[4][0:len(self.meanPred)], "--", c = "black")
+
+   
     
