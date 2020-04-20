@@ -13,11 +13,12 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SIR' #EXP, SIR, SEIR_GA, SEIR_PSO ou SEQIJR_GA
+modelo_usado = 'SIR' #EXP, SIR
 stand_error = False # se true usa erro ponderado, se false usa erro simples
 beta_variavel = True # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
 day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica
-estados = ['TOTAL'] # lista de estados, None para todos
+intervalo_data = (dt.date(2020,3,15),dt.date(2020,4,15))
+estados = ['TOTAL','BA'] # lista de estados, None para todos
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
 min_dias = 10
@@ -34,7 +35,6 @@ df_pop = pd.read_csv('../data/populacoes.csv')
 
 novo_nome = []
 novo_local = []
-
 for i in range(len(nome)):
     if (local[i].TOTAL.iloc[-1]>=min_cases) & (len(local[i])>=10) & (estados==None):
         novo_local.append(local[i])
@@ -44,6 +44,23 @@ for i in range(len(nome)):
             novo_nome.append(nome[i])
             novo_local.append(local[i])
 previsao_ate = previsao_ate + dt.timedelta(1)
+#extrair data bound
+
+diaBound = []
+for i in range(len(novo_nome)):
+    dia_ini = novo_local[i].date.iloc[0]
+    dia_fim = novo_local[i].date.iloc[-1]
+    #print('\n'+str(dia_ini) + " " + str(dia_fim) + '\n')
+    ini = (intervalo_data[0]-dia_ini).days if dia_ini < intervalo_data[0] else 5
+    fim = (intervalo_data[1]-dia_ini).days -5
+    ini = 5 if ini < 5 else ini
+   # print(str(ini) + '\n')
+    #print(str(fim) + '\n')
+   # print(str((dia_fim - dia_ini).days))
+    diaBound.append((ini,fim,dia_ini))
+    if ini > fim:
+        beta_variavel = False
+    
 modelos = []
 N_inicial = 0
 for i in range(len(novo_nome)):
@@ -55,7 +72,6 @@ for i in range(len(novo_nome)):
     modelo = None
     if modelo_usado =='SIR':
         modelo = md.SIR(N_inicial,numeroProcessadores)
-        bound = ([0,1/21],[1,1/5])
     elif modelo_usado =='EXP':
         modelo = md.EXP(N_inicial,numeroProcessadores)
     elif modelo_usado =='SEIR_PSO':
@@ -72,7 +88,11 @@ for i in range(len(novo_nome)):
     x = range(1,len(y)+1)
     
     if modelo_usado == 'SIR':
-        modelo.fit(x,y,bound = bound,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change)
+        if beta_variavel:
+            bound = ([0,1/21,0,diaBound[i][0]],[1,1/5,1,diaBound[i][1]])
+            modelo.fit(x,y,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change,bound = bound)
+        else:
+            modelo.fit(x,y,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change)
     else:
         modelo.fit(x,y,stand_error=stand_error)
 
@@ -114,12 +134,13 @@ su['state'] = novo_nome
 pop = []
 rmse = []
 coef_list = []
-dia_mudanca = []
 coef_name = None
+data_mudan = []
 for i in range(len(novo_nome)):
+    if beta_variavel & (modelo_usado == 'SIR'):
+        data_mudan.append(diaBound[i][2] + dt.timedelta(int(modelos[i].day_mudar)))
     coef_name, coef  = modelos[i].getCoef()
     rmse.append(modelos[i].rmse)
-    dia_mudanca.append(modelos[i].day_mudar)
     coef_list.append(coef)
     pop.append(modelos[i].N)
 su['populacao']= pop
@@ -129,6 +150,7 @@ for c in range(len(coef_name)):
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
     su[coef_name[c]]=l
-su['dia_troca_beta'] = dia_mudanca
+if beta_variavel & (modelo_usado == 'SIR'):
+    su['data_muda'] = data_mudan
 su.to_csv(arq_sumario,index=False)
 

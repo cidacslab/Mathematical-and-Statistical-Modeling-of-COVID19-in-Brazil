@@ -314,7 +314,7 @@ class SIR:
                     S,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1])
                     soma[i]= (((y-(I+R)))**2).mean()
         return soma
-    def fit(self, x,y , bound = None,stand_error=False, beta2=True,day_mudar = None):
+    def fit(self, x,y , bound = ([0,1/21],[1,1/5]),stand_error=False, beta2=True,day_mudar = None):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -341,16 +341,21 @@ class SIR:
                 optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=2, options=options)                
         else:
             if (beta2) & (day_mudar==None):
-                bound[0].append(bound[0][0])
-                bound[1].append(bound[1][0])
-                bound[0].append(x[4])
-                bound[1].append(x[-5])
-                bound[0][3] = x[4]
-                bound[1][3] = x[-5]
+                if len(bound[0])==2:
+                    bound = (bound[0].copy(),bound[1].copy())
+                    bound[0].append(bound[0][0])
+                    bound[1].append(bound[1][0])
+                    bound[0].append(x[4])
+                    bound[1].append(x[-5])
+                    bound[0][3] = x[4]
+                    bound[1][3] = x[-5]
+                    
                 optimizer = ps.single.LocalBestPSO(n_particles=80, dimensions=4, options=options,bounds=bound)
             elif beta2:
-                bound[0].append(bound[0][1])
-                bound[1].append(bound[1][1])
+                if len(bound[0])==2:
+                    bound = (bound[0].copy(),bound[1].copy())
+                    bound[0].append(bound[0][1])
+                    bound[1].append(bound[1][1])
                     
                 optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options,bounds=bound)
             else:
