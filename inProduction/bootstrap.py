@@ -8,19 +8,104 @@ Created on Tue Mar 24 09:18:44 2020
 """
 
 import numpy as np
+import pandas as pd
 import multiprocessing.dummy as mp
 import logging
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from scipy import stats
+from plotnine import *
+from statsmodels.tsa.stattools import adfuller, acf, pacf
 
 logging.disable()
-
 class bootstrapTS:
     def __init__(self):
         pass
+    
+     # #Define a function that mimics the behavior for the model class
+    def __runSir(self, model, y, x):
+        self.newx = range(0, len(self.y) + self.ndays) 
+        model.fit(y = y, x = x)
+        model.predict(self.newx)
+        if self.model_name == "exponencial":
+            return {"a": model.a, "b": model.b, "pred": model.ypred}
+        elif  self.model_name == "SIR":
+            try:
+                return{"pred": model.ypred, "I": model.I, "S": model.S, "R": model.R, "beta1":model.beta1,
+                           "beta2":model.beta2, "gamma": model.gamma, "changeDay": model.day_mudar}
+            except:
+                    return {"pred": model.ypred, "I": model.I, "S": model.S, "R": model.R, "beta":model.beta, "gamma": model.gamma}
+    
+     #Define a auxiliary functions that generate simulations based on the original series
+    def __bootstratpPoisson(self, npArray, replicate, cumSum = True):
+        simList = []
+        def poissonGen(npArray, replicate = None):
+            simSeries = []
+            for i in range(0,len(npArray)):
+                if i == 0:
+                    simSeries.append(npArray[i]) 
+                else:
+                    simSeries.append(np.random.poisson(lam = npArray[i] - npArray[i-1], size = 1)[0])
+            if cumSum:
+                return np.cumsum(np.array(simSeries))
+            else:
+                return np.array(simSeries)
+        for i in range(0,replicate):
+            simList.append(poissonGen(npArray))
+        return np.array(simList)
 
-    def single_core_CI(self, model, y, x, ndays, bootstrap, simulation = "Poisson", method = "percentile"):
+    #simlating from a duble possion
+    def __bootstrapDPoisson(self,npArray, replicate):
+        simList = []
+        poissonsDist = self.__bootstratpPoisson(npArray, replicate, cumSum = False)
+        def poissonGen(npArray, replicate = None):
+            simSeries = []
+            for i in range(0,len(npArray)):
+                if i == 0:
+                    simSeries.append(npArray[i])
+                else:
+                    value = np.random.poisson(lam = np.random.choice(poissonsDist[:,i], size = 1), size = 1)[0]
+                    #Sanity check
+                    if value > 0:
+                        simSeries.append(value)
+                    else:
+                        simSeries.append(np.random.poisson(lam = npArray[i] - npArray[i-1], size = 1)[0])
+            return np.cumsum(np.array(simSeries))
+        for i in range(0,replicate):
+            simList.append(poissonGen(npArray))
+        return np.array(simList)
+       
+    #simlating from a miximg poisson gamma
+    def __bootstrapGammaPoisson(self,npArray, replicate):
+        simList = []
+        poissonsDist = self.__bootstratpPoisson(npArray, replicate, cumSum = False)
+        def poissonGen(npArray, replicate = None):
+            simSeries = []
+            for i in range(0,len(npArray)):
+                if i == 0:
+                    simSeries.append(npArray[i])
+                else:
+                    meanP = np.mean(poissonsDist[:,i])
+                    varP = np.var(poissonsDist[:,i])
+                    if meanP == 0 or varP == 0:
+                        value = np.random.poisson(lam = np.random.choice(poissonsDist[:,i], size = 1), size = 1)[0]
+                        #Sanity check
+                        if value > 0:
+                            simSeries.append(value)
+                        else:
+                            simSeries.append(np.random.poisson(lam = npArray[i] - npArray[i-1], size = 1)[0])
+                    else:
+                        scale = varP/meanP
+                        shape = meanP**2/varP
+                        mean = np.random.gamma(shape = shape, scale = scale, size = 1)[0]
+                        simSeries.append(np.random.poisson(lam = mean, size = 1)[0])
+            return np.cumsum(np.array(simSeries))
+        for i in range(0,replicate):
+            simList.append(poissonGen(npArray))
+        return np.array(simList) 
+
+
+    def single_core_CI(self, model, y, x, ndays, bootstrap, simulation = "Poisson", method = "percentile", model_name = "exponencial"):
         """
         y: an array with the series of cases
         x: an range object with the first and last day of cases
@@ -32,189 +117,107 @@ class bootstrapTS:
         self.x = x
         self.y = y
         self.ndays = ndays
-
-
-        #Define a auxiliary functions that generate simulations based on the original series
-        def bootstratpPoisson(npArray, replicate, cumSum = True):
-            simList = []
-            def poissonGen(npArray, replicate = None):
-                simSeries = []
-                for i in range(0,len(npArray)):
-                    if i == 0:
-                        simSeries.append(npArray[i]) 
-                    else:
-                        simSeries.append(np.random.poisson(lam = npArray[i] - npArray[i-1], size = 1)[0])
-                if cumSum:
-                    return np.cumsum(np.array(simSeries))
-                else:
-                    return np.array(simSeries)
-            for i in range(0,replicate):
-                simList.append(poissonGen(npArray))
-            return np.array(simList)
-
-        #simlating from a duble possion
-        def bootstrapDPoisson(npArray, replicate):
-            simList = []
-            poissonsDist = bootstratpPoisson(npArray, replicate, cumSum = False)
-            def poissonGen(npArray, replicate = None):
-                simSeries = []
-                for i in range(0,len(npArray)):
-                    if i == 0:
-                        simSeries.append(npArray[i])
-                    else:
-                        value = np.random.poisson(lam = np.random.choice(poissonsDist[:,i], size = 1), size = 1)[0]
-                        #Sanity check
-                        if value > 0:
-                            simSeries.append(value)
-                        else:
-                            simSeries.append(np.random.poisson(lam = npArray[i] - npArray[i-1], size = 1)[0])
-                return np.cumsum(np.array(simSeries))
-            for i in range(0,replicate):
-                simList.append(poissonGen(npArray))
-            return np.array(simList)
-       
-        #simlating from a miximg poisson gamma
-        def bootstrapGammaPoisson(npArray, replicate):
-            simList = []
-            poissonsDist = bootstratpPoisson(npArray, replicate, cumSum = False)
-            def poissonGen(npArray, replicate = None):
-                simSeries = []
-                for i in range(0,len(npArray)):
-                    if i == 0:
-                        simSeries.append(npArray[i])
-                    else:
-                        meanP = np.mean(poissonsDist[:,i])
-                        varP = np.var(poissonsDist[:,i])
-                        if meanP == 0 or varP == 0:
-                            value = np.random.poisson(lam = np.random.choice(poissonsDist[:,i], size = 1), size = 1)[0]
-                            #Sanity check
-                            if value > 0:
-                                simSeries.append(value)
-                            else:
-                                simSeries.append(np.random.poisson(lam = npArray[i] - npArray[i-1], size = 1)[0])
-                        else:
-                            scale = varP/meanP
-                            shape = meanP**2/varP
-                            mean = np.random.gamma(shape = shape, scale = scale, size = 1)[0]
-                            simSeries.append(np.random.poisson(lam = mean, size = 1)[0])
-                return np.cumsum(np.array(simSeries))
-            for i in range(0,replicate):
-                simList.append(poissonGen(npArray))
-            return np.array(simList) 
-
-
-        # #Define a function that mimics the behavior for the model class
-        def runSir(model, y, x):
-            self.newx = range(0, len(self.y) + self.ndays) 
-            model.fit(y = y, x = x)
-            model.predict(self.newx)
-            try:
-                return {"pred": model.ypred, "I": model.I, "S": model.S, "R": model.R, "beta":model.beta, "gamma": model.gamma}
-            except:
-                return {"pred": model.ypred}
+        self.model_name = model_name
 
         #Create a lol with data for run the model
         if simulation == "Poisson":
-            lists = bootstratpPoisson(npArray = y, replicate = bootstrap)
+            lists = self.__bootstratpPoisson(npArray = y, replicate = bootstrap)
 
         elif simulation == "Mixing_Poisson":
-            lists = bootstrapDPoisson(npArray = y, replicate = bootstrap)
+            lists = self.__bootstrapDPoisson(npArray = y, replicate = bootstrap)
 
         elif simulation == "Gamma_Poisson":
-            lists = bootstrapGammaPoisson(npArray = y, replicate = bootstrap)
+            lists = self.__bootstrapGammaPoisson(npArray = y, replicate = bootstrap)
         
         #create a empty list that will be fulffil with dictionaries
         self.results = []
 
-        # #Iterate over the list of simulated data
+
+        #Iterate over the list of simulated data
         for i in range(0,len(lists)):
-            self.results.append(runSir(model, lists[i], x))
+            self.results.append(self.__runSir(model, lists[i], x))
         
-        # Get predictions (I + R)
+        # # Get predictions (I + R)
         self.pred = np.array([self.results[i]["pred"] for i in range(0,len(self.results))])
         self.meanPred = [np.mean(self.pred[:,i]) for i in range(0,len(self.y) + self.ndays)]
+        pred = [self.pred[i][:len(self.y)] for i in range(0,len(self.results))]
+
+        #Compute sgima all models
+        sigmAllModels = pred - y
+        sigmaMean = np.mean(np.std(sigmAllModels))
+        self.sigmaMeanError = np.sqrt(sigmaMean ** 2 + 0.001**2)
+        self.std_err = np.sqrt((sigmaMean ** 2) + (self.sigmaMeanError)/np.sqrt(len(y)))
+
       
-
         if method == "percentile":
+            #self.lim_inf = [np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))]
+            #self.lim_sup = [np.quantile(self.pred[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
+            pass
 
-            self.lim_inf = [np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))]
-            self.lim_sup = [np.quantile(self.pred[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
 
         elif method == "basic":
-            deltaL = np.array([np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))])
-            deltaU = np.array([np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))])
-            self.lim_inf  = deltaL - self.meanPred
-            self.lim_sup  = deltaU - self.meanPred
+
+            #deltaStar = self.meanPred - self.pred
+            #deltaL = [np.quantile(deltaStar[:,i], q = 0.025) for i in range(0,len(self.meanPred))]
+            #deltaU = [np.quantile(deltaStar[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
+            #self.lim_inf  = self.meanPred + deltaL
+            #self.lim_sup  = self.meanPred + deltaU
+            pass
            
 
         elif method == "approximation":
 
             percentiles = np.array([0.025, 1.0 - 0.025])
-            norm_quantiles = stats.norm.ppf(percentiles)
+            norm_quantiles = stats.t.ppf(percentiles, df = len(self.y))
 
-            errors  = self.pred - self.meanPred
-            self.std_err = np.sqrt(np.diag(errors.T.dot(errors)/bootstrap))
-
-            self.lim_inf = self.meanPred + norm_quantiles[0] * self.std_err
-            self.lim_sup = self.meanPred + norm_quantiles[1] * self.std_err
-
-        
-
-            
-            
+            errors  = pred - self.y
+            #self.std_err = np.sqrt(np.diag(errors.T.dot(errors)/len(self.y)))
+            self.lim_inf = self.meanPred[len(self.y):] + (norm_quantiles[0] * self.std_err)
+            self.lim_sup = self.meanPred[len(self.y):] + (norm_quantiles[1] * self.std_err)
 
 
-        # #Try to get extra parameters
-        try:
-            self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
-            self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
-        except:
-            pass
-
-        try:
-            return [self.beta, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
-        except:
-            return [self.meanPred, self.lim_inf, self.lim_sup]
-
-        
 
 
-    def plotParam(self, results):
-        x = range(0,len(self.meanPred))
-        fig, axes = plt.subplots(nrows = 2, ncols = 2, figsize = (18,12))
+        if self.model_name == "exponencial":
+                 self.a = [self.results[i]["a"] for i in range(0,len(self.results))]
+                 self.b = [self.results[i]["b"] for i in range(0,len(self.results))]
+                 return self.a, self.b, self.meanPred, self.lim_inf, self.lim_sup
 
-        axes[0,0].hist(results[0])
-        axes[0,1].hist(results[1])
 
-        axes[1,0].scatter(self.x,self.y, c = "red")
-        axes[1,0].plot(self.x,results[3][0:len(self.y)], "--", c = "black")
-        axes[1,0].plot(self.x,results[2][0:len(self.y)], c = "blue")
-        axes[1,0].plot(self.x,results[4][0:len(self.y)], "--", c = "black")
-
-        axes[1,1].plot(x,results[3][0:len(self.meanPred)], "--", c = "black")
-        axes[1,1].plot(x,results[2][0:len(self.meanPred)], c = "blue")
-        axes[1,1].plot(x,results[4][0:len(self.meanPred)], "--", c = "black")
-
-    
+        elif self.model_name == "SIR":
+            try:
+                self.beta1 = [self.results[i]["beta1"] for i in range(0,len(self.results))]
+                self.beta2 = [self.results[i]["beta2"] for i in range(0,len(self.results))]
+                self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
+                self.changeDay = [self.results[i]["changeDay"] for i in range(0,len(self.results))]
+                return [self.beta1, self.beta2, self.changeDay, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
+            except:
+                self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
+                self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
+                return [self.beta1, self.beta2, self.changeDay, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
+       
+  
     
     #Define a function to plot ACF and PACF
-    def plot_lagCor(self, ts, nlags):
+    def plot_lagCor(self, nlags = 1):
+        resid = np.array(self.y) - np.array(self.meanPred[0:len(self.y)])
     
         #Compute acf and pacf
-        lag_acf = acf(ts.dropna(), nlags = nlags)
-        lag_pacf = pacf(ts.dropna(), nlags= nlags, method = "ols")
+        lag_acf = acf(resid, nlags = nlags)
+        lag_pacf = pacf(resid, nlags = nlags, method = "ols")
+        
+        fig, axes = plt.subplots(nrows = 1, ncols = 2, figsize = (18,8))
+
+        axes[0].plot(lag_acf, marker="o")
+        axes[1].plot(lag_pacf, marker = "o")
+        axes[0].axhline(y=0,linestyle='--',color='gray')
+        axes[0].axhline(y=-1.96/np.sqrt(len(lag_acf)),linestyle='--',color='gray')
+        axes[0].axhline(y=1.96/np.sqrt(len(lag_acf)),linestyle='--',color='gray')
+        axes[1].axhline(y=0,linestyle='--',color='gray')
+        axes[1].axhline(y=-1.96/np.sqrt(len(lag_acf)),linestyle='--',color='gray')
+        axes[1].axhline(y=1.96/np.sqrt(len(lag_acf)),linestyle='--',color='gray')
     
-        #Create two dataframes
-        df_acf = pd.DataFrame({"Correlation": lag_acf, "Lag": np.arange(0, len(lag_acf), 1), "Type": "ACF"})
-        df_pacf = pd.DataFrame({"Correlation": lag_pacf, "Lag": np.arange(0, len(lag_pacf), 1), "Type": "PACF"})
-        df = df_acf.append(df_pacf, ignore_index = True)
-    
-        print(ggplot(df, aes(x = "Lag", y = "Correlation"))
-                + geom_bar(stat = "identity")
-                + geom_hline(yintercept = 0)
-                + geom_hline(yintercept = -1.96/np.sqrt(len(ts.dropna())),linetype = "dashed")
-                + geom_hline(yintercept = 1.96/np.sqrt(len(ts.dropna())),linetype = "dashed")
-                + facet_wrap(facets = ["Type"], nrow = 1, ncol = 2))
+       
 
    
     
