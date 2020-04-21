@@ -128,7 +128,18 @@ class bootstrapTS:
 
         elif simulation == "Gamma_Poisson":
             lists = self.__bootstrapGammaPoisson(npArray = y, replicate = bootstrap)
-        
+
+        elif simulation == "Normal":
+            pred = self.__runSir(model, y, x)["pred"]
+            sigma = np.std(y - pred[0:len(self.y)])
+            error = np.sqrt(sigma**2 + 0.01**2)
+            lists = []
+            for i in range(0, bootstrap):
+                delta = np.random.normal(0., error, len(y))
+                randomdataY = y + delta
+                lists.append(randomdataY)
+      
+
         #create a empty list that will be fulffil with dictionaries
         self.results = []
 
@@ -170,13 +181,15 @@ class bootstrapTS:
         elif method == "approximation":
 
             percentiles = np.array([0.025, 1.0 - 0.025])
-            norm_quantiles = stats.t.ppf(percentiles, df = len(self.y))
+            t_quantiles = stats.t.ppf(percentiles, df = len(self.y))
 
-            errors  = pred - self.y
-            #self.std_err = np.sqrt(np.diag(errors.T.dot(errors)/len(self.y)))
-            self.lim_inf = self.meanPred[len(self.y):] + (norm_quantiles[0] * self.std_err)
-            self.lim_sup = self.meanPred[len(self.y):] + (norm_quantiles[1] * self.std_err)
+            errors  = self.pred - self.meanPred
+            self.std_err = np.sqrt(np.diag(errors.T.dot(errors)/len(self.y)))
 
+            meanStd = np.mean(self.std_err[:len(self.y)])
+
+            self.lim_inf = self.meanPred[len(self.y):] + (t_quantiles[0] *  np.sqrt((sigmaMean ** 2) + meanStd))
+            self.lim_sup = self.meanPred[len(self.y):] + (t_quantiles[1] *  np.sqrt((sigmaMean ** 2) + meanStd))
 
 
 
