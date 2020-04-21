@@ -112,7 +112,7 @@ class bootstrapTS:
         ndays: number of days to be forecasted
         bootstrap: number of times that the model will run
         simulation: Choose among Poisson, Mixing_Poisson or Gamma_Poisson.
-        method: accepted methods are percentile, approximation or approximation
+        method: accepted methods are percentile, basic or approximation
         """
         self.x = x
         self.y = y
@@ -152,6 +152,7 @@ class bootstrapTS:
         if method == "percentile":
             #self.lim_inf = [np.quantile(self.pred[:,i], q = 0.025) for i in range(0,len(self.meanPred))]
             #self.lim_sup = [np.quantile(self.pred[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
+            print("Will be fixed in future")
             pass
 
 
@@ -162,6 +163,7 @@ class bootstrapTS:
             #deltaU = [np.quantile(deltaStar[:,i], q = 0.975) for i in range(0,len(self.meanPred))]
             #self.lim_inf  = self.meanPred + deltaL
             #self.lim_sup  = self.meanPred + deltaU
+            print("Will be fixed in future")
             pass
            
 
