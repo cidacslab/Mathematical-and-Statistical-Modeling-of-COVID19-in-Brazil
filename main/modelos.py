@@ -361,7 +361,7 @@ class SIR:
                 
         cost = pos = None
         if beta2:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 1000, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
         else:
             cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.beta = pos[0]

@@ -624,3 +624,8 @@
 2020-04-18 11:50:27,486 - Platypus - INFO - NSGAII finished; Total NFE: 10176, Elapsed Time: 0:01:44.658893
 2020-04-18 11:50:28,623 - Platypus - INFO - NSGAII starting
 2020-04-18 11:51:44,799 - Platypus - INFO - NSGAII finished; Total NFE: 10112, Elapsed Time: 0:01:36.844421
+2020-04-20 09:56:51,964 - pyswarms.single.local_best - INFO - Optimize for 100 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9, 'k': 3, 'p': 2}
+2020-04-20 09:56:52,254 - pyswarms.single.local_best - INFO - Optimization finished | best cost: 3.3258708386030063e-09, best pos: [-6.49310046e-06 -5.73036690e-05]
+2020-04-20 09:57:09,892 - pyswarms.single.local_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9, 'k': 3, 'p': 2}
+2020-04-20 09:57:17,836 - pyswarms.single.local_best - INFO - Optimize for 500 iters with {'c1': 0.5, 'c2': 0.3, 'w': 0.9, 'k': 3, 'p': 2}
+2020-04-20 09:57:18,405 - pyswarms.single.local_best - INFO - Optimization finished | best cost: 3.905682595147114e-24, best pos: [-3.41827878e-13 -1.94649333e-12]
