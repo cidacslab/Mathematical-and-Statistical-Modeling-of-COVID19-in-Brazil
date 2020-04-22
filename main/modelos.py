@@ -222,8 +222,6 @@ class SIR:
     ''' SIR Model'''
     def __init__(self,tamanhoPop,numeroProcessadores=None):
         self.N = tamanhoPop
-        self.beta = None
-        self.gamma = None
         self.numeroProcessadores = numeroProcessadores
     
     def __cal_EDO(self,x,beta,gamma):
@@ -434,6 +432,300 @@ class SIR:
             plt.show()
         except:
             print("There is no predicted value")
+
+
+class SEIRHUD:
+    ''' SEIRHU Model'''
+    def __init__(self,tamanhoPop,numeroProcessadores=None):
+        self.N = tamanhoPop
+        self.numeroProcessadores = numeroProcessadores
+    
+    def __cal_EDO(self,x,beta,delta,ia0,is0,e0):
+            ND = len(x)-1
+            t_start = 0.0
+            t_end = ND
+            t_inc = 1
+            t_range = np.arange(t_start, t_end + t_inc, t_inc)
+            beta = np.array(beta)
+            delta = np.array(delta)
+            def SIR_diff_eqs(INP, t, beta, delta):
+                Y = np.zeros((9))
+                V = INP
+                Y[0] = - beta*V[0]*(V[3] + delta*V[2])                  #S
+                Y[1] = beta*V[0]*(V[3] + delta*V[2]) -self.kappa * V[1] #E
+                Y[2] = (1-self.p)*self.kappa*V[1] - self.gammaA*V[2]    #IA
+                Y[3] = self.p*self.kappa*V[1] - self.gammaS*V[3]        #IS
+                Y[4] = self.h*self.xi*self.gammaS*V[3] + (1-self.muU)*self.gammaU*V[5] -self.gammaH*V[4] #H
+                Y[5] = self.h*(1-self.xi)*self.gammaS*V[3] +(1-(self.muH))*self.omega*self.gammaH*V[4] -self.gammaU*V[5] #U
+                Y[6] = self.gammaA*V[2] + (1-(self.muH))*(1-self.omega)*self.gammaH*V[4] + (1-self.h)*self.gammaS*V[3]  #R
+                Y[7] = self.muH*self.gammaH*V[4] + self.muU*self.gammaU*V[5] #D
+                Y[8] = self.p*self.kappa*V[1] #Nw
+                return Y
+            result_fit = spi.odeint(SIR_diff_eqs, (1-ia0-is0-e0,e0 ,ia0,is0,0,0,0,0,0), t_range,
+                                    args=(beta, delta))
+            
+            S=result_fit[:, 0]*self.N
+            E = result_fit[:, 1]*self.N
+            IA=result_fit[:, 2]*self.N
+            IS=result_fit[:, 3]*self.N
+            H=result_fit[:, 4]*self.N
+            U=result_fit[:, 5]*self.N
+            R=result_fit[:, 6]*self.N
+            D=result_fit[:, 7]*self.N
+            Nw=result_fit[:, 8]*self.N
+            
+            return S,E,IA,IS,H,U,R,D,Nw
+        
+    def __cal_EDO_2(self,x,beta1,beta2,tempo,delta,ia0,is0,e0):
+            ND = len(x)-1
+            
+            t_start = 0.0
+            t_end = ND
+            t_inc = 1
+            t_range = np.arange(t_start, t_end + t_inc, t_inc)
+            def Hf(t):
+                h = 1.0/(1.0+ np.exp(-2.0*50*t))
+                return h
+            def beta(t,t1,b,b1):
+                beta = b*Hf(t1-t) + b1*Hf(t-t1) 
+                return beta
+
+            delta = np.array(delta)
+            def SIR_diff_eqs(INP, t, beta1, beta2,t1,delta):
+                #Y[0] = - beta(t,t1,beta1,beta2) * V[0] * V[1]                 #S
+                Y = np.zeros((9))
+                V = INP
+                Y[0] = - beta(t,t1,beta1,beta2)*V[0]*(V[3] + delta*V[2])                  #S
+                Y[1] = beta(t,t1,beta1,beta2)*V[0]*(V[3] + delta*V[2]) -self.kappa * V[1]
+                Y[2] = (1-self.p)*self.kappa*V[1] - self.gammaA*V[2]
+                Y[3] = self.p*self.kappa*V[1] - self.gammaS*V[3]
+                Y[4] = self.h*self.xi*self.gammaS*V[3] + (1-self.muU)*self.gammaU*V[5] -self.gammaH*V[4]
+                Y[5] = self.h*(1-self.xi)*self.gammaS*V[3] +(1-(self.muH))*self.omega*self.gammaH*V[4] -self.gammaU*V[5]
+                Y[6] = self.gammaA*V[2] + (1-(self.muH))*(1-self.omega)*self.gammaH*V[4] + (1-self.h)*self.gammaS*V[3]
+                Y[7] = self.muH*self.gammaH*V[4] + self.muU*self.gammaU*V[5]#R
+                Y[8] = self.p*self.kappa*V[1]                         #R
+                
+                return Y
+            result_fit = spi.odeint(SIR_diff_eqs, (1-ia0-is0-e0,e0 ,ia0,is0,0,0,0,0,0), t_range,
+                                    args=(beta1,beta2,tempo, delta))
+            
+            S=result_fit[:, 0]*self.N
+            E = result_fit[:, 1]*self.N
+            IA=result_fit[:, 2]*self.N
+            IS=result_fit[:, 3]*self.N
+            H=result_fit[:, 4]*self.N
+            U=result_fit[:, 5]*self.N
+            R=result_fit[:, 6]*self.N
+            D=result_fit[:, 7]*self.N
+            Nw=result_fit[:, 8]*self.N
+            
+            return S,E,IA,IS,H,U,R,D,Nw
+    
+    def objectiveFunction(self,coef,x ,y,d,stand_error):
+        tam2 = len(coef[:,0])
+        soma = np.zeros(tam2)
+        y = y*self.N
+        #__cal_EDO_2(self,x,beta1 0,beta2 1,tempo 2,delta 3,ia0 4,is0 5,e0 6)
+        if stand_error:
+            if (self.beta_variavel) & (self.day_mudar==None):
+                for i in range(tam2):
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6])
+                    soma[i]= ((((y-(Nw))/y)**2)+(((d-(D))/(d+0.001))**2)).mean()
+            elif self.beta_variavel:
+                for i in range(tam2):
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5])
+                    soma[i]= ((((y-(Nw))/y)**2)+(((d-(D))/(d+0.001))**2)).mean()
+            else:
+                for i in range(tam2):
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4])
+                    soma[i]= ((((y-(Nw))/y)**2)+(((d-(D))/(d+0.001))**2)).mean()
+        else:
+            if (self.beta_variavel) & (self.day_mudar==None):
+                for i in range(tam2):
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6])
+                    soma[i]= (((y-(Nw))**2)+((d-(D))**2)).mean()
+            elif self.beta_variavel:
+                for i in range(tam2):
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5])
+                    soma[i]= (((y-(Nw))**2)+((d-(D))**2)).mean()
+            else:
+                for i in range(tam2):
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4])
+                    soma[i]= (((y-(Nw))**2)+((d-(D))**2)).mean()
+        return soma
+    def fit(self, x,y,d, kappa = 1/4,p=0.15,gammaA=1/5,gammaS=1/5,gammaH = 1/10,gammaU = 1/10,muH = 0.2,muU=0.55,h = 0.12,xi = 0.53,omega = 0.04 , bound = [[0,0],[1,1]],stand_error=False, beta2=True,day_mudar = None):
+        '''
+        x = dias passados do dia inicial 1
+        y = numero de casos
+        bound = intervalo de limite para procura de cada parametro, onde None = sem limite
+        
+        bound => (lista_min_bound, lista_max_bound)
+        '''
+        
+        if len(bound[0])==2:
+            bound[0]=bound[0].copy()
+            bound[1]=bound[1].copy()
+            bound[0].append(0)
+            bound[0].append(0)
+            bound[0].append(0)
+            bound[1].append(10/self.N)
+            bound[1].append(10/self.N)
+            bound[1].append(10/self.N)
+        self.kappa = kappa
+        self.p = p
+        self.gammaA = gammaA
+        self.gammaS = gammaS
+        self.gammaH = gammaH
+        self.gammaU = gammaU
+        self.muH = muH
+        self.muU = muU
+        self.h = h
+        self.xi = xi
+        self.omega = omega
+        self.beta_variavel = beta2
+        self.day_mudar = day_mudar
+        self.y = y
+        self.d = d
+        self.x = x
+        df = np.array(y)/self.N
+        dd = np.array(d)/self.N
+
+        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':3,'p':1}
+        optimizer = None
+        if bound==None:
+            if (beta2) & (day_mudar==None):
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=7, options=options)
+            elif beta2:
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=6, options=options)
+            else:
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options)                
+        else:
+            if (beta2) & (day_mudar==None):
+                if len(bound[0])==5:
+                    bound = (bound[0].copy(),bound[1].copy())
+                    bound[0].insert(1,bound[0][0])
+                    bound[1].insert(1,bound[1][0])
+                    bound[0].insert(2,x[4])
+                    bound[1].insert(2,x[-5])
+
+                    
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=7, options=options,bounds=bound)
+            elif beta2:
+                if len(bound[0])==5:
+                    bound = (bound[0].copy(),bound[1].copy())
+                    bound[0].insert(1,bound[0][0])
+                    bound[1].insert(1,bound[1][0])
+                    
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=6, options=options,bounds=bound)
+            else:
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options,bounds=bound)
+                
+        cost = pos = None
+        if beta2:
+            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+        else:
+            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            self.beta = pos[0]
+            self.delta = pos[1]
+            self.ia0 = pos[2]
+            self.is0 = pos[3]
+            self.e0 = pos[4]
+        if beta2:
+            self.beta1 = pos[0]
+            self.beta2 = pos[1]
+            
+            if day_mudar==None:
+                self.day_mudar = pos[2]
+                self.delta = pos[3]
+                self.ia0 = pos[4]
+                self.is0 = pos[5]
+                self.e0 = pos[6]
+            else:
+                self.day_mudar = day_mudar
+                self.delta = pos[2]
+                self.ia0 = pos[3]
+                self.is0 = pos[4]
+                self.e0 = pos[5]
+        self.rmse = cost
+        self.optimize = optimizer
+            
+    def predict(self,x):
+        ''' x = dias passados do dia inicial 1'''
+        if self.beta_variavel:
+            S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,self.beta1,self.beta2,self.day_mudar,self.delta,self.ia0,self.is0,self.e0)
+        else:
+            S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,self.beta,self.delta,self.ia0,self.is0,self.e0)
+        self.ypred = Nw
+        self.dpred = D
+        self.S = S
+        self.E = E
+        self.IA = IA
+        self.IS = IS
+        self.H = H
+        self.U = U
+        self.R = R         
+        return self.ypred
+
+    def getResiduosQuadatico(self):
+        y = np.array(self.y)
+        d = np.array(self.d)
+        ypred = np.array(self.ypred)
+        dpred = np.array(self.dpred)
+        y = y[0:len(self.x)]
+        d = d[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        dpred = dpred[0:len(self.x)]
+        return ((y - ypred)**2) + ((d-dpred)**2)
+
+    def getReQuadPadronizado(self):
+        y = np.array(self.y)
+        d = np.array(self.d)
+        ypred = np.array(self.ypred)
+        dpred = np.array(self.dpred)
+        y = y[0:len(self.x)]
+        d = d[0:len(self.x)]
+        ypred = ypred[0:len(self.x)]
+        dpred = dpred[0:len(self.x)]
+        return (((y - ypred)**2)/y) + (((d-dpred)**2)/(d+0.001))
+    
+    def plotCost(self):
+        plot_cost_history(cost_history=self.optimize.cost_history)
+        plt.show()
+
+    def plot(self,local):
+        ypred = self.predict(self.x)
+        plt.plot(ypred,c='b',label='Predição Infectados')
+        plt.plot(self.y,c='r',marker='o', markersize=3,label='Infectados')
+        plt.legend(fontsize=15)
+        plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
+        plt.ylabel('Casos COnfirmados',fontsize=15)
+        plt.xlabel('Dias',fontsize=15)
+        plt.show()
+    def plotDeath(self,local):
+        self.predict(self.x)
+        plt.plot(self.dpred,c='b',label='Predição mortes')
+        plt.plot(self.d,c='r',marker='o', markersize=3,label='mortos')
+        plt.legend(fontsize=15)
+        plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
+        plt.ylabel('Mortos',fontsize=15)
+        plt.xlabel('Dias',fontsize=15)
+        plt.show()
+    def getCoef(self):
+        if self.beta_variavel:
+            return ['beta1','beta2','dia_mudanca','delta','ia0','is0','e0'],[self.beta1,self.beta2,self.day_mudar,self.delta,self.ia0,self.is0,self.e0]
+        return ['beta','delta','ia0','is0','e0'],[self.beta,self.delta,self.ia0,self.is0,self.e0]
+
+    def plotFit(self):
+        plt.style.use('seaborn-deep')
+        fig, axes = plt.subplots(figsize = (18,8))
+        try:
+            plt.plot(self.x, self.ypred, label = "Fitted", c = "red")
+            plt.scatter(self.x, self.y, label = "Observed", c = "blue")
+            plt.legend(loc='upper left')
+            plt.show()
+        except:
+            print("There is no predicted value")
+
 
 class SEIR_PSO:
     ''' SIR Model'''
