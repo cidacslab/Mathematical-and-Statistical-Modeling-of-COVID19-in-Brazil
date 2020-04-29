@@ -17,6 +17,7 @@ import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
 from pyswarms.single.global_best import GlobalBestPSO
 import pyswarms as ps
+from pyswarms.backend.topology import Star
 from pyswarms.utils.plotters import plot_cost_history
 from itertools import repeat
 import multiprocessing as mp
@@ -793,7 +794,7 @@ class SEIR_PSO:
         self.E0 = 0
         options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
         if bound==None:
-            optimizer = GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Star())
+            optimizer = ps.single.GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Star())
             cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
@@ -804,7 +805,7 @@ class SEIR_PSO:
             self.optimize = optimizer
             
         else:
-            optimizer = GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,bounds=bound,topology=Star())
+            optimizer = ps.single.GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,bounds=bound,topology=Star())
             cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
