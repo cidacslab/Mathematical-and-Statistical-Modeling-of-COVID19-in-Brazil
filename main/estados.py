@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEIRHUD' #EXP, SIR, SEIRHUD
+modelo_usado = 'SEIR' #EXP, SIR, SEIR, SEIRHUD
 stand_error = False # se true usa erro ponderado, se false usa erro simples
 beta_variavel = True # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
 day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica
@@ -24,7 +24,7 @@ min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
-previsao_ate = dt.date(2020,4,24)
+previsao_ate = dt.date(2020,5,29)
 
 
 #carregar dados
@@ -74,10 +74,10 @@ for i in range(len(novo_nome)):
         modelo = md.SIR(N_inicial,numeroProcessadores)
     elif modelo_usado =='EXP':
         modelo = md.EXP(N_inicial,numeroProcessadores)
-    elif modelo_usado =='SEIR_PSO':
-        modelo = md.SEIR_PSO(N_inicial)
+    elif modelo_usado =='SEIR':
+        modelo = md.SEIR(N_inicial,numeroProcessadores)
     elif modelo_usado =='SEIRHUD':
-        modelo = md.SEIRHUD(N_inicial)
+        modelo = md.SEIRHUD(N_inicial,numeroProcessadores)
     
     else:
         print('Modelo desconhecido '+modelo_usado)
@@ -137,7 +137,7 @@ if modelo_usado=='SIR':
         novo_local[i]['infectado'] = pd.to_numeric(pd.Series(modelos[i].I[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['recuperado'] = pd.to_numeric(pd.Series(modelos[i].R[0:len(novo_local[i].TOTAL)]),downcast='integer')
    
-if modelo_usado=='SEIR_PSO' or modelo_usado=='SEIR_GA':
+if modelo_usado=='SEIR' or modelo_usado=='SEIR_GA':
     for i in range(len(modelos)):
         novo_local[i]['sucetivel'] = pd.to_numeric(pd.Series(modelos[i].S[0:len(novo_local[i].TOTAL)]),downcast='integer')
         novo_local[i]['exposto'] = pd.to_numeric(pd.Series(modelos[i].E[0:len(novo_local[i].TOTAL)]),downcast='integer')
@@ -165,7 +165,7 @@ coef_list = []
 coef_name = None
 data_mudan = []
 for i in range(len(novo_nome)):
-    if beta_variavel & ((modelo_usado == 'SIR') or (modelo_usado == 'SEIRHUD')):
+    if beta_variavel & ((modelo_usado == 'SIR') or (modelo_usado == 'SEIRHUD') or (modelo_usado == 'SEIR')):
         data_mudan.append(diaBound[i][2] + dt.timedelta(int(modelos[i].day_mudar)))
     coef_name, coef  = modelos[i].getCoef()
     rmse.append(modelos[i].rmse)
@@ -178,7 +178,7 @@ for c in range(len(coef_name)):
     for i in range(len(coef_list)):
         l.append(coef_list[i][c])
     su[coef_name[c]]=l
-if beta_variavel & ((modelo_usado == 'SIR') or (modelo_usado=='SEIRHUD')):
+if beta_variavel & ((modelo_usado == 'SIR') or (modelo_usado=='SEIRHUD') or (modelo_usado == 'SEIR')):
     su['data_muda'] = data_mudan
 su.to_csv(arq_sumario,index=False)
 

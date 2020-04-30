@@ -591,7 +591,7 @@ class SEIRHUD:
         df = np.array(y)/self.N
         dd = np.array(d)/self.N
 
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':3,'p':1}
+        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':5,'p':1}
         optimizer = None
         if bound==None:
             if (beta2) & (day_mudar==None):
@@ -728,7 +728,7 @@ class SEIRHUD:
             print("There is no predicted value")
 
 
-class SEIR_PSO:
+class SEIR:
     ''' SIR Model'''
     def __init__(self,tamanhoPop,numeroProcessadores=None):
         self.N = tamanhoPop
@@ -744,10 +744,10 @@ class SEIR_PSO:
             t_end = ND
             t_inc = 1
             t_range = np.arange(t_start, t_end + t_inc, t_inc)
-            beta = np.array(beta)
-            gamma = np.array(gamma)
-            mu = np.array(mu)
-            sigma = np.array(sigma)
+            #beta = np.array(beta)
+            #gamma = np.array(gamma)
+            #mu = np.array(mu)
+            #sigma = np.array(sigma)
             
             def SEIR_diff_eqs(INP, t, beta, gamma,mu,sigma):
                 Y = np.zeros((4))
@@ -762,23 +762,84 @@ class SEIR_PSO:
             result_fit = spi.odeint(SEIR_diff_eqs, (self.S0,self.E0, self.I0,self.R0), t_range,
                                     args=(beta, gamma,mu,sigma))
             
-            S=result_fit[:, 0]
-            E=result_fit[:, 1]
-            I=result_fit[:, 2]
-            R=result_fit[:, 3]
+            S=result_fit[:, 0]*self.N
+            E=result_fit[:, 1]*self.N
+            I=result_fit[:, 2]*self.N
+            R=result_fit[:, 3]*self.N
             
             return S,E,I,R
-    
-    def __objectiveFunction(self,coef,x ,y,mu):
+      
+    def __cal_EDO_2(self,x,beta1,beta2,day_mudar,gamma,mu,sigma):
+            ND = len(x)-1
+            t_start = 0.0
+            t_end = ND
+            t_inc = 1
+            t_range = np.arange(t_start, t_end + t_inc, t_inc)
+            #beta1 = np.array(beta1)
+            #beta2 = np.array(beta2)
+            #gamma = np.array(gamma)
+            #mu = np.array(mu)
+            #sigma = np.array(sigma)
+            def Hf(t):
+                h = 1.0/(1.0+ np.exp(-2.0*50*t))
+                return h
+            def beta(t,t1,b,b1):
+                beta = b*Hf(t1-t) + b1*Hf(t-t1) 
+                return beta
+            def SEIR_diff_eqs(INP, t, beta1,beta2,t1, gamma,mu,sigma):
+                Y = np.zeros((4))
+                V = INP
+                Y[0] = mu - beta(t,t1,beta1,beta2) * V[0] * V[2] - mu * V[0]  # Susceptile
+                Y[1] = beta(t,t1,beta1,beta2) * V[0] * V[2] - sigma * V[1] - mu * V[1] # Exposed
+                Y[2] = sigma * V[1] - gamma * V[2] - mu * V[2] # Infectious
+                Y[3] = gamma * V[2] #recuperado
+                return Y   # For odeint
+
+                return Y
+            result_fit = spi.odeint(SEIR_diff_eqs, (self.S0,self.E0, self.I0,self.R0), t_range,
+                                    args=(beta1,beta2,day_mudar, gamma,mu,sigma))
+            
+            S=result_fit[:, 0]*self.N
+            E=result_fit[:, 1]*self.N
+            I=result_fit[:, 2]*self.N
+            R=result_fit[:, 3]*self.N
+            
+            return S,E,I,R
+    def __objectiveFunction(self,coef,x ,y,stand_error):
         tam2 = len(coef[:,0])
         soma = np.zeros(tam2)
-        for i in range(tam2):
-            S,E,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1],mu,coef[i,2])
-            soma[i]= ((y-(I+R)*self.N)**2).mean()
+        #__cal_EDO(self,x,beta,gamma,mu,sigma)
+        #__cal_EDO2(self,x,beta1,beta2,day_mudar,gamma,mu,sigma)
+        if stand_error:
+            if (self.beta_variavel) & (self.day_mudar==None):
+                for i in range(tam2):
+                    S,E,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],self.mu,coef[i,4])
+                    soma[i]= (((y-(I+R))/y)**2).mean()
+            elif self.beta_variavel:
+                for i in range(tam2):
+                    S,E,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],self.day_mudar,coef[i,2],self.mu,coef[i,3])
+                    soma[i]= (((y-(I+R))/y)**2).mean()
+            else:
+                for i in range(tam2):
+                    S,E,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1],self.mu,coef[i,2])
+                    soma[i]= (((y-(I+R))/y)**2).mean()
+        else:
+            if (self.beta_variavel) & (self.day_mudar==None):
+                for i in range(tam2):
+                    S,E,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],self.mu,coef[i,4])
+                    soma[i]= (((y-(I+R)))**2).mean()
+            elif self.beta_variavel:
+                for i in range(tam2):
+                    S,E,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],self.day_mudar,coef[i,2],self.mu,coef[i,3])
+                    soma[i]= (((y-(I+R)))**2).mean()
+            else:
+                for i in range(tam2):
+                    S,E,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1],self.mu,coef[i,2])
+                    soma[i]= (((y-(I+R)))**2).mean()
         return soma
     
 
-    def fit(self, x,y , bound = ([0,1/7,1/6],[1.5,1/4,1/4]), name=None):
+    def fit(self, x,y , bound = ([0,1/7,1/6],[1.5,1/4,1/4]) ,stand_error=False, beta2=True,day_mudar = None):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -786,45 +847,108 @@ class SEIR_PSO:
         
         bound => (lista_min_bound, lista_max_bound)
         '''
-        self.name=name
+        
         self.y = y
         self.I0 = np.array(y[0])/self.N
         self.S0 = 1-self.I0
         self.R0 = 0
         self.E0 = 0
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+        self.mu = 1/(75.51*365)
+        # options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+        # if bound==None:
+        #     optimizer = ps.single.GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Star())
+        #     cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
+        #     self.beta = pos[0]
+        #     self.gamma = pos[1]
+        #     self.mu = 1/(75.51*365)
+        #     self.sigma = pos[2]
+        #     self.x = x
+        #     self.rmse = cost
+        #     self.optimize = optimizer
+            
+        # else:
+        #     optimizer = ps.single.GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,bounds=bound,topology=Star())
+        #     cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
+        #     self.beta = pos[0]
+        #     self.gamma = pos[1]
+        #     self.mu = 1/(75.51*365)
+        #     self.sigma = pos[2]
+        #     self.x = x
+        #     self.rmse = cost
+        #     self.optimize = optimizer
+        self.beta_variavel = beta2
+        self.day_mudar = day_mudar
+        self.y = y
+        self.x = x
+
+        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':5,'p':1}
+        optimizer = None
+        
         if bound==None:
-            optimizer = ps.single.GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,topology=Star())
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
-            self.beta = pos[0]
-            self.gamma = pos[1]
-            self.mu = 1/(75.51*365)
-            self.sigma = pos[2]
-            self.x = x
-            self.rmse = cost
-            self.optimize = optimizer
-            
+            if (beta2) & (day_mudar==None):
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options)
+            elif beta2:
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=4, options=options)
+            else:
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options)                
         else:
-            optimizer = ps.single.GeneralOptimizerPSO(n_particles=50, dimensions=3, options=options,bounds=bound,topology=Star())
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,mu=1/(75.51*365),n_processes=self.numeroProcessadores)
+            if (beta2) & (day_mudar==None):
+                if len(bound[0])==3:
+                    bound = (bound[0].copy(),bound[1].copy())
+                    bound[0].insert(1,bound[0][0])
+                    bound[1].insert(1,bound[1][0])
+                    bound[0].insert(2,x[4])
+                    bound[1].insert(2,x[-5])
+
+                    
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options,bounds=bound)
+            elif beta2:
+                if len(bound[0])==3:
+                    bound = (bound[0].copy(),bound[1].copy())
+                    bound[0].insert(1,bound[0][0])
+                    bound[1].insert(1,bound[1][0])
+                    
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=4, options=options,bounds=bound)
+            else:
+                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options,bounds=bound)
+                
+        cost = pos = None
+        if beta2:
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,stand_error=stand_error,n_processes=self.numeroProcessadores)
+        else:
+            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
-            self.mu = 1/(75.51*365)
             self.sigma = pos[2]
-            self.x = x
-            self.rmse = cost
-            self.optimize = optimizer
             
+        if beta2:
+            self.beta1 = pos[0]
+            self.beta2 = pos[1]
+            
+            if day_mudar==None:
+                self.day_mudar = pos[2]
+                self.gamma = pos[3]
+                self.sigma = pos[4]
+            else:
+                self.day_mudar = day_mudar
+                self.gamma = pos[2]
+                self.sigma = pos[3]
+
+        self.rmse = cost
+        self.optimize = optimizer
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
-        S,E,I,R = self.__cal_EDO(x,self.beta,self.gamma,self.mu,self.sigma)
-    
-        self.S = S*self.N
-        self.E = E*self.N
-        self.I = I*self.N
-        self.R = R*self.N  
-        self.ypred = self.I+ self.R
+        
+        if self.beta_variavel:
+            S,E,I,R = self.__cal_EDO_2(x,self.beta1,self.beta2,self.day_mudar,self.gamma,self.mu,self.sigma)
+        else:
+            S,E,I,R = self.__cal_EDO(x,self.beta,self.gamma,self.mu,self.sigma)
+        self.ypred = I+R
+        self.S = S
+        self.E = E
+        self.I = I
+        self.R = R         
         return self.ypred
     def getResiduosQuadatico(self):
         y = np.array(self.y)
@@ -853,7 +977,11 @@ class SEIR_PSO:
         plt.xlabel('Dias',fontsize=15)
         plt.show()
     def getCoef(self):
-        return ['beta','gamma','mu','sigma'], [self.beta,self.gamma,self.mu,self.sigma]
+        #__cal_EDO(self,x,beta,gamma,mu,sigma)
+        #__cal_EDO2(self,x,beta1,beta2,day_mudar,gamma,mu,sigma)
+        if self.beta_variavel:
+            return ['beta1','beta2','dia_mudanca','gamma','mu','sigma'],[self.beta1,self.beta2,self.day_mudar,self.gamma,self.mu,self.sigma]
+        return ['beta','gamma','mu','sigma'],[self.beta,self.gamma,self.mu,self.sigma]
 
         
 class SEIR_GA:
