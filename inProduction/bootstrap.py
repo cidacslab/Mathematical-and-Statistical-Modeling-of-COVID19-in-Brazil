@@ -214,7 +214,7 @@ class bootstrapTS:
                 self.beta2 = [self.results[i]["beta2"] for i in range(0,len(self.results))]
                 self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
                 self.changeDay = [self.results[i]["changeDay"] for i in range(0,len(self.results))]
-                return [{"beta1": self.beta1, 
+                return {"beta1": self.beta1, 
                          "beta2": self.beta2, 
                          "dayChange": self.changeDay, 
                          "gamma": self.gamma, 
@@ -223,7 +223,7 @@ class bootstrapTS:
                          "predUB": self.lim_sup,
                          "I": self.I, 
                          "R": self.R, 
-                         "S": self.S}]
+                         "S": self.S}
             except:
                 self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
                 self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
