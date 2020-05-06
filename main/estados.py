@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import sys
 
 # parametros
-modelo_usado = 'SEIR' #EXP, SIR, SEIR, SEIRHUD
+modelo_usado = 'SEIRHUD' #EXP, SIR, SEIR, SEIRHUD
 stand_error = False # se true usa erro ponderado, se false usa erro simples
 beta_variavel = True # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
 day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica
@@ -99,9 +99,10 @@ for i in range(len(novo_nome)):
     elif modelo_usado == 'SEIRHUD':
         if beta_variavel:
             if day_beta_change==None:
-                bound = [[0,0,diaBound[i][0],0,0,0,0],[1,1,diaBound[i][1],1,10/N_inicial,10/N_inicial,10/N_inicial]]
+                #[[0,0,diaBound[i][0],1/8,1/12,0,0.05],[2,2,diaBound[i][1],1/4,1/3,0.7,0.25]]
+                bound = [[0,0,diaBound[i][0],1/8,1/12,0,0.05,0,0,0],[1,1,diaBound[i][1],1/4,1/3,0.7,0.25,10/N_inicial,10/N_inicial,10/N_inicial]]
             else:
-                bound = [[0,0,0,0,0,0],[1,1,1,10/N_inicial,10/N_inicial,10/N_inicial]]
+                bound = [[0,0,1/8,1/12,0,0.05,0,0,0],[1,1,1/4,1/3,0.7,0.25,10/N_inicial,10/N_inicial,10/N_inicial]]
             modelo.fit(x,y,d,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change,bound = bound)
         else:
             modelo.fit(x,y,d,stand_error=stand_error,beta2=beta_variavel,day_mudar =day_beta_change)

@@ -441,7 +441,7 @@ class SEIRHUD:
         self.N = tamanhoPop
         self.numeroProcessadores = numeroProcessadores
     
-    def __cal_EDO(self,x,beta,delta,ia0,is0,e0):
+    def __cal_EDO(self,x,beta,gammaH,gammaU,delta,h,ia0,is0,e0):
             ND = len(x)-1
             t_start = 0.0
             t_end = ND
@@ -449,21 +449,21 @@ class SEIRHUD:
             t_range = np.arange(t_start, t_end + t_inc, t_inc)
             beta = np.array(beta)
             delta = np.array(delta)
-            def SIR_diff_eqs(INP, t, beta, delta):
+            def SIR_diff_eqs(INP, t, beta,gammaH,gammaU, delta,h):
                 Y = np.zeros((9))
                 V = INP
-                Y[0] = - beta*V[0]*(V[3] + delta*V[2])                  #S
-                Y[1] = beta*V[0]*(V[3] + delta*V[2]) -self.kappa * V[1] #E
-                Y[2] = (1-self.p)*self.kappa*V[1] - self.gammaA*V[2]    #IA
-                Y[3] = self.p*self.kappa*V[1] - self.gammaS*V[3]        #IS
-                Y[4] = self.h*self.xi*self.gammaS*V[3] + (1-self.muU)*self.gammaU*V[5] -self.gammaH*V[4] #H
-                Y[5] = self.h*(1-self.xi)*self.gammaS*V[3] +(1-(self.muH))*self.omega*self.gammaH*V[4] -self.gammaU*V[5] #U
-                Y[6] = self.gammaA*V[2] + (1-(self.muH))*(1-self.omega)*self.gammaH*V[4] + (1-self.h)*self.gammaS*V[3]  #R
-                Y[7] = self.muH*self.gammaH*V[4] + self.muU*self.gammaU*V[5] #D
-                Y[8] = self.p*self.kappa*V[1] #Nw
+                Y[0] = - beta*V[0]*(V[3] + delta*V[2])                    #S
+                Y[1] = beta*V[0]*(V[3] + delta*V[2]) -self.kappa * V[1]
+                Y[2] = (1-self.p)*self.kappa*V[1] - self.gammaA*V[2]
+                Y[3] = self.p*self.kappa*V[1] - self.gammaS*V[3]
+                Y[4] = h*self.xi*self.gammaS*V[3] + (1-self.muU + self.omegaU*self.muU)*gammaU*V[5] -gammaH*V[4]
+                Y[5] = h*(1-self.xi)*self.gammaS*V[3] +self.omegaH*gammaH*V[4] -gammaU*V[5]
+                Y[6] = self.gammaA*V[2] + (1-(self.muH))*(1-self.omegaH)*gammaH*V[4] + (1-h)*self.gammaS*V[3]
+                Y[7] = (1-self.omegaH)*self.muH*gammaH*V[4] + (1-self.omegaU)*self.muU*gammaU*V[5]#R
+                Y[8] = self.p*self.kappa*V[1] 
                 return Y
             result_fit = spi.odeint(SIR_diff_eqs, (1-ia0-is0-e0,e0 ,ia0,is0,0,0,0,0,0), t_range,
-                                    args=(beta, delta))
+                                    args=(beta,gammaH,gammaU, delta,h))
             
             S=result_fit[:, 0]*self.N
             E = result_fit[:, 1]*self.N
@@ -477,7 +477,7 @@ class SEIRHUD:
             
             return S,E,IA,IS,H,U,R,D,Nw
         
-    def __cal_EDO_2(self,x,beta1,beta2,tempo,delta,ia0,is0,e0):
+    def __cal_EDO_2(self,x,beta1,beta2,tempo,gammaH,gammaU,delta,h,ia0,is0,e0):
             ND = len(x)-1
             
             t_start = 0.0
@@ -492,23 +492,23 @@ class SEIRHUD:
                 return beta
 
             delta = np.array(delta)
-            def SIR_diff_eqs(INP, t, beta1, beta2,t1,delta):
+            def SIR_diff_eqs(INP, t, beta1, beta2,t1,gammaH,gammaU, delta,h):
                 #Y[0] = - beta(t,t1,beta1,beta2) * V[0] * V[1]                 #S
                 Y = np.zeros((9))
                 V = INP
-                Y[0] = - beta(t,t1,beta1,beta2)*V[0]*(V[3] + delta*V[2])                  #S
+                Y[0] = - beta(t,t1,beta1,beta2)*V[0]*(V[3] + delta*V[2])                    #S
                 Y[1] = beta(t,t1,beta1,beta2)*V[0]*(V[3] + delta*V[2]) -self.kappa * V[1]
                 Y[2] = (1-self.p)*self.kappa*V[1] - self.gammaA*V[2]
                 Y[3] = self.p*self.kappa*V[1] - self.gammaS*V[3]
-                Y[4] = self.h*self.xi*self.gammaS*V[3] + (1-self.muU)*self.gammaU*V[5] -self.gammaH*V[4]
-                Y[5] = self.h*(1-self.xi)*self.gammaS*V[3] +(1-(self.muH))*self.omega*self.gammaH*V[4] -self.gammaU*V[5]
-                Y[6] = self.gammaA*V[2] + (1-(self.muH))*(1-self.omega)*self.gammaH*V[4] + (1-self.h)*self.gammaS*V[3]
-                Y[7] = self.muH*self.gammaH*V[4] + self.muU*self.gammaU*V[5]#R
-                Y[8] = self.p*self.kappa*V[1]                         #R
+                Y[4] = h*self.xi*self.gammaS*V[3] + (1-self.muU + self.omegaU*self.muU)*gammaU*V[5] -gammaH*V[4]
+                Y[5] = h*(1-self.xi)*self.gammaS*V[3] +self.omegaH*gammaH*V[4] -gammaU*V[5]
+                Y[6] = self.gammaA*V[2] + (1-(self.muH))*(1-self.omegaH)*gammaH*V[4] + (1-h)*self.gammaS*V[3]
+                Y[7] = (1-self.omegaH)*self.muH*gammaH*V[4] + (1-self.omegaU)*self.muU*gammaU*V[5]#R
+                Y[8] = self.p*self.kappa*V[1]                      #R
                 
                 return Y
             result_fit = spi.odeint(SIR_diff_eqs, (1-ia0-is0-e0,e0 ,ia0,is0,0,0,0,0,0), t_range,
-                                    args=(beta1,beta2,tempo, delta))
+                                    args=(beta1,beta2,tempo,gammaH,gammaU, delta,h))
             
             S=result_fit[:, 0]*self.N
             E = result_fit[:, 1]*self.N
@@ -525,36 +525,34 @@ class SEIRHUD:
     def objectiveFunction(self,coef,x ,y,d,stand_error):
         tam2 = len(coef[:,0])
         soma = np.zeros(tam2)
-        y = y*self.N
-        #__cal_EDO_2(self,x,beta1 0,beta2 1,tempo 2,delta 3,ia0 4,is0 5,e0 6)
         if stand_error:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
-                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6])
-                    soma[i]= ((((y-(Nw))/y)**2)+(((d-(D))/(d+0.001))**2)).mean()
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8],coef[i,9])
+                    soma[i]= ((((y-(Nw))/y)**2)*(1-self.pesoMorte)+(((d-(D))/d)**2)*self.pesoMorte).mean()
             elif self.beta_variavel:
                 for i in range(tam2):
-                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5])
-                    soma[i]= ((((y-(Nw))/y)**2)+(((d-(D))/(d+0.001))**2)).mean()
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8])
+                    soma[i]= ((((y-(Nw))/y)**2)*(1-self.pesoMorte)+(((d-(D))/d)**2)*self.pesoMorte).mean()
             else:
                 for i in range(tam2):
-                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4])
-                    soma[i]= ((((y-(Nw))/y)**2)+(((d-(D))/(d+0.001))**2)).mean()
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
+                    soma[i]= ((((y-(Nw))/y)**2)*(1-self.pesoMorte)+(((d-(D))/d)**2)*self.pesoMorte).mean()
         else:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
-                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6])
-                    soma[i]= (((y-(Nw))**2)+((d-(D))**2)).mean()
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8],coef[i,9])
+                    soma[i]= (((y-(Nw))**2)*(1-self.pesoMorte)+((d-(D))**2)*self.pesoMorte).mean()
             elif self.beta_variavel:
                 for i in range(tam2):
-                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5])
-                    soma[i]= (((y-(Nw))**2)+((d-(D))**2)).mean()
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8])
+                    soma[i]= (((y-(Nw))**2)*(1-self.pesoMorte)+((d-(D))**2)*self.pesoMorte).mean()
             else:
                 for i in range(tam2):
-                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4])
-                    soma[i]= (((y-(Nw))**2)+((d-(D))**2)).mean()
+                    S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
+                    soma[i]= (((y-(Nw))**2)*(1-self.pesoMorte)+((d-(D))**2)*self.pesoMorte).mean()
         return soma
-    def fit(self, x,y,d, kappa = 1/4,p=0.15,gammaA=1/5,gammaS=1/5,gammaH = 1/10,gammaU = 1/10,muH = 0.2,muU=0.55,h = 0.12,xi = 0.53,omega = 0.04 , bound = [[0,0],[1,1]],stand_error=False, beta2=True,day_mudar = None):
+    def fit(self, x,y,d,pesoMorte = 0.5, kappa = 1/4,p=0.2,gammaA=1/3.5,gammaS=1/4,muH = 0.15,muU=0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],stand_error=False, beta2=True,day_mudar = None,paramPSO = {'options':{'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':5,'p':1},'n_particles':50,'iter':500}):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -562,47 +560,45 @@ class SEIRHUD:
         
         bound => (lista_min_bound, lista_max_bound)
         '''
-        
-        if len(bound[0])==2:
-            bound[0]=bound[0].copy()
-            bound[1]=bound[1].copy()
-            bound[0].append(0)
-            bound[0].append(0)
-            bound[0].append(0)
-            bound[1].append(10/self.N)
-            bound[1].append(10/self.N)
-            bound[1].append(10/self.N)
+        if len(bound)==2:
+            if len(bound[0])==5:
+                bound[0]=bound[0].copy()
+                bound[1]=bound[1].copy()
+                bound[0].append(0)
+                bound[0].append(0)
+                bound[0].append(0)
+                bound[1].append(10/self.N)
+                bound[1].append(10/self.N)
+                bound[1].append(10/self.N)
+        self.pesoMorte = pesoMorte
         self.kappa = kappa
         self.p = p
         self.gammaA = gammaA
         self.gammaS = gammaS
-        self.gammaH = gammaH
-        self.gammaU = gammaU
         self.muH = muH
         self.muU = muU
-        self.h = h
         self.xi = xi
-        self.omega = omega
+        self.omegaU = omegaU
+        self.omegaH = omegaH
         self.beta_variavel = beta2
         self.day_mudar = day_mudar
         self.y = y
         self.d = d
         self.x = x
-        df = np.array(y)/self.N
-        dd = np.array(d)/self.N
+        df = np.array(y)
+        dd = np.array(d)
 
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':5,'p':1}
         optimizer = None
         if bound==None:
             if (beta2) & (day_mudar==None):
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=7, options=options)
+                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=10, options=paramPSO['options'])
             elif beta2:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=6, options=options)
+                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=9, options=paramPSO['options'])
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options)                
+                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=8, options=paramPSO['options'])                
         else:
             if (beta2) & (day_mudar==None):
-                if len(bound[0])==5:
+                if len(bound[0])==8:
                     bound = (bound[0].copy(),bound[1].copy())
                     bound[0].insert(1,bound[0][0])
                     bound[1].insert(1,bound[1][0])
@@ -610,52 +606,63 @@ class SEIRHUD:
                     bound[1].insert(2,x[-5])
 
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=7, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=10, options=paramPSO['options'],bounds=bound)
             elif beta2:
-                if len(bound[0])==5:
+                if len(bound[0])==8:
                     bound = (bound[0].copy(),bound[1].copy())
                     bound[0].insert(1,bound[0][0])
                     bound[1].insert(1,bound[1][0])
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=6, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=9, options=paramPSO['options'],bounds=bound)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=8, options=paramPSO['options'],bounds=bound)
                 
         cost = pos = None
+        #__cal_EDO(self,x,beta,gammaH,gammaU,delta,h,ia0,is0,e0)
+        #__cal_EDO_2(self,x,beta1,beta2,tempo,gammaH,gammaU,delta,h,ia0,is0,e0)
         if beta2:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction,paramPSO['iter'], x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
         else:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction, paramPSO['iter'], x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.beta = pos[0]
-            self.delta = pos[1]
-            self.ia0 = pos[2]
-            self.is0 = pos[3]
-            self.e0 = pos[4]
+            self.gammaH = pos[1]
+            self.gammaU = pos[2]
+            self.delta = pos[3]
+            self.h = pos[4]
+            self.ia0 = pos[5]
+            self.is0 = pos[6]
+            self.e0 = pos[7]
         if beta2:
             self.beta1 = pos[0]
             self.beta2 = pos[1]
             
             if day_mudar==None:
                 self.day_mudar = pos[2]
-                self.delta = pos[3]
-                self.ia0 = pos[4]
-                self.is0 = pos[5]
-                self.e0 = pos[6]
+                self.gammaH = pos[3]
+                self.gammaU = pos[4]
+                self.delta = pos[5]
+                self.h = pos[6]
+                self.ia0 = pos[7]
+                self.is0 = pos[8]
+                self.e0 = pos[9]
             else:
                 self.day_mudar = day_mudar
-                self.delta = pos[2]
-                self.ia0 = pos[3]
-                self.is0 = pos[4]
-                self.e0 = pos[5]
+                self.gammaH = pos[2]
+                self.gammaU = pos[3]
+                self.delta = pos[4]
+                self.h = pos[5]
+                self.ia0 = pos[6]
+                self.is0 = pos[7]
+                self.e0 = pos[8]
         self.rmse = cost
         self.optimize = optimizer
             
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
         if self.beta_variavel:
-            S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,self.beta1,self.beta2,self.day_mudar,self.delta,self.ia0,self.is0,self.e0)
+            S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,self.beta1,self.beta2,self.day_mudar,self.gammaH,self.gammaU,self.delta,self.h,self.ia0,self.is0,self.e0)
         else:
-            S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,self.beta,self.delta,self.ia0,self.is0,self.e0)
+            S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,self.beta,self.gammaH,self.gammaU,self.delta,self.h,self.ia0,self.is0,self.e0)
         self.ypred = Nw
         self.dpred = D
         self.S = S
@@ -676,7 +683,7 @@ class SEIRHUD:
         d = d[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
         dpred = dpred[0:len(self.x)]
-        return ((y - ypred)**2) + ((d-dpred)**2)
+        return ((y - ypred)**2)*(1-self.pesoMorte) + ((d-dpred)**2)*self.pesoMorte
 
     def getReQuadPadronizado(self):
         y = np.array(self.y)
@@ -687,7 +694,7 @@ class SEIRHUD:
         d = d[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
         dpred = dpred[0:len(self.x)]
-        return (((y - ypred)**2)/y) + (((d-dpred)**2)/(d+0.001))
+        return (((y - ypred)**2)/y)*(1-self.pesoMorte) + (((d-dpred)**2)/(d))*self.pesoMorte
     
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
