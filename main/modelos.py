@@ -36,9 +36,11 @@ def ler_banco_municipios():
     banco =banco[banco['ibgeID'].notnull()]
     banco = banco[banco.city!='TOTAL']
     nome_local =list(banco['ibgeID'].unique())
-    
+    data = []
     for i in banco.index:
-        banco.date[i] = dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date()
+        print(str(i)+'\n')
+        data.append( dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date())
+    banco.date = data
     local = []
     for est in nome_local:
         
@@ -529,30 +531,30 @@ class SEIRHUD:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8],coef[i,9])
-                    soma[i]= ((((y-(Nw))/y)**2)*(1-self.pesoMorte)+(((d-(D))/d)**2)*self.pesoMorte).mean()
+                    soma[i]= (((y-(Nw))/y)**2).mean()*(1-self.pesoMorte)+(((d-(D))/d)**2).mean()*self.pesoMorte
             elif self.beta_variavel:
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8])
-                    soma[i]= ((((y-(Nw))/y)**2)*(1-self.pesoMorte)+(((d-(D))/d)**2)*self.pesoMorte).mean()
+                    soma[i]= (((y-(Nw))/y)**2).mean()*(1-self.pesoMorte)+(((d-(D))/d)**2).mean()*self.pesoMorte
             else:
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
-                    soma[i]= ((((y-(Nw))/y)**2)*(1-self.pesoMorte)+(((d-(D))/d)**2)*self.pesoMorte).mean()
+                    soma[i]= (((y-(Nw))/y)**2).mean()*(1-self.pesoMorte)+(((d-(D))/d)**2).mean()*self.pesoMorte
         else:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8],coef[i,9])
-                    soma[i]= (((y-(Nw))**2)*(1-self.pesoMorte)+((d-(D))**2)*self.pesoMorte).mean()
+                    soma[i]= ((y-(Nw))**2).mean()*(1-self.pesoMorte)+((d-(D))**2).mean()*self.pesoMorte
             elif self.beta_variavel:
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8])
-                    soma[i]= (((y-(Nw))**2)*(1-self.pesoMorte)+((d-(D))**2)*self.pesoMorte).mean()
+                    soma[i]= ((y-(Nw))**2).mean()*(1-self.pesoMorte)+((d-(D))**2).mean()*self.pesoMorte
             else:
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
-                    soma[i]= (((y-(Nw))**2)*(1-self.pesoMorte)+((d-(D))**2)*self.pesoMorte).mean()
+                    soma[i]= ((y-(Nw))**2).mean()*(1-self.pesoMorte)+((d-(D))**2).mean()*self.pesoMorte
         return soma
-    def fit(self, x,y,d,pesoMorte = 0.5, kappa = 1/4,p=0.2,gammaA=1/3.5,gammaS=1/4,muH = 0.15,muU=0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],stand_error=False, beta2=True,day_mudar = None,paramPSO = {'options':{'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':5,'p':1},'n_particles':50,'iter':500}):
+    def fit(self, x,y,d,pesoMorte = 0.5, kappa = 1/4,p=0.2,gammaA=1/3.5,gammaS=1/4,muH = 0.15,muU=0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],stand_error=False, beta2=True,day_mudar = None,paramPSO = {'options':{'c1': 0.1, 'c2': 0.3, 'w': 0.9,'k':5,'p':2},'n_particles':300,'iter':1000}):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -720,8 +722,8 @@ class SEIRHUD:
         plt.show()
     def getCoef(self):
         if self.beta_variavel:
-            return ['beta1','beta2','dia_mudanca','delta','ia0','is0','e0'],[self.beta1,self.beta2,self.day_mudar,self.delta,self.ia0,self.is0,self.e0]
-        return ['beta','delta','ia0','is0','e0'],[self.beta,self.delta,self.ia0,self.is0,self.e0]
+            return ['beta1','beta2','dia_mudanca','gammaH','gammaU', 'delta','h','ia0','is0','e0'],[self.beta1,self.beta2,self.day_mudar,self.gammaH,self.gammaU,self.delta,self.h,self.ia0,self.is0,self.e0]
+        return ['beta','gammaH','gammaU', 'delta','h','ia0','is0','e0'],[self.beta,self.gammaH,self.gammaU,self.delta,self.h,self.ia0,self.is0,self.e0]
 
     def plotFit(self):
         plt.style.use('seaborn-deep')
