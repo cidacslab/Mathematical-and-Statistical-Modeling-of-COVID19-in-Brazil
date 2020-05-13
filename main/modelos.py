@@ -531,15 +531,15 @@ class SEIRHUD:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8],coef[i,9])
-                    soma[i]= (((y-(Nw))/y)**2).mean()*(1-self.pesoMorte)+(((d-(D))/d)**2).mean()*self.pesoMorte
+                    soma[i]= (((y-(Nw))/np.sqrt(Nw+1))**2).mean()*(1-self.pesoMorte)+(((d-(D))/np.sqrt(D+1))**2).mean()*self.pesoMorte
             elif self.beta_variavel:
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar,coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7],coef[i,8])
-                    soma[i]= (((y-(Nw))/y)**2).mean()*(1-self.pesoMorte)+(((d-(D))/d)**2).mean()*self.pesoMorte
+                    soma[i]= (((y-(Nw))/np.sqrt(Nw+1))**2).mean()*(1-self.pesoMorte)+(((d-(D))/np.sqrt(D+1))**2).mean()*self.pesoMorte
             else:
                 for i in range(tam2):
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
-                    soma[i]= (((y-(Nw))/y)**2).mean()*(1-self.pesoMorte)+(((d-(D))/d)**2).mean()*self.pesoMorte
+                    soma[i]= (((y-(Nw))/np.sqrt(Nw+1))**2).mean()*(1-self.pesoMorte)+(((d-(D))/np.sqrt(D+1))**2).mean()*self.pesoMorte
         else:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
