@@ -148,9 +148,18 @@ class bootstrapTS:
         for i in range(0,len(lists)):
             self.results.append(self.__runSir(model, lists[i], x))
         
-        # # Get predictions (I + R)
+        # # Get predictions (I + R) and all other fitted values
         self.pred = np.array([self.results[i]["pred"] for i in range(0,len(self.results))])
+        self.I = np.array([self.results[i]["I"] for i in range(0,len(self.results))])
+        self.S = np.array([self.results[i]["S"] for i in range(0,len(self.results))])
+        self.R = np.array([self.results[i]["R"] for i in range(0,len(self.results))])
+
+
+        #Compute means values for predicitons
         self.meanPred = [np.mean(self.pred[:,i]) for i in range(0,len(self.y) + self.ndays)]
+        self.meanI = [np.mean(self.I[:,i]) for i in range(0,len(self.y) + self.ndays)]
+        self.meanS = [np.mean(self.S[:,i]) for i in range(0,len(self.y) + self.ndays)]
+        self.meanR = [np.mean(self.R[:,i]) for i in range(0,len(self.y) + self.ndays)]
         pred = [self.pred[i][:len(self.y)] for i in range(0,len(self.results))]
 
         #Compute sgima all models
@@ -205,7 +214,16 @@ class bootstrapTS:
                 self.beta2 = [self.results[i]["beta2"] for i in range(0,len(self.results))]
                 self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
                 self.changeDay = [self.results[i]["changeDay"] for i in range(0,len(self.results))]
-                return [self.beta1, self.beta2, self.changeDay, self.gamma, self.meanPred, self.lim_inf, self.lim_sup]
+                return {"beta1": self.beta1, 
+                         "beta2": self.beta2, 
+                         "dayChange": self.changeDay, 
+                         "gamma": self.gamma, 
+                         "meanPred": self.meanPred, 
+                         "predLB": self.lim_inf, 
+                         "predUB": self.lim_sup,
+                         "I": self.I, 
+                         "R": self.R, 
+                         "S": self.S}
             except:
                 self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
                 self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]
