@@ -15,7 +15,7 @@ import logging
 from functools import reduce
 import scipy.integrate as spi
 from platypus import NSGAII, Problem, Real
-from pyswarms.single.global_best import GlobalBestPSO
+#from pyswarms.single.global_best import GlobalBestPSO
 import pyswarms as ps
 from pyswarms.backend.topology import Star
 from pyswarms.utils.plotters import plot_cost_history
@@ -24,116 +24,7 @@ import multiprocessing as mp
 
 
 
-logging.disable()
-def ler_banco_municipios():
-    try:
-        url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-cities-time.csv'
-        banco = pd.read_csv(url)
-    except:
-        return None,None
-    
-    
-    banco =banco[banco['ibgeID'].notnull()]
-    banco = banco[banco.city!='TOTAL']
-    nome_local =list(banco['ibgeID'].unique())
-    data = []
-    for i in banco.index:
-        print(str(i)+'\n')
-        data.append( dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date())
-    banco.date = data
-    local = []
-    for est in nome_local:
-        
-    
-        aux = banco[banco['ibgeID']==est].sort_values('date')
-        data_ini = aux.date.iloc[0]
-        data_fim = aux.date.iloc[-1]
-        dias = (data_fim-data_ini).days + 1
-        d = [(data_ini + dt.timedelta(di)) for di in range(dias)]
-        
-        estado = [aux.state.iloc[0] for di in range(dias)]
-        city = [aux.city.iloc[0] for di in range(dias)]
-        ibgeID = [est for di in range(dias)]
-        df = pd.DataFrame({'date':d,'UF':estado,'city':city,'ibgeID':ibgeID})
-        
-        casos = []
-        mortes = []
-        morte = 0
-        caso = 0
-        i_aux = 0
-        for i in range(dias):
-            if (d[i]-aux.date.iloc[i_aux]).days==0:
-                caso = aux['totalCases'].iloc[i_aux]
-                morte = aux['deaths'].iloc[i_aux]
-                casos.append(caso)
-                mortes.append(morte)
-                i_aux=i_aux+1
-            else:
-                casos.append(caso)
-                mortes.append(morte)
-        new = [casos[0]]        
-        for i in range(1,dias):
-            new.append(casos[i]-casos[i-1])
-        df['mortes'] = mortes
-        df['newCases'] = new
-        df['TOTAL'] = casos
-        local.append(df)
-    return nome_local, local    
-
-
-def ler_banco_estados():
-    try:
-        url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv'
-        banco = pd.read_csv(url)
-    except:
-        return None,None
-    
-    
-
-    nome_local =list(banco['state'].unique())
-    nome_local.remove('TOTAL')
-    nome_local.insert(0,'TOTAL')
-    for i in banco.index:
-        banco.date[i] = dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date()
-    local = []
-    for est in nome_local:
-        
-    
-        aux = banco[banco['state']==est].sort_values('date')
-        data_ini = aux.date.iloc[0]
-        data_fim = aux.date.iloc[-1]
-        dias = (data_fim-data_ini).days + 1
-        d = [(data_ini + dt.timedelta(di)) for di in range(dias)]
-        
-        estado = [est for di in range(dias)]
-        df = pd.DataFrame({'date':d,'state':estado})
-        
-        casos = []
-        mortes = []
-        caso = 0
-        morte=0
-        i_aux = 0
-        for i in range(dias):
-            if (d[i]-aux.date.iloc[i_aux]).days==0:
-                caso = aux['totalCases'].iloc[i_aux]
-                morte = aux.deaths.iloc[i_aux]
-                casos.append(caso)
-                mortes.append(morte)
-                i_aux=i_aux+1
-            else:
-                casos.append(caso)
-                mortes.append(morte)
-        new = [casos[0]]        
-        for i in range(1,dias):
-            new.append(casos[i]-casos[i-1])
-        df['newCases'] = new
-        df['mortes'] = mortes
-        df['TOTAL'] = casos
-        local.append(df)
-        nome_local[0]='TOTAL'
-        local[0].state='TOTAL'
-    return nome_local, local    
-            
+logging.disable()           
 class EXP:
     ''' f(x) = a*exp(b*x) '''
     def __init__(self, N_inicial,numeroProcessadores=None):
@@ -149,15 +40,17 @@ class EXP:
         res = np.zeros(tam)
         if stand_error:
             for i in range(tam):
-                res[i] = ((((coef[i, 0]*np.exp(x*coef[i, 1]))-y)/y)**2).mean()
+                ypred= (coef[i, 0]*np.exp(x*coef[i, 1]))
+                res[i] = (((ypred-y)/np.sqrt(ypred+1))**2).mean()
         else:
             for i in range(tam):
-                res[i] = (((coef[i, 0]*np.exp(x*coef[i, 1]))-y)**2).mean()                
+                ypred= (coef[i, 0]*np.exp(x*coef[i, 1]))
+                res[i] = ((ypred-y)**2).mean()                
         return res
             
 
 
-    def fit(self, x,y , bound = None, stand_error=True):        
+    def fit(self, x,y , bound = None, stand_error=True, particles = 50,itera=500,c1=0.5,c2=0.3,w=0.9,k=3,p=1):        
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -165,10 +58,10 @@ class EXP:
         
         bound => (lista_min_bound, lista_max_bound) '''
         df = np.array(y)
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}
+        options = {'c1': c1, 'c2': c2, 'w': w,'k':k,'p':p}
         if bound==None:
-            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options)
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=2, options=options)
+            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.a = pos[0]
             self.b = pos[1]
             self.x = x
@@ -176,8 +69,8 @@ class EXP:
             self.rmse = cost
             self.optimize = optimizer
         else:
-            optimizer = GlobalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=2, options=options,bounds=bound)
+            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.a = pos[0]
             self.b = pos[1]
             self.x = x
@@ -203,7 +96,7 @@ class EXP:
         ypred = np.array(self.ypred)
         y = y[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
-        res = ((y - ypred)**2)/y
+        res = ((y - ypred)**2)/np.sqrt(ypred+1)
         return res 
     
     def plotCost(self):
@@ -292,15 +185,15 @@ class SIR:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
                     S,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
+                    soma[i]= (((y-(I+R))/np.sqrt((I+R)+1))**2).mean()
             elif self.beta_variavel:
                 for i in range(tam2):
                     S,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],self.day_mudar)
-                    soma[i]= (((y-(I+R))/y)**2).mean()
+                    soma[i]= (((y-(I+R))/np.sqrt((I+R)+1))**2).mean()
             else:
                 for i in range(tam2):
                     S,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
+                    soma[i]= (((y-(I+R))/np.sqrt((I+R)+1))**2).mean()
         else:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
@@ -315,7 +208,7 @@ class SIR:
                     S,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1])
                     soma[i]= (((y-(I+R)))**2).mean()
         return soma
-    def fit(self, x,y , bound = ([0,1/21],[1,1/5]),stand_error=False, beta2=True,day_mudar = None):
+    def fit(self, x,y , bound = ([0,1/21],[1,1/5]),stand_error=True, beta2=True,day_mudar = None,particles=50,itera=500,c1= 0.5, c2= 0.3, w = 0.9, k=3,p=1):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -331,15 +224,15 @@ class SIR:
         self.I0 = df[0]
         self.S0 = 1-self.I0
         self.R0 = 0
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':3,'p':1}
+        options = {'c1': c1, 'c2': c2, 'w': w,'k':k,'p':p}
         optimizer = None
         if bound==None:
             if (beta2) & (day_mudar==None):
-                optimizer = ps.single.LocalBestPSO(n_particles=80, dimensions=4, options=options)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=4, options=options)
             elif beta2:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=3, options=options)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=2, options=options)                
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=2, options=options)                
         else:
             if (beta2) & (day_mudar==None):
                 if len(bound[0])==2:
@@ -351,22 +244,22 @@ class SIR:
                     bound[0][3] = x[4]
                     bound[1][3] = x[-5]
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=80, dimensions=4, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=4, options=options,bounds=bound)
             elif beta2:
                 if len(bound[0])==2:
                     bound = (bound[0].copy(),bound[1].copy())
                     bound[0].append(bound[0][1])
                     bound[1].append(bound[1][1])
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=3, options=options,bounds=bound)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=2, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=2, options=options,bounds=bound)
                 
         cost = pos = None
         if beta2:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
         else:
-            cost, pos = optimizer.optimize(self.objectiveFunction, 500, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
         if beta2:
@@ -404,7 +297,7 @@ class SIR:
         ypred = np.array(self.ypred)
         y = y[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
-        res = ((y - ypred)**2)/y
+        res = ((y - ypred)**2)/np.sqrt(ypred+1)
         return res 
     
     def plotCost(self):
@@ -554,7 +447,7 @@ class SEIRHUD:
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
                     soma[i]= ((y-(Nw))**2).mean()*(1-self.pesoMorte)+((d-(D))**2).mean()*self.pesoMorte
         return soma
-    def fit(self, x,y,d,pesoMorte = 0.5, kappa = 1/4,p=0.2,gammaA=1/3.5,gammaS=1/4,muH = 0.15,muU=0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],stand_error=False, beta2=True,day_mudar = None,paramPSO = {'options':{'c1': 0.1, 'c2': 0.3, 'w': 0.9,'k':5,'p':2},'n_particles':300,'iter':1000}):
+    def fit(self, x,y,d,pesoMorte = 0.5, kappa = 1/4,p=0.2,gammaA=1/3.5,gammaS=1/4,muH = 0.15,muU=0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],stand_error=True, beta2=True,day_mudar = None,particles=300,itera=1000,c1=0.1,c2=0.3,w=0.9,k=5,norm=2):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -589,15 +482,15 @@ class SEIRHUD:
         self.x = x
         df = np.array(y)
         dd = np.array(d)
-
+        options = {'c1': c1, 'c2': c2, 'w': w,'k':k,'p':norm}
         optimizer = None
         if bound==None:
             if (beta2) & (day_mudar==None):
-                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=10, options=paramPSO['options'])
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=10, options=options)
             elif beta2:
-                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=9, options=paramPSO['options'])
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=9, options=options)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=8, options=paramPSO['options'])                
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=8, options=options)                
         else:
             if (beta2) & (day_mudar==None):
                 if len(bound[0])==8:
@@ -608,24 +501,24 @@ class SEIRHUD:
                     bound[1].insert(2,x[-5])
 
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=10, options=paramPSO['options'],bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=10, options=options,bounds=bound)
             elif beta2:
                 if len(bound[0])==8:
                     bound = (bound[0].copy(),bound[1].copy())
                     bound[0].insert(1,bound[0][0])
                     bound[1].insert(1,bound[1][0])
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=9, options=paramPSO['options'],bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=9, options=options,bounds=bound)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=8, options=paramPSO['options'],bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=8, options=options,bounds=bound)
                 
         cost = pos = None
         #__cal_EDO(self,x,beta,gammaH,gammaU,delta,h,ia0,is0,e0)
         #__cal_EDO_2(self,x,beta1,beta2,tempo,gammaH,gammaU,delta,h,ia0,is0,e0)
         if beta2:
-            cost, pos = optimizer.optimize(self.objectiveFunction,paramPSO['iter'], x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction,itera, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
         else:
-            cost, pos = optimizer.optimize(self.objectiveFunction, paramPSO['iter'], x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gammaH = pos[1]
             self.gammaU = pos[2]
@@ -696,7 +589,7 @@ class SEIRHUD:
         d = d[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
         dpred = dpred[0:len(self.x)]
-        return (((y - ypred)**2)/y)*(1-self.pesoMorte) + (((d-dpred)**2)/(d))*self.pesoMorte
+        return (((y - ypred)**2)/np.sqrt(ypred+1))*(1-self.pesoMorte) + (((d-dpred)**2)/np.sqrt(dpred+1))*self.pesoMorte
     
     def plotCost(self):
         plot_cost_history(cost_history=self.optimize.cost_history)
@@ -823,15 +716,15 @@ class SEIR:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
                     S,E,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],self.mu,coef[i,4])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
+                    soma[i]= (((y-(I+R))/np.sqrt((I+R)+1))**2).mean()
             elif self.beta_variavel:
                 for i in range(tam2):
                     S,E,I,R = self.__cal_EDO_2(x,coef[i,0],coef[i,1],self.day_mudar,coef[i,2],self.mu,coef[i,3])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
+                    soma[i]= (((y-(I+R))/np.sqrt((I+R)+1))**2).mean()
             else:
                 for i in range(tam2):
                     S,E,I,R = self.__cal_EDO(x,coef[i,0],coef[i,1],self.mu,coef[i,2])
-                    soma[i]= (((y-(I+R))/y)**2).mean()
+                    soma[i]= (((y-(I+R))/np.sqrt((I+R)+1))**2).mean()
         else:
             if (self.beta_variavel) & (self.day_mudar==None):
                 for i in range(tam2):
@@ -848,7 +741,7 @@ class SEIR:
         return soma
     
 
-    def fit(self, x,y , bound = ([0,1/7,1/6],[1.5,1/4,1/4]) ,stand_error=False, beta2=True,day_mudar = None):
+    def fit(self, x,y , bound = ([0,1/7,1/6],[1.5,1/4,1/4]) ,stand_error=True, beta2=True,day_mudar = None,particles=50,itera=500,c1=0.3,c2= 0.3, w= 0.9,k=3,p=2):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -890,16 +783,16 @@ class SEIR:
         self.y = y
         self.x = x
 
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9,'k':5,'p':1}
+        options = {'c1': c1, 'c2': c2, 'w': w,'k':k,'p':p}
         optimizer = None
         
         if bound==None:
             if (beta2) & (day_mudar==None):
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=5, options=options)
             elif beta2:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=4, options=options)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=4, options=options)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options)                
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=3, options=options)                
         else:
             if (beta2) & (day_mudar==None):
                 if len(bound[0])==3:
@@ -910,22 +803,22 @@ class SEIR:
                     bound[1].insert(2,x[-5])
 
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=5, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=5, options=options,bounds=bound)
             elif beta2:
                 if len(bound[0])==3:
                     bound = (bound[0].copy(),bound[1].copy())
                     bound[0].insert(1,bound[0][0])
                     bound[1].insert(1,bound[1][0])
                     
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=4, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=4, options=options,bounds=bound)
             else:
-                optimizer = ps.single.LocalBestPSO(n_particles=50, dimensions=3, options=options,bounds=bound)
+                optimizer = ps.single.LocalBestPSO(n_particles=particles, dimensions=3, options=options,bounds=bound)
                 
         cost = pos = None
         if beta2:
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, itera, x = x,y=y,stand_error=stand_error,n_processes=self.numeroProcessadores)
         else:
-            cost, pos = optimizer.optimize(self.__objectiveFunction, 500, x = x,y=y,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.__objectiveFunction, itera, x = x,y=y,stand_error=stand_error,n_processes=self.numeroProcessadores)
             self.beta = pos[0]
             self.gamma = pos[1]
             self.sigma = pos[2]
@@ -970,7 +863,7 @@ class SEIR:
         ypred = np.array(self.ypred)
         y = y[0:len(self.x)]
         ypred = ypred[0:len(self.x)]
-        res = ((y - ypred)**2)/y
+        res = ((y - ypred)**2)/np.sqrt(ypred+1)
         return res 
     
     def plotCost(self):
