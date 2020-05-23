@@ -14,29 +14,82 @@ import sys
 
 # parametros
 modelo_usado = 'SEIRHUD' #EXP, SIR, SEIR, SEIRHUD
-stand_error = False # se true usa erro ponderado, se false usa erro simples
+stand_error = True # se true usa erro ponderado, se false usa erro simples
 beta_variavel = True # funciona no SIR, caso True ocorre mudança do beta no dia definido no parametro abaixo
 day_beta_change = None # funciona no SIR,dia da mudança do valor do beta se None a busca vai ser automatica
 intervalo_data = (dt.date(2020,3,15),dt.date(2020,4,15))
-estados = ['BA'] # lista de estados, None para todos
+estados = ['TOTAL','BA'] # lista de estados, None para todos
 numeroProcessadores = None # numero de prossesadores para executar em paralelo
 min_cases = 5
 min_dias = 10
 arq_saida = '../data/estados.csv'
 arq_sumario = '../data/estado_sumario.csv'
-previsao_ate = dt.date(2020,5,29)
+previsao_ate = dt.date.today() +  dt.timedelta(200)
+
+def ler_banco_estados():
+    try:
+        url = 'https://raw.githubusercontent.com/wcota/covid19br/master/cases-brazil-states.csv'
+        banco = pd.read_csv(url)
+    except:
+        return None,None
+    
+    
+
+    nome_local =list(banco['state'].unique())
+    nome_local.remove('TOTAL')
+    nome_local.insert(0,'TOTAL')
+    for i in banco.index:
+        banco.date[i] = dt.datetime.strptime(banco.date[i], '%Y-%m-%d').date()
+    local = []
+    for est in nome_local:
+        
+    
+        aux = banco[banco['state']==est].sort_values('date')
+        data_ini = aux.date.iloc[0]
+        data_fim = aux.date.iloc[-1]
+        dias = (data_fim-data_ini).days + 1
+        d = [(data_ini + dt.timedelta(di)) for di in range(dias)]
+        
+        estado = [est for di in range(dias)]
+        df = pd.DataFrame({'date':d,'state':estado})
+        
+        casos = []
+        mortes = []
+        caso = 0
+        morte=0
+        i_aux = 0
+        for i in range(dias):
+            if (d[i]-aux.date.iloc[i_aux]).days==0:
+                caso = aux['totalCases'].iloc[i_aux]
+                morte = aux.deaths.iloc[i_aux]
+                casos.append(caso)
+                mortes.append(morte)
+                i_aux=i_aux+1
+            else:
+                casos.append(caso)
+                mortes.append(morte)
+        new = [casos[0]]        
+        for i in range(1,dias):
+            new.append(casos[i]-casos[i-1])
+        df['newCases'] = new
+        df['mortes'] = mortes
+        df['TOTAL'] = casos
+        local.append(df)
+        nome_local[0]='TOTAL'
+        local[0].state='TOTAL'
+    return nome_local, local   
 
 
 #carregar dados
-nome, local = md.ler_banco_estados()
-df_pop = pd.read_csv('../data/populacoes.csv')
+nome, local = ler_banco_estados()
+df_pop = pd.read_csv('../data/Populacoes.csv')
 #carregar dados alternativa
 #timeseries,populacao = md.ler_banco_alternativa()
 
 novo_nome = []
 novo_local = []
 for i in range(len(nome)):
-    if (local[i].TOTAL.iloc[-1]>=min_cases) & (len(local[i])>=10) & (estados==None):
+    if (local[i].TOTAL.iloc[-1]>=min_cases) & (len(local[i])>=min_dias) & (estados==None):
         novo_local.append(local[i])
         novo_nome.append(nome[i])
     elif estados!= None:
