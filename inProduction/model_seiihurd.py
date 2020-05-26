@@ -110,7 +110,11 @@ class SEIIHURD_age:
             else:
                 Y.append(data[ke])
                 simb, num = ke.split("_")
-                i_integ.append(int(num) + self.nages * list_states.index(simb))
+                n0 = self.nages * list_states.index(simb)
+                if '_ALL' in ke:
+                    i_integ.append(list(range(n0,n0 + self.nages)))
+                else:
+                    i_integ.append(int(num) + n0)
         return i_integ, Y, t
                 
                 
@@ -171,7 +175,11 @@ class SEIIHURD_age:
         for i, coefs in enumerate(coefs_list):
             ts, mY = self._call_ODE(self.t, self._conversor(coefs, self.pars_init, self.padjus))
             for indY, indODE in enumerate(self.i_integ):
-                errsq[i] += weights[indY] * (((self.Y[indY] - self.N[indODE%self.nages] * mY[:,indODE]) / error_func(mY[:,indODE]))**2 ).mean()
+                if type(indODE) == list:
+                    temp = (self.N.reshape((1,-1)) *  mY[:,indODE]).sum(axis=1)
+                    errsq[i] += weights[indY] * (((self.Y[indY] - temp) / error_func(temp))**2 ).mean()
+                else:
+                    errsq[i] += weights[indY] * (((self.Y[indY] - self.N[indODE%self.nages] * mY[:,indODE]) / error_func(mY[:,indODE]))**2 ).mean()
         return errsq
 
     def _residuals(self, coefs, stand_error=False, weights=None):
@@ -181,7 +189,11 @@ class SEIIHURD_age:
         errs = np.empty((0,))
         ts, mY = self._call_ODE(self.t, self._conversor(coefs, self.pars_init, self.padjus))
         for indY, indODE in enumerate(self.i_integ):
-            errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func(mY[:,indODE])) ]
+            if type(indODE) == list:
+                temp = (self.N.reshape((1,-1)) *  mY[:,indODE]).sum(axis=1)
+                errs = np.r_[errs, weights[indY] * ((self.Y[indY] - temp) / error_func(temp)) ]
+            else:
+                errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func(mY[:,indODE])) ]
         return errs
         
     
@@ -239,7 +251,6 @@ class SEIIHURD_age:
                 if res.cost < cost_best:
                     cost_best = res.cost
                     res_best = res
-                
         else:
             res_best = least_squares(self._residuals, init, bounds=bound )
         self.pos_ls = res_best.x
@@ -255,8 +266,14 @@ class SEIIHURD_age:
         elif type(coefs) == str and coefs  == 'LS':
             coefs = self.pos_ls
         ts, mY = self._call_ODE(self.t, self._conversor(coefs, self.pars_init, self.padjus))
-        Nm = np.array([self.N[indODE%self.nages] for indODE in self.i_integ])
-        return ts, mY[:,self.i_integ] * Nm.reshape((1,-1))
+        saida = np.zeros((len(ts), 0))
+        for i in self.i_integ:
+            if type(i) == list:
+                ytemp = (mY[:,i] *self.N.reshape((1,-1))).sum(axis=1)
+            else:
+                ytemp = mY[:,i] * self.N[i%self.nages]
+            saida = np.c_[saida, ytemp.reshape((-1,1))]
+        return ts, saida
     
   
 

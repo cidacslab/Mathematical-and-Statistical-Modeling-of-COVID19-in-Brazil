@@ -57,8 +57,8 @@ else:
     Sa = np.load('teste_stoch.npy')
 
 data = {'t': Sa[:,0],
-        'D_0': Sa[:,1],
-        'D_1': Sa[:,2],
+        'D_ALL': Sa[:,1] + Sa[:,2],
+#        'D_1': Sa[:,2],
         'Nw_0': Sa[:,3],
         'Nw_1': Sa[:,4]}
 
@@ -76,7 +76,7 @@ bound = [np.array([0.,0.]), np.array([2.,1.])]
 model = SEIIHURD_age(Ns, 16)
 model.fit(data, param, pars_to_fit, bound, paramPSO={'iter':100,}, stand_error=False)
 model.fit_lsquares(data, param, pars_to_fit, bound, nrand=20, stand_error=False)
-print(model.pos)
+#print(model.pos)
 print(model.pos_ls)
 
 
@@ -95,3 +95,4 @@ for i, Yy in enumerate(model.Y):
     plt.plot(ts, Yls[:,i], '--r', label="LS Fit")
     plt.plot(ts, Y0[:,i], ':g', label="EDO Exact")
     plt.legend(loc='best')
+    plt.title(list(data.keys())[i+1])
