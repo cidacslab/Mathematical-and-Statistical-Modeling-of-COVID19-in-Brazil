@@ -42,7 +42,7 @@ We performed our analysis using Python version 3. The codes are presented in the
 * SEIRHUDInterior.ipynb compiles the mathematical model for the inland cities;
 * SEIRHUDSalvador.ipynb compiles the mathematical model for the capital city.
 
-The Particle Swarm Optimization (PSO) method estimates the parameters $\beta_0$, $\beta_1$, $\delta$, $h$, $\gamma_H$ and $\gamma_U$, and percentile confidence intervals were constructed using the weighted non-parametric bootstrap method, as described in [1]. 
+The Particle Swarm Optimization (PSO) method estimates the parameters beta_0, beta_1, delta, h, gamma_H and gamma_U, and percentile confidence intervals were constructed using the weighted non-parametric bootstrap method, as described in [1]. 
 
 
 
