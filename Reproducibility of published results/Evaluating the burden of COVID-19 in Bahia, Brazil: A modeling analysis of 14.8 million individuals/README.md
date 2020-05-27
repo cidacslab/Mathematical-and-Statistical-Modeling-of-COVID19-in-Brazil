@@ -23,12 +23,14 @@ The models produced in this study were informed by data from multiple sources: t
 Our data is available in the folder named "Data". They are described as follow:
 
 * data.csv contains variables of counts for the state of Bahia, they are:
-	** dates: identifying the period;
-	** infec: containing the daily cumulative number of confirmed cases; 
-	** leitos: daily hospital beds occupancy; 
-	** uti: 	daily ICU beds occupancy;
-	** dth: 	daily number of deaths caused by COVID-19;
-	** dthcm: daily cumulative number of deaths.
+
+    ** dates: identifying the period;
+    ** infec: containing the daily cumulative number of confirmed cases; 
+    ** leitos: daily hospital beds occupancy; 
+    ** uti: daily ICU beds occupancy;
+    ** dth: daily number of deaths caused by COVID-19;
+    ** dthcm: daily cumulative number of deaths.
+
 * dataInterior.csv contains the aggregated number of cases (variable name “cases”) and deaths (variable name “deaths”) for the inland cities of the state of Bahia;
 
 * salvador.csv contains the number of cases (variable name “cases”) and deaths (variable name “deaths”) for the capital city of the state of Bahia;
