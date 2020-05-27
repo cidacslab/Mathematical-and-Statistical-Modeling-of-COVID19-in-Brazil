@@ -35,7 +35,7 @@ Our data is available in the folder named "Data". They are described as follow:
 
 * salvador.csv contains the number of cases (variable name “cases”) and deaths (variable name “deaths”) for the capital city of the state of Bahia.
 
-In particular, the raw data, and depicted as dots, plotted in the figures 2, 3, 5 and 6, are provided by the datasets described above. 
+In particular, the raw data, depicted as dots, plotted in the figures 2, 3, 5 and 6, in the manuscript [1] are provided by the datasets described above. 
 
 
 ## References 
