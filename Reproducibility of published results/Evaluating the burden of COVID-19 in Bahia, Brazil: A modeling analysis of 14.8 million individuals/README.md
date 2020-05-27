@@ -6,15 +6,12 @@
 
 ## Table of contents
 * [General info](#general-info)
-* [Compilation](#compilation)
 * [Input data](#data)
+* [Compilation](#compilation)
 * [References](#references)
 
 ## General info
 In this folder the reader can find the code used to produce the results in the manuscript (preprint [1]) entitled "Evaluating the burden of COVID-19 in Bahia, Brazil: A modeling analysis of 14.8 million individuals".
-
-## Compilation
-We performed our analysis using Python version 3. 
 
 ## Input data
 
@@ -36,6 +33,17 @@ Our data is available in the folder named "Data". They are described as follow:
 * salvador.csv contains the number of cases (variable name “cases”) and deaths (variable name “deaths”) for the capital city of the state of Bahia.
 
 In particular, the raw data, depicted as dots, plotted in the figures 2, 3, 5 and 6, in the manuscript [1] are provided by the datasets described above. 
+
+
+## Compilation
+We performed our analysis using Python version 3. The codes are presented in the folder named “scripts”. The "modelo.py" file contains the class with the SEIRUHD model. Complementary to that, the reader can find three Jupyter Notebook codes:
+
+* SEIRUHD.ipynb compiles the mathematical model for the whole state;
+* SEIRHUDInterior.ipynb compiles the mathematical model for the inland cities;
+* SEIRHUDSalvador.ipynb compiles the mathematical model for the capital city.
+
+The Particle Swarm Optimization (PSO) method estimates the parameters $\beta_0$, $\beta_1$, $\delta$, $h$, $\gamma_H$ and $\gamma_U$, and percentile confidence intervals were constructed using the weighted non-parametric bootstrap method, as described in [1]. 
+
 
 
 ## References 
