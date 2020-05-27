@@ -5,7 +5,7 @@
 # Mathematical and Statistical Modeling of COVID19 in Brazil                               
 
 
-A library for compartimental models to understand the spread of transmission diseases focus on the spread of COVID19 in Brazil                              
+A library for compartimental models to understand the spread of transmission diseases focus on the spread of COVID19 in Brazil.  The library also provide detailed informations to reproduce all published results (accepted or preprint) in the folder "Reproducibility of published results".
 
 
 # Getting started
