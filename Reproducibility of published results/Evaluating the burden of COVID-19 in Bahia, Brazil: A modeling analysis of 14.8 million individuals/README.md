@@ -46,7 +46,7 @@ We performed our analysis using Python version 3. The codes are presented in the
 
 The Particle Swarm Optimization (PSO) method estimates the parameters beta_0, beta_1, delta, h, gamma_H and gamma_U, and percentile confidence intervals were constructed using the weighted non-parametric bootstrap method, as described in [1]. 
 
-
+The code to obtain the effective reproduction number is presented in the folder “Effective Reproduction number”.
 
 ## References 
 [1] Evaluating the burden of COVID-19 on hospital resources in Bahia, Brazil: A modelling-based analysis of 14.8 million individuals. https://doi.org/10.1101/2020.05.25.20105213
