@@ -221,9 +221,9 @@ class bootstrapTS:
                          "meanPred": self.meanPred, 
                          "predLB": self.lim_inf, 
                          "predUB": self.lim_sup,
-                         "I": self.I, 
-                         "R": self.R, 
-                         "S": self.S}
+                         "I": self.meanI, 
+                         "R": self.meanR, 
+                         "S": self.meanS}
             except:
                 self.beta = [self.results[i]["beta"] for i in range(0,len(self.results))]
                 self.gamma = [self.results[i]["gamma"] for i in range(0,len(self.results))]

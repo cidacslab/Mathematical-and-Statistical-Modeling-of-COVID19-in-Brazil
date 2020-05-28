@@ -1,0 +1,109 @@
+---
+title: "Graphs"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+packagesList <-  c("tidyverse", "geofacet", "data.table", "ggpubr")
+lapply(packagesList, require, character.only = TRUE)
+```
+
+
+```{r}
+infected <- read_csv(
+  file = "../results/Interior//Infec.csv"
+)
+
+deaths <- read_csv(
+  file = "../results/Interior//deaths.csv"
+)
+
+
+observed <- read_csv(
+  file = "../data/dataInterior.csv"
+)
+
+parameters <-  read_csv(
+  file = "../results/Interior/Parameters.csv"
+)
+```
+
+
+```{r}
+infected <- infected %>% 
+  add_column(date = seq.Date(from = as.Date("2020-03-06"), by = 1, length.out = nrow(infected)))
+
+deaths <- deaths %>% 
+  add_column(date = seq.Date(from = as.Date("2020-03-06"), by = 1, length.out = nrow(deaths)))
+
+observed <- observed %>% 
+  add_column(date = seq.Date(from = as.Date("2020-03-06"), by = 1, length.out = nrow(observed)))
+```
+
+
+
+```{r}
+infected <- left_join(infected, observed[,c(2,4)])
+deaths <- left_join(deaths, observed[,c(3,4)])
+```
+
+
+
+
+
+```{r}
+#Infected
+graphInfec <- infected %>% 
+  na.omit() %>% 
+  ggplot() +
+  geom_line( aes(x = date, y = Infec_mean), colour = "red") +
+  geom_point(aes(x= date, y = cases)) +
+  geom_ribbon(aes(x = date, ymin = Infec_lb, ymax = Infec_ub), alpha = 0.3) +
+  theme_bw(base_size = 32) +
+  labs(x = NULL, y = "Número de pessoas \n infectadas no Interior")
+
+#Deaths
+graphDeaths <- deaths %>% 
+  na.omit() %>% 
+  ggplot() +
+  geom_line( aes(x = date, y = deaths_mean), colour = "red") +
+  geom_ribbon(aes(x = date, ymin = deaths_lb, ymax = deaths_ub), alpha = 0.3) +
+  geom_point(aes(x= date, y = deaths)) +
+  theme_bw(base_size = 32) +
+  labs(x = NULL, y = "Número de mortos no Interior")
+
+
+
+ggarrange(graphInfec,
+          graphDeaths,
+          labels = c("(A)", "(B)"),
+          font.label = list(size = 20)) +
+  ggsave("../results/Interior/FigureS1.pdf", device = "pdf", width = 28, height = 20)
+```
+
+
+```{r}
+parameters <- parameters %>% 
+  gather(key = "parameter", value = "value", c(1:7))
+  
+#plot parameters
+ggplot(parameters) +
+  geom_density(aes(x = value)) +
+  facet_wrap(~parameter, scales = "free") +
+  theme_bw(base_size = 32)
+```
+
+```{r}
+parameters %>% 
+  group_by(parameter) %>% 
+  summarise(media = mean(value),
+            se = sd(value)/sqrt(n())) %>% 
+  mutate(lb = media - 1.96 * se,
+         ub = media + 1.96 * se)
+```
+
+
+
