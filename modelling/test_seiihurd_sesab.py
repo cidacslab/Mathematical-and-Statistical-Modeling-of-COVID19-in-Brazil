@@ -14,12 +14,21 @@ import numpy as np
 from stochastic_seiihurd import call_stoch_SEIIHURD
 from model_seiihurd import SEIIHURD_age
 import copy
+ages = np.array([0,1,5,10,20,30,40,50,60,70,80])
+
+#copied from https://github.com/WeitzGroup/covid_shield_immunity/blob/master/paper/si_immune_shielding_033120.pdf
+parspad = {'p':np.array([0.05, 0.05, 0.05, 0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 0.8]),
+           'h':np.array([0.001, 0.001, 0.001, 0.003, 0.012, 0.032, 0.049, 0.102, 0.166, 0.243, 0.273]),
+           'xi':np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.063, 0.122, 0.274, 0.432, 0.709])       
+        }
+
 
 #Initializing data
 Ns = np.array([100000, 10000])
 I0 = np.array([500, 50]) / Ns
 zer = np.zeros(2)
-Mb = np.array([[1., 0.7], [0.7, 1.]])
+#Mb = np.array([[1., 0.7], [0.7, 1.]])
+Mb = np.ones((2,2))
 param = {'delta': 0.62, #asymptomatic infection correction
     'kappa': 0.25, #exposed decay parameter
     'gammaA': 1./3.5, # asymptomatic decay parameter

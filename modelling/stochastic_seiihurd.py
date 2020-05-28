@@ -16,7 +16,7 @@ of betas, like the ODE fit feature.
 """
 
 import numpy as np
-
+import copy 
 
 def SEIIHURD_agestoc(N, I0, pars, dt=1, tf=np.inf, ti=None):
     '''
@@ -192,7 +192,7 @@ def SEIIHURD_agestoc(N, I0, pars, dt=1, tf=np.inf, ti=None):
 
 
 def call_stoch_SEIIHURD(N, tmax, dt, params):
-    pars = params.copy()
+    pars = copy.deepcopy(params)
     betas = params['beta']
     if 'tcut' not in params.keys():
         tcorte = None

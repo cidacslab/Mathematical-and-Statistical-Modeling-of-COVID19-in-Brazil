@@ -21,6 +21,7 @@ from pyswarms.backend.topology import Star
 from pyswarms.utils.plotters import plot_cost_history
 from itertools import repeat
 import multiprocessing as mp
+import copy
 
 
 class SEIIHURD_age:
@@ -51,12 +52,12 @@ class SEIIHURD_age:
     
     
     def _call_ODE(self, ts, ppars):
-        pars = ppars.copy()
-        betas = ppars['beta']
+        betas = ppars['beta'].copy()
+        pars = copy.deepcopy(ppars)
         if 'tcut' not in ppars.keys():
             tcorte = None
         else:
-            tcorte = ppars['tcut']
+            tcorte = ppars['tcut'].copy()
         if type(ts) in [int, float]:
             ts = np.arange(ts)
         if tcorte == None:
@@ -73,16 +74,16 @@ class SEIIHURD_age:
             cut_last = False
             try:
                 pars['beta'] = betas[i-1]
+                t = ts[(ts >= tcorte[i-1]) * (ts<= tcorte[i])]
+                if t[0] > tcorte[i-1]:
+                    t = np.r_[tcorte[i-1], t]
+                if t[-1] < tcorte[i]:
+                    t = np.r_[t, tcorte[i]]
+                    cut_last = True
+                Y = spi.odeint(self._SEIIHURD_age_eq, Y[-1], t, args=(pars,))
             except:
-                print(pars, i, betas)
+                print(pars, i, betas, tcorte)
                 raise
-            t = ts[(ts >= tcorte[i-1]) * (ts<= tcorte[i])]
-            if t[0] > tcorte[i-1]:
-                t = np.r_[tcorte[i-1], t]
-            if t[-1] < tcorte[i]:
-                t = np.r_[t, tcorte[i]]
-                cut_last = True
-            Y = spi.odeint(self._SEIIHURD_age_eq, Y[-1], t, args=(pars,))
             if cut_last:
                 saida = np.r_[saida, Y[1:-1]]
             else:
@@ -134,6 +135,10 @@ class SEIIHURD_age:
                                     bound_new[1].append(bound[1][i])
                 else:
                     padjus.append(par)
+                    if  bound != None:
+                        bound_new[0].append(bound[0][i])
+                        bound_new[1].append(bound[1][i])
+                    
             elif '_ALL' in par:
                 name = par.split('_')[0]
                 for i in range(len(pothers[name])):
@@ -152,7 +157,7 @@ class SEIIHURD_age:
         return bound_new, padjus
     
     def _conversor(self, coefs, pars0, padjus):
-        pars = pars0.copy()
+        pars = copy.deepcopy(pars0)
         for i, coef in enumerate(coefs):
             if 'beta' in padjus[i]:
                 if '_M_' in padjus[i]:
@@ -223,7 +228,7 @@ class SEIIHURD_age:
         bound => (lista_min_bound, lista_max_bound)
         '''
         paramPSO = self._fill_paramPSO(paramPSO)
-        self.pars_init = pars.copy()
+        self.pars_init = copy.deepcopy(pars)
         self.nages = nages
         self.i_integ, self.Y, self.t = self._prepare_input(data)
         self.bound, self.padjus = self._prepare_conversor(pars_to_fit, pars, bound)
@@ -237,7 +242,7 @@ class SEIIHURD_age:
         self.optimize = optimizer
 
     def fit_lsquares(self, data, pars, pars_to_fit, bound=None, nages=2,  stand_error=False, init=None, nrand=10):
-        self.pars_init = pars.copy()
+        self.pars_init = copy.deepcopy(pars)
         self.nages = nages
         self.i_integ, self.Y, self.t = self._prepare_input(data)
         self.bound, self.padjus = self._prepare_conversor(pars_to_fit, pars, bound)
