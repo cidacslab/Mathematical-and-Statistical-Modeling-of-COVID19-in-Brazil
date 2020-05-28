@@ -20,22 +20,22 @@ Ns = np.array([100000, 10000])
 I0 = np.array([500, 50]) / Ns
 zer = np.zeros(2)
 Mb = np.array([[1., 0.7], [0.7, 1.]])
-param = {'delta': 0.62,
-    'kappa': 0.25,
-    'gammaA': 1./3.5,
-    'gammaS': 0.25,
-    'h': 0.28,
-    'xi': 0.53,
-    'gammaH': 0.14,
-    'gammaU': 0.14,
-    'muH': 0.15,
-    'muU': 0.35,
-    'wH': 0.14,
-    'wU': 0.29,
-    'p': .2,
-    'beta': [1.06 * Mb, 0.7 * Mb],
-    'tcut': [7],
-    'x0': np.r_[1.-3*I0, I0, I0, I0, zer, zer, zer, zer, I0]
+param = {'delta': 0.62, #asymptomatic infection correction
+    'kappa': 0.25, #exposed decay parameter
+    'gammaA': 1./3.5, # asymptomatic decay parameter
+    'gammaS': 0.25, # symptomatic decay parameter
+    'h': 0.28, #fraction of symptomatic going to hospital
+    'xi': 0.53, #fraction of hospitalizations that goes to regular beds
+    'gammaH': 0.14, # regular hospital bed decay parameter
+    'gammaU': 0.14, # ICU decay parameter
+    'muH': 0.15, # death rate regular hospital bed
+    'muU': 0.35, # death rate ICU
+    'wH': 0.14, #  fraction of regular bed that goes to ICU
+    'wU': 0.29, # fraction of ICU that goes to regular bed
+    'p': .2, #fraction of exposed that becomes symptomatic
+    'beta': [1.06 * Mb, 0.7 * Mb], #infectivity matrix
+    'tcut': [7], #time instants of change of the infectivity matrix
+    'x0': np.r_[1.-3*I0, I0, I0, I0, zer, zer, zer, zer, I0] #initial conditions
   }
 betas = np.array(param['beta']).flatten()
 tcuts = np.array(param['tcut']).flatten()
