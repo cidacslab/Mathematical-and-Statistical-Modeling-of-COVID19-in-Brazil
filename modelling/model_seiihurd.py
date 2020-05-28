@@ -132,6 +132,8 @@ class SEIIHURD_age:
                                 if  bound != None:
                                     bound_new[0].append(bound[0][i])
                                     bound_new[1].append(bound[1][i])
+                else:
+                    padjus.append(par)
             elif '_ALL' in par:
                 name = par.split('_')[0]
                 for i in range(len(pothers[name])):
