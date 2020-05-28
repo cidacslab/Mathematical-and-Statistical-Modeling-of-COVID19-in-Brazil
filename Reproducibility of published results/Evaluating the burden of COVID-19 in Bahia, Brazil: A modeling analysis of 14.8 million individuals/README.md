@@ -19,6 +19,8 @@ The models produced in this study were informed by data from multiple sources: t
 
 Our data is available in the folder named "Data". They are described as follow:
 
+* pop_muni.csv contains the number of population for each Brazilian municipality. It was obtained by the Brazilian Institute of Geography and Statistics (IBGE). By aggregating the data, the population of the state of Bahia, estimated for 2020, is 14,930,424. The population of Salvador is 2,831,557 and the population of the inland cities is 12,098,867.
+
 * data.csv contains variables of counts for the state of Bahia, they are:
 
    * dates: identifying the period;
