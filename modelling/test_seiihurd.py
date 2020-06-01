@@ -35,7 +35,7 @@ param = {'delta': 0.62, #asymptomatic infection correction
     'p': .2, #fraction of exposed that becomes symptomatic
     'beta': [1.06 * Mb, 0.1 * Mb], #infectivity matrix
     'tcut': [10], #time instants of change of the infectivity matrix
-    'x0': np.r_[1.-3*I0, I0, I0, I0, zer, zer, zer, zer, I0] #initial conditions
+    'x0': np.r_[I0, I0, I0] #initial conditions
   }
 betas = np.array(param['beta']).flatten()
 tcuts = np.array(param['tcut']).flatten()
@@ -48,7 +48,7 @@ simulate_series = True
 
 if simulate_series:
     paramb = copy.deepcopy(param)
-    paramb['x0'] = Ns * I0
+    paramb['x0'] = np.tile(Ns, 3) * paramb['x0']
     tmax = 50
     S = call_stoch_SEIIHURD(Ns, tmax, 1., paramb)
     Sa = np.c_[S[:,0].reshape((-1,1)), S[:,-4:]]
@@ -69,8 +69,8 @@ print("Artificial Data Created")
 # Fit Data
 #pars_to_fit = ['beta_ALL', 'tcut_ALL']
 #bound = [np.array([0.,1.]), np.array([2.,50.])]
-pars_to_fit = ['beta_M_0', 'beta_M_1', 'muU']
-bound = [np.array([0.,0.,0.]), np.array([2.,2.,1.])]
+pars_to_fit = ['beta_M_0', 'beta_M_1', 'muU', 'x0_ALL']
+bound = [np.array([0.,0.,0.,0.]), np.array([2., 2., 1., 0.001])]
 #
 #
 model = SEIIHURD_age(Ns, 16)
@@ -87,7 +87,7 @@ Yy = model.Y
 ts, Yls = model.predict(coefs='LS')
 #ts, Y0 = model.predict(coefs=np.r_[betas, tcuts])
 #ts, Y0 = model.predict(coefs=np.r_[betas, param['muU']])
-ts, Y0 = model.predict(coefs=np.r_[1.06, 0.7, param['muU']])
+ts, Y0 = model.predict(coefs=np.r_[1.06, 0.7, param['muU'], param['x0']])
 plt.close('all')
 for i, Yy in enumerate(model.Y):
     plt.figure()

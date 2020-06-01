@@ -208,7 +208,8 @@ def call_stoch_SEIIHURD(N, tmax, dt, params):
     if tcorte[-1] < ts[-1]:
         tcorte.append(ts[-1])
     tcorte = [ts[0]] + tcorte
-    x0 = pars['x0']
+    Is0 = pars['x0'].reshape((3,-1)).sum(axis=0)
+    x0 = np.r_[N - Is0, pars['x0'], np.zeros(4*len(Is0)), pars['x0'][2*len(Is0):]]
     if len(x0) > len(N):
         saida = np.r_[ts[0], x0].reshape((1,-1))
     else:

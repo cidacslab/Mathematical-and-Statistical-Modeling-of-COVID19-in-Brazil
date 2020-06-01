@@ -67,7 +67,8 @@ class SEIIHURD_age:
         if tcorte[-1] < ts[-1]:
             tcorte.append(ts[-1])
         tcorte = [ts[0]] + tcorte
-        x0 = ppars['x0']
+        Is0 = ppars['x0'].reshape((3,-1)).sum(axis=0)
+        x0 = np.r_[1. - Is0, ppars['x0'], np.zeros(4*len(Is0)), ppars['x0'][2*len(Is0):]]
         saida = x0.reshape((1,-1))
         Y = saida.copy()
         for i in range(1, len(tcorte)):
@@ -141,8 +142,8 @@ class SEIIHURD_age:
                     
             elif '_ALL' in par:
                 name = par.split('_')[0]
-                for i in range(len(pothers[name])):
-                    padjus.append('{}_{}'.format(name, i))
+                for j in range(len(pothers[name])):
+                    padjus.append('{}_{}'.format(name, j))
                     if  bound != None:
                         bound_new[0].append(bound[0][i])
                         bound_new[1].append(bound[1][i])
