@@ -139,7 +139,9 @@ class SEIRHUD:
                     S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO(x,coef[i,0],coef[i,1],coef[i,2],coef[i,3],coef[i,4],coef[i,5],coef[i,6],coef[i,7])
                     soma[i]= ((y-(Nw))**2).mean()*(1-self.pesoMorte)+((d-(D))**2).mean()*self.pesoMorte
         return soma
-    def fit(self, x,y,d,pesoMorte = 0.5, kappa = 1/4,p=0.2,gammaA = 1/3.5, gammaS=1/4.001, muH = 0.15,muU=0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],stand_error=True, beta2=True,day_mudar = None,particles=300,itera=1000,c1=0.1,c2=0.3,w=0.9,k=5,norm=2):
+    def fit(self, x, y, d, pesoMorte = 0.5, computeCI = True, kappa = 1/4,p = 0.2,gammaA = 1/3.5, gammaS = 1/4.001, muH = 0.15,
+            muU = 0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0.05],[2,1/4,1/3,0.7,0.25]],
+            stand_error = True, beta2 = True, day_mudar = None, particles = 300, itera = 1, c1 = 0.1, c2 = 0.3, w = 0.9, k = 5, norm = 2):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
@@ -208,9 +210,9 @@ class SEIRHUD:
         #__cal_EDO(self,x,beta,gammaH,gammaU,delta,h,ia0,is0,e0)
         #__cal_EDO_2(self,x,beta1,beta2,tempo,gammaH,gammaU,delta,h,ia0,is0,e0)
         if beta2:
-            cost, pos = optimizer.optimize(self.objectiveFunction,itera, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction,itera, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores, verbose = True)
         else:
-            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores)
+            cost, pos = optimizer.optimize(self.objectiveFunction, itera, x = x,y=df,d=dd,stand_error=stand_error,n_processes=self.numeroProcessadores, verbose = True)
             self.beta = pos[0]
             self.gammaH = pos[1]
             self.gammaU = pos[2]
@@ -243,9 +245,11 @@ class SEIRHUD:
                 self.e0 = pos[8]
         self.rmse = cost
         self.optimize = optimizer
-            
+
+
     def predict(self,x):
         ''' x = dias passados do dia inicial 1'''
+        self.x = x
         if self.beta_variavel:
             S,E,IA,IS,H,U,R,D,Nw = self.__cal_EDO_2(x,self.beta1,self.beta2,self.day_mudar,self.gammaH,self.gammaU,self.delta,self.h,self.ia0,self.is0,self.e0)
         else:
@@ -369,3 +373,99 @@ class SEIRHUD:
             plt.show()
         except:
             print("There is no predicted value")
+
+
+class bootstrapSEIRHUD(SEIRHUD):
+    def __init__(self,tamanhoPop,numeroProcessadores=None):
+        self.N = tamanhoPop
+        self.numeroProcessadores = numeroProcessadores
+
+    def __genBoot(self,series, times = 500):
+        series = np.diff(series)
+        series = np.insert(series, 0, 1)
+        series[series < 0] = 0
+        results = []
+        for i in range(0,times):
+            results.append(np.random.multinomial(n = sum(series), pvals = series/sum(series)))
+        return np.array(results)
+    
+    def __getConfidenceInterval(series, length):
+        series = np.array(series)
+    
+        #Compute mean value
+        meanValue = [np.mean(series[:,i]) for i in range(0,length)]
+
+        #Compute deltaStar
+        deltaStar = meanValue - series
+
+        #Compute lower and uper bound
+        deltaL = [np.quantile(deltaStar[:,i], q = 0.025) for i in range(0,length)]
+        deltaU = [np.quantile(deltaStar[:,i], q = 0.975) for i in range(0,length)]
+
+        #Compute CI
+        lowerBound  = np.array(meanValue) + np.array(deltaL)
+        UpperBound  = np.array(meanValue) + np.array(deltaU)
+        return [meanValue, lowerBound, UpperBound]
+    
+    def computeCI(self, times):
+        #Define empty lists to recive results
+        self.lypred = []
+        self.ldpred = []
+        self.lspred = []
+        self.lepred = []
+        self.lrpred = []
+        self.lhpred = []
+        self.lupred = []
+        self.lbeta1 = []
+        self.lbeta2 = []
+        self.lgammaH = []
+        self.lgammaU = []
+        self.ldelta = []
+        self.lIA = []
+        self.lt1 = []
+        self.le0 = []
+        self.lIS = []
+        self.lia0 = []
+        self.lis0 = []
+
+        self.y = self.y[np.argsort(self.y)]
+        self.d = self.d[np.argsort(self.d)]
+        casesSeries = self.__genBoot(self.y, times)
+        deathSeries = self.__genBoot(self.d, times)
+        for i in range(0,len(casesSeries)):
+            super().fit(x = range(1,len(self.y) + 1),
+                        y = casesSeries[i],
+                        d = deathSeries[i])
+            super().predict(self.x)
+
+            self.lypred.append(self.ypred)
+            self.ldpred.append(self.dpred)
+            self.lhpred.append(self.H)
+            self.lupred.append(self.U)
+            self.lspred.append(self.S)
+            self.lepred.append(self.E)
+            self.lrpred.append(self.R)
+            self.lIA.append(self.IA)
+            self.lIS.append(self.IS)
+
+            self.lbeta1.append(self.beta1)
+            self.lbeta2.append(self.beta2)
+            self.lgammaH.append(self.gammaH)
+            self.lgammaU.append(self.gammaU)
+            self.ldelta.append(self.delta)
+            self.le0.append(self.e0)
+            self.lia0.append(self.ia0)
+            self.lis0.append(self.is0)
+
+          
+    
+      
+       
+       
+      
+            
+
+
+        
+        
+  
