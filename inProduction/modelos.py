@@ -286,9 +286,9 @@ class SEIRHUD:
         return res
 
 #Compute R(t)
-    def Rt(self, cummulativeCases, date):
+    def Rt(self, cummulativeCases, date, cutoof):
         date = date
-        cummulativeCases.index = date
+        cummulativeCases.index = date 
         cummulativeCases = cummulativeCases[np.argsort(cummulativeCases)]
 
         #using cummulative cases
@@ -302,7 +302,8 @@ class SEIRHUD:
                 res.append(cummulativeCases[t]/self.__int(cummulativeCases, t, F))
             self.rt = pd.Series(np.array(res))
             self.rt.index  = np.sort(date.iloc[1:])
-            return(self.rt)
+            idx_start = np.searchsorted(np.cumsum(cummulativeCases),cutoof)
+            return(self.rt.iloc[idx_start:])
         except:
             return("Model must be fitted before R(t) could be computed")
         
