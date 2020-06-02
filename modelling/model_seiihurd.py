@@ -57,7 +57,7 @@ class SEIIHURD_age:
         if 'tcut' not in ppars.keys():
             tcorte = None
         else:
-            tcorte = ppars['tcut'].copy()
+            tcorte = pars['tcut']
         if type(ts) in [int, float]:
             ts = np.arange(ts)
         if tcorte == None:
@@ -67,8 +67,8 @@ class SEIIHURD_age:
         if tcorte[-1] < ts[-1]:
             tcorte.append(ts[-1])
         tcorte = [ts[0]] + tcorte
-        Is0 = ppars['x0'].reshape((3,-1)).sum(axis=0)
-        x0 = np.r_[1. - Is0, ppars['x0'], np.zeros(4*len(Is0)), ppars['x0'][2*len(Is0):]]
+        Is0 = pars['x0'].reshape((3,-1)).sum(axis=0)
+        x0 = np.r_[1. - Is0, pars['x0'], np.zeros(4*len(Is0)), pars['x0'][2*len(Is0):]]
         saida = x0.reshape((1,-1))
         Y = saida.copy()
         for i in range(1, len(tcorte)):
