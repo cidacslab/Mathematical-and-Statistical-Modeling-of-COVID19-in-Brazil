@@ -48,6 +48,8 @@ The Particle Swarm Optimization (PSO) method estimates the parameters beta_0, be
 
 The code to obtain the effective reproduction number is presented in the folder “Effective Reproduction number”.
 
+Additionally, the sensitivity analysis of the parameters is performed by the file sensitivityAnalysis.py present in the folder “scripts”.
+
 ## References 
 [1] Evaluating the burden of COVID-19 on hospital resources in Bahia, Brazil: A modelling-based analysis of 14.8 million individuals. https://doi.org/10.1101/2020.05.25.20105213
 
