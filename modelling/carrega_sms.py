@@ -8,29 +8,32 @@ Created on Tue May 26 17:19:41 2020
 
 import pandas as pd
 import numpy as np
-import pickle
-#import matplotlib.pyplot as plt
+#import pickle
+import matplotlib.pyplot as plt
 
 def separate_age_groups(data):
-    idades_0 = data['IDADE'].unique()
+    idades_0 = data['ageRange'].unique()
     idades = list()
     for idade in idades_0:
-        if idade[0] == '<':
-            idades.append([0, idade])
-        elif idade == 'ignorado':
+        if idade[0] == '>':
+            idades.append([80, idade])
+        elif idade == 'SI':
             idades.append([np.nan, idade])
         else:
             idades.append([int(idade.split(' ')[0]), idade])
     DayNums = data['DayNum'].unique()
     DayNums.sort()
+#    print(idades)
     saida = np.zeros((len(DayNums), len(idades)), dtype=int)
-    Ns = list()
+#    Ns = list()
     for j, idade in enumerate(idades):
-        Ns.append(int(data[data['IDADE'] == idade[1]]['N'].mean()))
+#        Ns.append(int(data[data['IDADE'] == idade[1]]['N'].mean()))
         for i, dia in enumerate(DayNums):
-            saida[i,j] = data[(data['IDADE'] == idade[1]) & \
-                 (data['DayNum'] == dia)]['Nw'].max()
-    return idades, Ns, saida, DayNums
+            if len(data[(data['ageRange'] == idade[1]) & \
+                 (data['DayNum'] == dia)]) > 0:
+                saida[i,j] = data[(data['ageRange'] == idade[1]) & \
+                     (data['DayNum'] == dia)]['Freq'].max()
+    return idades, saida, DayNums
 
 def consolidate_age_groups(counts, idades, age_edges, Ns, count_ign=True):
     ids = np.array([x[0] for x in idades])
@@ -82,19 +85,35 @@ data['DayNum'] = data[dday].dt.dayofyear
 
 
 #Load the age separated new cases
-#file_Nw = '../../covid_faixa etaria.csv'
-#dataNw = pd.read_csv(file_Nw, sep=',', names=['DATA', 'IDADE',\
-#                    'Nw', 'y'], converters={'DATA':str, 'IDADE':str,\
-#                    'Nw':int_br, 'y': int_br})
-#nday = 'DATA'
-#dataNw[nday] = pd.to_datetime(dataNw[nday], dayfirst=True)
-#dataNw['DayNum'] = dataNw[nday].dt.dayofyear
+file_Nw = '~/ownCloud/sms/baseacumulada/data_idade_modelagem.csv'
+dataNw = pd.read_csv(file_Nw, sep=',')
+nday = 'control.date'
+dataNw[nday] = pd.to_datetime(dataNw[nday], yearfirst=True)
+dataNw['DayNum'] = dataNw[nday].dt.dayofyear
 #
 ##Option 1 use data assuming ignored is unbiased
-#idades, Ns, counts, Days = separate_age_groups(dataNw)
-#saida, Na = consolidate_age_groups(counts, idades, age_edges, Ns)
-#
+#population SSA
+Ns0 = np.array([	[	0	,	72521.82	]	,
+	[	5	,	76312.03	]	,
+	[	10	,	186405.71	]	,
+	[	20	,	240459.7	]	,
+	[	30	,	276865.2	]	,
+	[	40	,	246817.6	]	,
+	[	50	,	190037.82	]	,
+	[	60	,	133289.7	]	,
+	[	70	,	68958.14	]	,
+	[	80	,	36366.184	]	])
 
+idades, counts, Days = separate_age_groups(dataNw)
+Ns = [Ns0[np.flatnonzero(Ns0[:,0] == idade[0]),1] for idade in idades]
+Ns = [N[0] if len(N) == 1 else 0 for N in Ns]
+saida, Na = consolidate_age_groups(counts, idades, age_edges, Ns)
+#
+plt.plot(Days, counts, '.-')
+plt.plot(Days, counts.sum(axis=1), '.-k')
+plt.legend([ida[1] for ida in idades] + ['acumulado'])
+plt.ylabel('Freq')
+plt.xlabel('Dia do Ano')
 #fday = max([data['DayNum'].min(), datahu['DayNum'].min()])
 fday = data['DayNum'].min()
 deaths = list()

@@ -56,6 +56,8 @@ if simulate_series:
 else:
     Sa = np.load('teste_stoch.npy')
 
+Sa[10,1] = np.nan
+
 data = {'t': Sa[:,0],
         'D_ALL': Sa[:,1] + Sa[:,2],
 #        'D_1': Sa[:,2],
@@ -70,7 +72,7 @@ print("Artificial Data Created")
 #pars_to_fit = ['beta_ALL', 'tcut_ALL']
 #bound = [np.array([0.,1.]), np.array([2.,50.])]
 pars_to_fit = ['beta_M_0', 'beta_M_1', 'muU', 'x0_ALL']
-bound = [np.array([0.,0.,0.,0.]), np.array([2., 2., 1., 0.001])]
+bound = [np.array([0.,0.,0.,0.]), np.array([2., 2., 1., 0.01])]
 #
 #
 model = SEIIHURD_age(Ns, 16)
