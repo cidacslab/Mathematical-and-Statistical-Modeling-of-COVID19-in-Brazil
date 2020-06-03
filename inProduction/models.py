@@ -345,14 +345,14 @@ class SEIRHUD:
         plt.legend(fontsize=15)
         plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
         plt.ylabel('Casos COnfirmados',fontsize=15)
-        plt.xlabel('Dias',fontsize=15)
+        plt.xlabel('Dias',fontsize = 15)
         plt.show()
 
     def plotDeath(self,local):
         self.predict(self.x)
         plt.plot(self.dpred,c='b',label='Predição mortes')
         plt.plot(self.d,c='r',marker='o', markersize=3,label='mortos')
-        plt.legend(fontsize=15)
+        plt.legend(fontsize = 15)
         plt.title('Dinâmica do CoviD19 - {}'.format(local),fontsize=20)
         plt.ylabel('Mortos',fontsize=15)
         plt.xlabel('Dias',fontsize=15)
@@ -389,7 +389,7 @@ class bootstrapSEIRHUD(SEIRHUD):
             results.append(np.random.multinomial(n = sum(series), pvals = series/sum(series)))
         return np.array(results)
     
-    def __getConfidenceInterval(series, length):
+    def __getConfidenceInterval(self, series, length):
         series = np.array(series)
     
         #Compute mean value
@@ -409,24 +409,24 @@ class bootstrapSEIRHUD(SEIRHUD):
     
     def computeCI(self, times):
         #Define empty lists to recive results
-        self.lypred = []
-        self.ldpred = []
-        self.lspred = []
-        self.lepred = []
-        self.lrpred = []
-        self.lhpred = []
-        self.lupred = []
-        self.lbeta1 = []
-        self.lbeta2 = []
-        self.lgammaH = []
-        self.lgammaU = []
-        self.ldelta = []
-        self.lIA = []
-        self.lt1 = []
-        self.le0 = []
-        self.lIS = []
-        self.lia0 = []
-        self.lis0 = []
+        self.__lypred = []
+        self.__ldpred = []
+        self.__lspred = []
+        self.__lepred = []
+        self.__lrpred = []
+        self.__lhpred = []
+        self.__lupred = []
+        self.__lIA = []
+        self.__lt1 = []
+        self.__lIS = []
+        self.__lbeta1 = []
+        self.__lbeta2 = []
+        self.__lgammaH = []
+        self.__lgammaU = []
+        self.__ldelta = []
+        self.__le0 = []
+        self.__lia0 = []
+        self.__lis0 = []
 
         self.y = self.y[np.argsort(self.y)]
         self.d = self.d[np.argsort(self.d)]
@@ -438,24 +438,51 @@ class bootstrapSEIRHUD(SEIRHUD):
                         d = deathSeries[i])
             super().predict(self.x)
 
-            self.lypred.append(self.ypred)
-            self.ldpred.append(self.dpred)
-            self.lhpred.append(self.H)
-            self.lupred.append(self.U)
-            self.lspred.append(self.S)
-            self.lepred.append(self.E)
-            self.lrpred.append(self.R)
-            self.lIA.append(self.IA)
-            self.lIS.append(self.IS)
+            self.__lypred.append(self.ypred)
+            self.__ldpred.append(self.dpred)
+            self.__lhpred.append(self.H)
+            self.__lupred.append(self.U)
+            self.__lspred.append(self.S)
+            self.__lepred.append(self.E)
+            self.__lrpred.append(self.R)
+            self.__lIA.append(self.IA)
+            self.__lIS.append(self.IS)
 
-            self.lbeta1.append(self.beta1)
-            self.lbeta2.append(self.beta2)
-            self.lgammaH.append(self.gammaH)
-            self.lgammaU.append(self.gammaU)
-            self.ldelta.append(self.delta)
-            self.le0.append(self.e0)
-            self.lia0.append(self.ia0)
-            self.lis0.append(self.is0)
+            self.__lbeta1.append(self.beta1)
+            self.__lbeta2.append(self.beta2)
+            self.__lgammaH.append(self.gammaH)
+            self.__lgammaU.append(self.gammaU)
+            self.__ldelta.append(self.delta)
+            self.__le0.append(self.e0)
+            self.__lia0.append(self.ia0)
+            self.__lis0.append(self.is0)
+            self.ciResults = {}
+        for i, serie in zip([self.__lypred, self.__ldpred, self.__lhpred, self.__lupred, self.__lspred, 
+                  self.__lepred, self.__lrpred, self.__lIA, self.__lIS],
+                  ["ypred", "dpred", "hpred", "upred", "spred",
+                   "epred", "dpred", "IA", "IS"]):
+            meanValue, lb, ub = self.__getConfidenceInterval(i,len(i[0]))
+            self.ciResults.update({serie: {"meanValue":meanValue,
+                 "lb": lb,
+                 "ub": ub}})
+
+
+        #return df with parameters
+        self.parameters = pd.DataFrame.from_dict({
+            "beta1": self.__lbeta1,
+            "beta2": self.__lbeta2,
+            "gammaH": self.__lgammaH,
+            "gammaU": self.__lgammaU,
+            "delta": self.__ldelta,
+            "e0": self.__le0,
+            "a0": self.__lia0,
+            "is0": self.__lis0
+        })
+
+
+
+
+
 
           
     
