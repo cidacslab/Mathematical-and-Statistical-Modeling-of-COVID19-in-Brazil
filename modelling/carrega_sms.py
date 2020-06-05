@@ -8,7 +8,7 @@ Created on Tue May 26 17:19:41 2020
 
 import pandas as pd
 import numpy as np
-#import pickle
+import pickle
 import matplotlib.pyplot as plt
 
 def separate_age_groups(data):
@@ -53,7 +53,18 @@ def consolidate_age_groups(counts, idades, age_edges, Ns, count_ign=True):
         saida = saida + ign * fsaida
     return saida, Na
         
-    
+def remove_inconsistent_data(counts):
+    corr_counts = np.zeros_like(counts, dtype=float)
+    N0 = 0
+    for i in range(counts.shape[0]):
+        Ni = counts[i].sum()
+        if Ni >= N0:
+            corr_counts[i] = counts[i]
+            N0 = Ni
+        else:
+            corr_counts[i] = np.nan
+    return corr_counts
+ 
 def int_br(x):
     return int(x.replace('.',''))
 
@@ -107,15 +118,19 @@ Ns0 = np.array([	[	0	,	72521.82	]	,
 idades, counts, Days = separate_age_groups(dataNw)
 Ns = [Ns0[np.flatnonzero(Ns0[:,0] == idade[0]),1] for idade in idades]
 Ns = [N[0] if len(N) == 1 else 0 for N in Ns]
-saida, Na = consolidate_age_groups(counts, idades, age_edges, Ns)
+#saida, Na = consolidate_age_groups(counts, idades, age_edges, Ns)
+
+ccounts = remove_inconsistent_data(counts)
+saida, Na = consolidate_age_groups(ccounts, idades, age_edges, Ns)
+
 #
-plt.plot(Days, counts, '.-')
-plt.plot(Days, counts.sum(axis=1), '.-k')
+plt.plot(Days, ccounts, '.-')
+plt.plot(Days, ccounts.sum(axis=1), '.-k')
 plt.legend([ida[1] for ida in idades] + ['acumulado'])
 plt.ylabel('Freq')
 plt.xlabel('Dia do Ano')
-#fday = max([data['DayNum'].min(), datahu['DayNum'].min()])
-fday = data['DayNum'].min()
+fday = min([data['DayNum'].min(), dataNw['DayNum'].min()])
+#fday = data['DayNum'].min()
 deaths = list()
 for day in range(fday, data['DayNum'].max()+1):
     temp = [((data['DayNum'] <= day) & (data[age] < age_edges[0])).sum()]
@@ -123,7 +138,10 @@ for day in range(fday, data['DayNum'].max()+1):
         temp = temp + [((data['DayNum'] <= day) & (data[age] < age_edges[i]) &
                         (data[age] >= age_edges[i-1])).sum()]
     temp = temp + [((data['DayNum'] <= day) & (data[age] >= age_edges[-1])).sum()]
-#    temp = temp + saida[Days==day,:].flatten().tolist()
+    if len(saida[Days==day,:]) > 0:
+        temp = temp + saida[Days==day,:].flatten().tolist()
+    else:
+        temp = temp + saida.shape[1] * [np.nan]
 #    temp = temp + [datahu[datahu['DayNum'] == day]['CASOS ENFERMARIA'].max()]
 #    temp = temp + [datahu[datahu['DayNum'] == day]['CASOS UTI'].max()]
 #
@@ -133,8 +151,8 @@ deaths = np.array(deaths)
 cols = ['dayofyear']
 for i in range(len(age_edges)+1):
     cols = cols + ['D_{}'.format(i)]
-#for i in range(len(age_edges)+1):
-#    cols = cols + ['Nw_{}'.format(i)]
+for i in range(len(age_edges)+1):
+    cols = cols + ['Nw_{}'.format(i)]
 #
 #cols = cols + ['H_ALL', 'U_ALL']
 #
@@ -143,6 +161,22 @@ df.columns = cols
 #
 #
 #
-#with open('test_export_data.pik', 'wb') as f:
-#    pickle.dump([df, Ns, Na, age_edges], f, protocol=-1)
+ages = np.array([0,5,10,20,30,40,50,60,70,80])
+N0 = np.array([N[1] for N in Ns0])
+parspad = {'p':np.array([0.05, 0.05, 0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 0.8]),
+           'h':np.array([0.001, 0.001, 0.003, 0.012, 0.032, 0.049, 0.102, 0.166, 0.243, 0.273]),
+           'xi':np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.063, 0.122, 0.274, 0.432, 0.709])       
+        }
+par_age = dict()
+for ke in parspad.keys():
+    idx = ages<age_edges[0]
+    temp = [(parspad[ke][idx] * N0[idx]).sum()/Na[0]]
+    for i in range(1, len(age_edges)):
+        idx = (ages<age_edges[i]) * (ages >= age_edges[i-1])
+        temp = temp + [(parspad[ke][idx] * N0[idx]).sum()/Na[i]]
+    idx = (ages >= age_edges[-1])   
+    temp = temp + [(parspad[ke][idx] * N0[idx]).sum()/Na[-1]]
+    par_age[ke] = np.array(temp)
+with open('test_export_data_SMS.pik', 'wb') as f:
+    pickle.dump([df, par_age, Na, age_edges], f, protocol=-1)
 #df_deaths.to_csv('obitos_sesab_sep_60_20200521.csv')

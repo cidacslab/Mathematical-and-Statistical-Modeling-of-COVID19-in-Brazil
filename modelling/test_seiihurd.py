@@ -76,15 +76,15 @@ bound = [np.array([0.,0.,0.,0.]), np.array([2., 2., 1., 0.01])]
 #
 #
 model = SEIIHURD_age(Ns, 16)
-model.fit(data, param, pars_to_fit, bound, paramPSO={'iter':100,}, stand_error=False)
+#model.fit(data, param, pars_to_fit, bound, paramPSO={'iter':100,}, stand_error=False)
 model.fit_lsquares(data, param, pars_to_fit, bound, nrand=20, stand_error=False)
-print(model.pos)
+#print(model.pos)
 print(model.pos_ls)
 
 
 #%%
 #Plot Data
-ts, Ypso = model.predict()
+#ts, Ypso = model.predict()
 Yy = model.Y
 ts, Yls = model.predict(coefs='LS')
 #ts, Y0 = model.predict(coefs=np.r_[betas, tcuts])
@@ -94,7 +94,7 @@ plt.close('all')
 for i, Yy in enumerate(model.Y):
     plt.figure()
     plt.plot(ts, Yy, 'k', label="Data")
-    plt.plot(ts, Ypso[:,i], ':b', label="PSO Fit")
+#    plt.plot(ts, Ypso[:,i], ':b', label="PSO Fit")
     plt.plot(ts, Yls[:,i], '--r', label="LS Fit")
     plt.plot(ts, Y0[:,i], ':g', label="EDO Exact")
     plt.legend(loc='best')
