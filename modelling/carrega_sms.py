@@ -32,7 +32,7 @@ def separate_age_groups(data):
             if len(data[(data['ageRange'] == idade[1]) & \
                  (data['DayNum'] == dia)]) > 0:
                 saida[i,j] = data[(data['ageRange'] == idade[1]) & \
-                     (data['DayNum'] == dia)]['Freq'].max()
+                     (data['DayNum'] == dia)]['totalCases'].max()
     return idades, saida, DayNums
 
 def consolidate_age_groups(counts, idades, age_edges, Ns, count_ign=True):
@@ -88,32 +88,38 @@ data[dday] = pd.to_datetime(data[dday])
 data['DayNum'] = data[dday].dt.dayofyear
 
 #load the Hospitalization Data
-#file_HU = '~/ownCloud/sesab/exporta_boletim_epidemiologico_csv_{}.csv'.format(dia)
+file_HU = '~/ownCloud/sms/leitos/CIDACS_04_06_as_19_52.xlsx'
+datahu = pd.read_excel(file_HU)
+rday='DATAHORA_INFORMACAO_RECEBIDA'
+datahu[rday] = pd.to_datetime(pd.Timestamp(year=1900, month=1, day=1) + pd.to_timedelta(datahu[rday]-2, unit='d'))
 #datahu = pd.read_csv(file_HU, sep=';', decimal=b',')
 #rday = 'DATA DO BOLETIM'
 #datahu[rday] = pd.to_datetime(datahu[rday], dayfirst=True)
-#datahu['DayNum'] = datahu[rday].dt.dayofyear
-
+datahu['DayNum'] = datahu[rday].dt.dayofyear
+datahu['U'] = datahu['QTD_OCUPACAO_UTI_ADULTO'] + datahu['QTD_OCUPACAO_UTI_PEDIATRICO']
+datahu['H'] = datahu['QTD_OCUPACAO_CLINICO_ADULTO'] + datahu['QTD_OCUPACAO_CLINICO_PEDIATRICO']
 
 #Load the age separated new cases
-file_Nw = '~/ownCloud/sms/baseacumulada/data_idade_modelagem.csv'
+file_Nw = '~/ownCloud/sms/dataHistAge_0406.csv'
 dataNw = pd.read_csv(file_Nw, sep=',')
-nday = 'control.date'
+nday = 'date'
 dataNw[nday] = pd.to_datetime(dataNw[nday], yearfirst=True)
 dataNw['DayNum'] = dataNw[nday].dt.dayofyear
+dataNw = dataNw.drop(dataNw[dataNw['ageRange'] == 'Total'].index)
 #
 ##Option 1 use data assuming ignored is unbiased
 #population SSA
-Ns0 = np.array([	[	0	,	72521.82	]	,
-	[	5	,	76312.03	]	,
-	[	10	,	186405.71	]	,
-	[	20	,	240459.7	]	,
-	[	30	,	276865.2	]	,
-	[	40	,	246817.6	]	,
-	[	50	,	190037.82	]	,
-	[	60	,	133289.7	]	,
-	[	70	,	68958.14	]	,
-	[	80	,	36366.184	]	])
+Ns0 = np.array([[	0	,	147488.3	]	,
+	[	5	,	153995.77	]	,
+	[	10	,	372124.97	]	,
+	[	20	,	466648.6	]	,
+	[	30	,	514911.6	]	,
+	[	40	,	448914.82	]	,
+	[	50	,	339514.84	]	,
+	[	60	,	227555.3	]	,
+	[	70	,	109611.09	]	,
+	[	80	,	50792.335	]	]
+)
 
 idades, counts, Days = separate_age_groups(dataNw)
 Ns = [Ns0[np.flatnonzero(Ns0[:,0] == idade[0]),1] for idade in idades]
@@ -142,8 +148,8 @@ for day in range(fday, data['DayNum'].max()+1):
         temp = temp + saida[Days==day,:].flatten().tolist()
     else:
         temp = temp + saida.shape[1] * [np.nan]
-#    temp = temp + [datahu[datahu['DayNum'] == day]['CASOS ENFERMARIA'].max()]
-#    temp = temp + [datahu[datahu['DayNum'] == day]['CASOS UTI'].max()]
+    temp = temp + [datahu[datahu['DayNum'] == day]['H'].max()]
+    temp = temp + [datahu[datahu['DayNum'] == day]['U'].max()]
 #
     deaths.append([day] + temp)
 #
@@ -154,7 +160,7 @@ for i in range(len(age_edges)+1):
 for i in range(len(age_edges)+1):
     cols = cols + ['Nw_{}'.format(i)]
 #
-#cols = cols + ['H_ALL', 'U_ALL']
+cols = cols + ['H_ALL', 'U_ALL']
 #
 df = pd.DataFrame(deaths)
 df.columns = cols
@@ -177,6 +183,8 @@ for ke in parspad.keys():
     idx = (ages >= age_edges[-1])   
     temp = temp + [(parspad[ke][idx] * N0[idx]).sum()/Na[-1]]
     par_age[ke] = np.array(temp)
-with open('test_export_data_SMS.pik', 'wb') as f:
-    pickle.dump([df, par_age, Na, age_edges], f, protocol=-1)
+with open('test_export_data_SMS_0506.pik', 'wb') as f:
+    pickle.dump([df, par_age, Na, age_edges], f, protocol=2)
+
+#df.to_csv('SMS_data_to_fit.csv')
 #df_deaths.to_csv('obitos_sesab_sep_60_20200521.csv')
