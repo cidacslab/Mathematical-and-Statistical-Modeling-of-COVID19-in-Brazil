@@ -22,6 +22,8 @@ from pyswarms.utils.plotters import plot_cost_history
 from itertools import repeat
 import multiprocessing as mp
 import copy
+import joblib
+
 
 
 class SEIIHURD_age:
@@ -29,6 +31,7 @@ class SEIIHURD_age:
     def __init__(self,tamanhoPop,numeroProcessadores=None):
         self.N = tamanhoPop
         self.numeroProcessadores = numeroProcessadores
+        self.pos = None
 
 #pars dict betas, delta, kappa, p, gammaA, gammaS, h, epsilon, gammaH, gammaU, muU, muH, wU, wH
 # seguindo a notação beta_12 é 2 infectando 1, onde 1 é a linha e 2 a coluna.
@@ -176,18 +179,10 @@ class SEIIHURD_age:
         
     
     def objectiveFunction(self, coefs_list, stand_error, weights=None):
-        if type(weights) == type(None):
-            weights = np.ones(len(self.Y))
-        error_func = (lambda x: np.sqrt(x+1)) if stand_error else (lambda x:np.ones_like(x))
         errsq = np.zeros(coefs_list.shape[0])
         for i, coefs in enumerate(coefs_list):
-            ts, mY = self._call_ODE(self.t, self._conversor(coefs, self.pars_init, self.padjus))
-            for indY, indODE in enumerate(self.i_integ):
-                if type(indODE) == list:
-                    temp = (self.N.reshape((1,-1)) *  mY[:,indODE]).sum(axis=1)
-                    errsq[i] += weights[indY] * (((self.Y[indY] - temp) / error_func(temp))**2 ).mean()
-                else:
-                    errsq[i] += weights[indY] * (((self.Y[indY] - self.N[indODE%self.nages] * mY[:,indODE]) / error_func(mY[:,indODE]))**2 ).mean()
+            errs = self._residuals(coefs, stand_error, weights)
+            errsq[i] = (errs*errs).mean()
         return errsq
 
     def _residuals(self, coefs, stand_error=False, weights=None):
@@ -202,6 +197,7 @@ class SEIIHURD_age:
                 errs = np.r_[errs, weights[indY] * ((self.Y[indY] - temp) / error_func(temp)) ]
             else:
                 errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func(mY[:,indODE])) ]
+        errs = errs[~np.isnan(errs)]
         return errs
         
     
@@ -251,14 +247,24 @@ class SEIIHURD_age:
         if init == None:
             cost_best = np.inf
             res_best = None
-            for i in range(nrand):
-                print("{} / {}".format(i, nrand))
-                par0 = np.random.rand(self.n_to_fit)
-                par0 = self.bound[0] + par0 * (self.bound[1] - self.bound[0])
-                res = least_squares(self._residuals, par0, bounds=self.bound)
-                if res.cost < cost_best:
-                    cost_best = res.cost
-                    res_best = res
+            #BUG: the parallel code does not work if PSO code had run previously
+            if type(self.pos) != type(None) or self.numeroProcessadores == None or self.numeroProcessadores <= 1:
+                for i in range(nrand):
+                    print("{} / {}".format(i, nrand))
+                    par0 = np.random.rand(self.n_to_fit)
+                    par0 = self.bound[0] + par0 * (self.bound[1] - self.bound[0])
+                    res = least_squares(self._residuals, par0, bounds=self.bound)
+                    if res.cost < cost_best:
+                        cost_best = res.cost
+                        res_best = res
+            else:
+                par0 = np.random.rand(nrand, self.n_to_fit)
+                par0 = self.bound[0].reshape((1,-1)) + par0 * (self.bound[1] - self.bound[0]).reshape((1,-1))
+                f = lambda p0: least_squares(self._residuals, p0, bounds=self.bound)
+                all_res = joblib.Parallel(n_jobs=self.numeroProcessadores)(joblib.delayed(f)(p0,) for p0 in par0)
+                costs = np.array([res.cost for res in all_res])
+                cost_best = all_res[costs.argmin()].cost
+                res_best = all_res[costs.argmin()]
         else:
             res_best = least_squares(self._residuals, init, bounds=bound )
         self.pos_ls = res_best.x
@@ -266,14 +272,14 @@ class SEIIHURD_age:
         self.rmse_ls = (res_best.fun**2).mean()
         self.result_ls = res_best
         
-    def predict(self, t=None, coefs=None):
+    def predict(self, t=None, coefs=None, model_output=False):
         if type(t) == type(None):
             t = self.t
         if type(coefs) == type(None):
             coefs = self.pos
         elif type(coefs) == str and coefs  == 'LS':
             coefs = self.pos_ls
-        ts, mY = self._call_ODE(self.t, self._conversor(coefs, self.pars_init, self.padjus))
+        ts, mY = self._call_ODE(t, self._conversor(coefs, self.pars_init, self.padjus))
         saida = np.zeros((len(ts), 0))
         for i in self.i_integ:
             if type(i) == list:
@@ -281,7 +287,11 @@ class SEIIHURD_age:
             else:
                 ytemp = mY[:,i] * self.N[i%self.nages]
             saida = np.c_[saida, ytemp.reshape((-1,1))]
-        return ts, saida
+        
+        if model_output:
+            return ts, saida, mY
+        else:
+            return ts, saida
     
   
 
