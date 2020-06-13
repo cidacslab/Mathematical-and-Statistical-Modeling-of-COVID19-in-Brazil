@@ -70,28 +70,29 @@ class SEIIHURD_age:
         if tcorte[-1] < ts[-1]:
             tcorte.append(ts[-1])
         tcorte = [ts[0]] + tcorte
+        tcorte.sort()
         Is0 = pars['x0'].reshape((3,-1)).sum(axis=0)
         x0 = np.r_[1. - Is0, pars['x0'], np.zeros(4*len(Is0)), pars['x0'][2*len(Is0):]]
         saida = x0.reshape((1,-1))
         Y = saida.copy()
         for i in range(1, len(tcorte)):
             cut_last = False
-            try:
-                pars['beta'] = betas[i-1]
-                t = ts[(ts >= tcorte[i-1]) * (ts<= tcorte[i])]
+            pars['beta'] = betas[i-1]
+            t = ts[(ts >= tcorte[i-1]) * (ts<= tcorte[i])]
+            if len(t) > 0:
                 if t[0] > tcorte[i-1]:
                     t = np.r_[tcorte[i-1], t]
                 if t[-1] < tcorte[i]:
                     t = np.r_[t, tcorte[i]]
                     cut_last = True
                 Y = spi.odeint(self._SEIIHURD_age_eq, Y[-1], t, args=(pars,))
-            except:
-                print(pars, i, betas, tcorte)
-                raise
-            if cut_last:
-                saida = np.r_[saida, Y[1:-1]]
+                if cut_last:
+                    saida = np.r_[saida, Y[1:-1]]
+                else:
+                    saida = np.r_[saida, Y[1:]]
             else:
-                saida = np.r_[saida, Y[1:]]
+                Y = spi.odeint(self._SEIIHURD_age_eq, Y[-1], tcorte[i-1:i+1], args=(pars,))
+            
         return ts, saida
 
 
@@ -130,10 +131,10 @@ class SEIIHURD_age:
         for i, par in enumerate(p2f):
             if 'beta' in par:
                 if '_ALL' in par:
-                    for i in range(len(pothers['beta'])):
+                    for l in range(len(pothers['beta'])):
                         for j in range(pothers['beta'][i].shape[0]):
                             for k in range(pothers['beta'][i].shape[1]):
-                                padjus.append('beta_{}_{}_{}'.format(i,j,k))
+                                padjus.append('beta_{}_{}_{}'.format(l,j,k))
                                 if  bound != None:
                                     bound_new[0].append(bound[0][i])
                                     bound_new[1].append(bound[1][i])
@@ -178,7 +179,7 @@ class SEIIHURD_age:
         return pars
         
     
-    def objectiveFunction(self, coefs_list, stand_error, weights=None):
+    def objectiveFunction(self, coefs_list, stand_error=False, weights=None):
         errsq = np.zeros(coefs_list.shape[0])
         for i, coefs in enumerate(coefs_list):
             errs = self._residuals(coefs, stand_error, weights)
@@ -196,9 +197,20 @@ class SEIIHURD_age:
                 temp = (self.N.reshape((1,-1)) *  mY[:,indODE]).sum(axis=1)
                 errs = np.r_[errs, weights[indY] * ((self.Y[indY] - temp) / error_func(temp)) ]
             else:
-                errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func(mY[:,indODE])) ]
+                try:
+                    errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func(mY[:,indODE])) ]
+                except:
+                    print(self.t, self._conversor(coefs, self.pars_init, self.padjus))
+                    raise
         errs = errs[~np.isnan(errs)]
         return errs
+        
+    def prepare_to_fit(self, data, pars, pars_to_fit, bound=None, nages=1, stand_error=False):
+        self.pars_init = copy.deepcopy(pars)
+        self.nages = nages
+        self.i_integ, self.Y, self.t = self._prepare_input(data)
+        self.bound, self.padjus = self._prepare_conversor(pars_to_fit, pars, bound)
+        self.n_to_fit = len(self.padjus)
         
     
     def fit(self, data, pars, pars_to_fit, bound=None, nages=2, paramPSO=dict(),  stand_error=False):
@@ -225,11 +237,7 @@ class SEIIHURD_age:
         bound => (lista_min_bound, lista_max_bound)
         '''
         paramPSO = self._fill_paramPSO(paramPSO)
-        self.pars_init = copy.deepcopy(pars)
-        self.nages = nages
-        self.i_integ, self.Y, self.t = self._prepare_input(data)
-        self.bound, self.padjus = self._prepare_conversor(pars_to_fit, pars, bound)
-        self.n_to_fit = len(self.padjus)
+        self.prepare_to_fit(data, pars, pars_to_fit, bound=bound, nages=nages, stand_error=stand_error)
         optimizer = ps.single.LocalBestPSO(n_particles=paramPSO['n_particles'], dimensions=self.n_to_fit, options=paramPSO['options'],bounds=self.bound)
         cost = pos = None
         cost, pos = optimizer.optimize(self.objectiveFunction,paramPSO['iter'],  stand_error=stand_error, n_processes=self.numeroProcessadores)
@@ -239,11 +247,7 @@ class SEIIHURD_age:
         self.optimize = optimizer
 
     def fit_lsquares(self, data, pars, pars_to_fit, bound=None, nages=2,  stand_error=False, init=None, nrand=10):
-        self.pars_init = copy.deepcopy(pars)
-        self.nages = nages
-        self.i_integ, self.Y, self.t = self._prepare_input(data)
-        self.bound, self.padjus = self._prepare_conversor(pars_to_fit, pars, bound)
-        self.n_to_fit = len(self.padjus)
+        self.prepare_to_fit(data, pars, pars_to_fit, bound=bound, nages=nages, stand_error=stand_error)
         if init == None:
             cost_best = np.inf
             res_best = None
