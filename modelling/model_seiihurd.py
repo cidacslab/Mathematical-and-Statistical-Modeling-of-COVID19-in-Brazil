@@ -194,11 +194,15 @@ class SEIIHURD_age:
         ts, mY = self._call_ODE(self.t, self._conversor(coefs, self.pars_init, self.padjus))
         for indY, indODE in enumerate(self.i_integ):
             if type(indODE) == list:
-                temp = (self.N.reshape((1,-1)) *  mY[:,indODE]).sum(axis=1)
-                errs = np.r_[errs, weights[indY] * ((self.Y[indY] - temp) / error_func(temp)) ]
+                try:
+                    temp = (self.N.reshape((1,-1)) *  mY[:,indODE]).sum(axis=1)
+                    errs = np.r_[errs, weights[indY] * ((self.Y[indY] - temp) / error_func(temp)) ]
+                except:
+                    print(self.t, self._conversor(coefs, self.pars_init, self.padjus))
+                    raise
             else:
                 try:
-                    errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func(mY[:,indODE])) ]
+                    errs = np.r_[errs, weights[indY] * ((self.Y[indY] - self.N[indODE%self.nages] *  mY[:,indODE]) / error_func( self.N[indODE%self.nages] * mY[:,indODE])) ]
                 except:
                     print(self.t, self._conversor(coefs, self.pars_init, self.padjus))
                     raise

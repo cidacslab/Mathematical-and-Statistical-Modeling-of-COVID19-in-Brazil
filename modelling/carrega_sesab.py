@@ -60,7 +60,7 @@ def float_br(x):
 
 #edges for the age separated groups
 age_edges = [60]
-dia = '2805'
+dia = '0806'
 
 #Load the death notifications
 file_obitos = '~/ownCloud/sesab/exporta_obitos_individualizados_csv_{}.csv'.format(dia)
@@ -121,7 +121,24 @@ df = pd.DataFrame(deaths)
 df.columns = cols
 
 
+ages = np.array([0,1,5,10,20,30,40,50,60,70,80])
+N0 = np.array(Ns[:-1])
+parspad = {'p':np.array([0.05, 0.05, 0.05, 0.05, 0.1, 0.2, 0.3, 0.4, 0.6, 0.8, 0.8]),
+           'h':np.array([0.001, 0.001, 0.001, 0.003, 0.012, 0.032, 0.049, 0.102, 0.166, 0.243, 0.273]),
+           'xi':np.array([0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.063, 0.122, 0.274, 0.432, 0.709])       
+        }
+par_age = dict()
+for ke in parspad.keys():
+    idx = ages<age_edges[0]
+    temp = [(parspad[ke][idx] * N0[idx]).sum()/Na[0]]
+    for i in range(1, len(age_edges)):
+        idx = (ages<age_edges[i]) * (ages >= age_edges[i-1])
+        temp = temp + [(parspad[ke][idx] * N0[idx]).sum()/Na[i]]
+    idx = (ages >= age_edges[-1])   
+    temp = temp + [(parspad[ke][idx] * N0[idx]).sum()/Na[-1]]
+    par_age[ke] = np.array(temp)
 
-with open('test_export_data.pik', 'wb') as f:
-    pickle.dump([df, Ns, Na, age_edges], f, protocol=-1)
+
+with open('test_export_data_sesab_0806.pik', 'wb') as f:
+    pickle.dump([df, par_age, Na, age_edges], f, protocol=2)
 #df_deaths.to_csv('obitos_sesab_sep_60_20200521.csv')
