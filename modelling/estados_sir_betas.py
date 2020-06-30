@@ -16,10 +16,10 @@ plt.close('all')
 
 stand_error = True
 nbetas = 3
-nproc = 4
+nproc = 16
 pred_days = 7
 
-def create_summary(model, nbetas):
+def create_summary(model, nbetas, estado):
     temp = dict()
     temp['state'] = estado
     temp['I0'] = model.pars_opt_ls['x0']
@@ -113,8 +113,8 @@ for i, estado in enumerate(estados):
     data_fil = data_fil.sort_values(by='DayNum')
     model = SIR_BETAS(Ne, nproc)
     model.fit_lsquares(data_fil['totalCases'].to_numpy(), data_fil['DayNum'].to_numpy(),
-                       nbetas=nbetas, stand_error=True, nrand=20)
-    temp = create_summary(model, nbetas)
+                       nbetas=nbetas, stand_error=True, nrand=32)
+    temp = create_summary(model, nbetas, estado)
     outp_par = outp_par.append(temp, ignore_index=True)
     outp_data = pd.concat([outp_data,create_output(model, data_fil, pred_days,\
                                                    estado)], sort=False)
@@ -128,4 +128,4 @@ for i, estado in enumerate(estados):
     if i % 12 == 11:
         plt.tight_layout()
 outp_par.to_csv('sir_estados_sumario.csv', index=False)
-outp_data.to_csv('sir_estados.csv', index=False)
+outp_data.to_csv('estados.csv', index=False)

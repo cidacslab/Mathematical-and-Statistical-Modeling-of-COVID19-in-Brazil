@@ -261,20 +261,20 @@ class SEIIHURD_age:
                     print("{} / {}".format(i, nrand))
                     par0 = np.random.rand(self.n_to_fit)
                     par0 = self.bound[0] + par0 * (self.bound[1] - self.bound[0])
-                    res = least_squares(self._residuals, par0, bounds=self.bound)
+                    res = least_squares(self._residuals, par0, bounds=self.bound, args=(stand_error,))
                     if res.cost < cost_best:
                         cost_best = res.cost
                         res_best = res
             else:
                 par0 = np.random.rand(nrand, self.n_to_fit)
                 par0 = self.bound[0].reshape((1,-1)) + par0 * (self.bound[1] - self.bound[0]).reshape((1,-1))
-                f = lambda p0: least_squares(self._residuals, p0, bounds=self.bound)
+                f = lambda p0: least_squares(self._residuals, p0, bounds=self.bound, args=(stand_error,))
                 all_res = joblib.Parallel(n_jobs=self.numeroProcessadores)(joblib.delayed(f)(p0,) for p0 in par0)
                 costs = np.array([res.cost for res in all_res])
                 cost_best = all_res[costs.argmin()].cost
                 res_best = all_res[costs.argmin()]
         else:
-            res_best = least_squares(self._residuals, init, bounds=bound )
+            res_best = least_squares(self._residuals, init, bounds=bound, args=(stand_error,) )
         self.pos_ls = res_best.x
         self.pars_opt_ls = self._conversor(res_best.x, self.pars_init, self.padjus )
         self.rmse_ls = (res_best.fun**2).mean()
