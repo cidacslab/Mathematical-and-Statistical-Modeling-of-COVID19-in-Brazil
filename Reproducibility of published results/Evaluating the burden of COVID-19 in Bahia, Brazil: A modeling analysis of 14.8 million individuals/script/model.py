@@ -267,9 +267,12 @@ class SEIRHUD(Models):
         
         
         aux1 = Nw
-        aux2 = self.d - D
-        aux3 = self.hos - H if self.hos else False
-        aux4 = self.u - U if self.u else False
+        aux2 = self.d
+        auxT2 = aux2 - D
+        aux3 = self.hos
+        auxT3 = aux3 - H if self.hos else None
+        aux4 = self.u
+        auxT4 = aux4 - U if self.u else False
         
         if self.fittingByCumulativeCases:
             auxT1 = self.y-aux1 
@@ -280,17 +283,13 @@ class SEIRHUD(Models):
         if self.stand_error:
             try:
                 auxT1 = auxT1 / np.sqrt(aux1+1)
-                auxT2 = aux2/ np.sqrt(aux2+1)
+                auxT2 = auxT2/ np.sqrt(aux2+1)
                 if self.hos:
-                    auxT3 = aux3 / np.sqrt(aux3+1)
+                    auxT3 = auxT3 / np.sqrt(aux3+1)
                 if self.u:
-                    auxT4 = aux4 / np.sqrt(aux4+1)
+                    auxT4 = auxT4 / np.sqrt(aux4+1)
             except:
                 pass
-        else:
-            auxT2=aux2
-            auxT3 = aux3
-            auxT4 = aux4
             
         return (auxT1,auxT2,auxT3,auxT4)        
     
@@ -348,7 +347,10 @@ class SEIRHUD(Models):
                 self.bound = bound2
                 return True
                 
-            if len(bound[0]) != self.BetaChange*2+6:
+            elif len(bound[0]) == (self.BetaChange*2)+8:
+                self.bound = bound
+                return True
+            else:
                 raise ValueError("Bound of Incorrect size")
                 return False
         elif self.BetaChange!=0:
@@ -570,7 +572,7 @@ class SEIRHUD(Models):
         self.NC = self._Models__changeCases(self.y)
         if not self.__validateBound(bound):
             return
-        
+        #self.bound=bound
         options = {'c1': c1, 'c2': c2, 'w': w,'k':k,'p':norm}
         if self.BetaChange!=0:
             if self.dayBetaChange==None:
