@@ -449,12 +449,12 @@ class SEIRHUD(Models):
                 pos.append(self.e0)
                 
                 pos = np.array(pos)
-                par=ps.backend.generators.create_swarm(20,dimensions=((self.BetaChange+1)*2)+6,bounds=self.bound)
+                par=ps.backend.generators.create_swarm(10,dimensions=((self.BetaChange+1)*2)+6,bounds=self.bound)
                 for i in range(5):
                     par.position[i]=pos
                 
-                optimizer = ps.single.GlobalBestPSO(n_particles=20, dimensions=((self.BetaChange+1)*2)+6, options=options,bounds=self.bound,init_pos=par.position)
-                cost, pos = optimizer.optimize(self._objectiveFunction, 1000,n_processes=self.nCores)
+                optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=((self.BetaChange+1)*2)+6, options=options,bounds=self.bound,init_pos=par.position)
+                cost, pos = optimizer.optimize(self._objectiveFunction, 1500,n_processes=self.nCores)
                 
                 beta = []
                 dayBetaChange = []
@@ -476,8 +476,8 @@ class SEIRHUD(Models):
                 #self.cost_history = optimizer.cost_history
                 
             else:
-                optimizer = ps.single.GlobalBestPSO(n_particles=20, dimensions=self.BetaChange+7, options=options,bounds=self.bound)
-                cost, pos = optimizer.optimize(self._objectiveFunction, 1000,n_processes=self.nCores)
+                optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=self.BetaChange+7, options=options,bounds=self.bound)
+                cost, pos = optimizer.optimize(self._objectiveFunction, 1500,n_processes=self.nCores)
                 beta = []
                 for i in range(len(self.BetaChange)+1):
                     beta.append(pos[i])
@@ -494,8 +494,8 @@ class SEIRHUD(Models):
                 self.rmse = cost
                 self.cost_history = optimizer.cost_history
         else:
-            optimizer = ps.single.GlobalBestPSO(n_particles=20, dimensions=8, options=options,bounds=self.bound)
-            cost, pos = optimizer.optimize(self._objectiveFunction, 1000,n_processes=self.nCores)
+            optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=8, options=options,bounds=self.bound)
+            cost, pos = optimizer.optimize(self._objectiveFunction, 1500,n_processes=self.nCores)
             beta = [pos[0]]
             self.beta = np.array(beta)
             self.gammaH = pos[1]
