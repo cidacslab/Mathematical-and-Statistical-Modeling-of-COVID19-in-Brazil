@@ -426,7 +426,7 @@ class SEIRHUD(Models):
         options = {'c1': c1, 'c2': c2, 'w': w}
         self.x = x
         self.y = np.array(y)
-        self.NC = self.__changeCases(self.y)
+        self.NC = self._Models__changeCases(self.y)
         self.d = np.array(d)
         if self.hos:
             self.hos=hos
