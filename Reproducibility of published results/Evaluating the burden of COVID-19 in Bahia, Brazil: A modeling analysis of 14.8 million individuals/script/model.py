@@ -422,11 +422,12 @@ class SEIRHUD(Models):
         self.bound = bound
         return True
 
-    def __fit(self,x, y ,d,hos=None,u=None,c1= 0.15, c2= 0.25, w = 0.7):
+    def __fit(self,x, y ,d,hos=None,u=None,c1= 0.6, c2= 0.5, w = 0.9):
         options = {'c1': c1, 'c2': c2, 'w': w}
         self.x = x
-        self.y = y
-        self.d = d
+        self.y = np.array(y)
+        self.NC = self.__changeCases(self.y)
+        self.d = np.array(d)
         if self.hos:
             self.hos=hos
         if self.u:
@@ -845,8 +846,9 @@ class SEIRHUD(Models):
             casesHos = self._Models__genBoot(self.hos, times)
         if self.u:
             casesU = self._Models__genBoot(self.u, times)
-        copia = copy.deepcopy(self)
+        
         for i in range(0,len(casesSeries)):
+            copia = copy.deepcopy(self)
             print("\n"+str(i)+'\n')
             copia.__fit(x=self.x,y = casesSeries[i],d=casesDeath[i],hos= (casesHos[i] if self.hos else None),u= (casesU[i] if self.u else None))
             
