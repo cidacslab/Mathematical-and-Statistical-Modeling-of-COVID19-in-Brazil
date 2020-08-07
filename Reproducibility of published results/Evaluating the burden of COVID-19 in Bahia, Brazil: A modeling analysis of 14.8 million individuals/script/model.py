@@ -105,7 +105,7 @@ class Models:
         #Compute CI
         lowerBound  = np.array(meanValue) + np.array(deltaL)
         UpperBound  = np.array(meanValue) + np.array(deltaU)
-        return (lowerBound, UpperBound)
+        return [meanValue,lowerBound, UpperBound]
         
     def getResiduosQuadatico(self):
         y = np.array(self.y)
@@ -454,7 +454,7 @@ class SEIRHUD(Models):
                     par.position[i]=pos
                 
                 optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=((self.BetaChange+1)*2)+6, options=options,bounds=self.bound,init_pos=par.position)
-                cost, pos = optimizer.optimize(self._objectiveFunction, 1500,n_processes=self.nCores)
+                cost, pos = optimizer.optimize(self._objectiveFunction, 2500,n_processes=self.nCores)
                 
                 beta = []
                 dayBetaChange = []
@@ -477,7 +477,7 @@ class SEIRHUD(Models):
                 
             else:
                 optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=self.BetaChange+7, options=options,bounds=self.bound)
-                cost, pos = optimizer.optimize(self._objectiveFunction, 1500,n_processes=self.nCores)
+                cost, pos = optimizer.optimize(self._objectiveFunction, 2500,n_processes=self.nCores)
                 beta = []
                 for i in range(len(self.BetaChange)+1):
                     beta.append(pos[i])
@@ -495,7 +495,7 @@ class SEIRHUD(Models):
                 self.cost_history = optimizer.cost_history
         else:
             optimizer = ps.single.GlobalBestPSO(n_particles=10, dimensions=8, options=options,bounds=self.bound)
-            cost, pos = optimizer.optimize(self._objectiveFunction, 1500,n_processes=self.nCores)
+            cost, pos = optimizer.optimize(self._objectiveFunction, 2500,n_processes=self.nCores)
             beta = [pos[0]]
             self.beta = np.array(beta)
             self.gammaH = pos[1]
@@ -508,9 +508,9 @@ class SEIRHUD(Models):
         self.isFit=True
         self.predict(0)
     
-    def fit(self, x, y, d, fittingByCumulativeCases=True, hos=None,u=None,yWeight=1,dWeight = 1,hosWeight=1,uWeight=1, kappa = 1/4,p = 0.2,gammaA = 1/3.5, gammaS = 1/4.001, muH = 0.15,
+    def fit(self, x, y, d, fittingByCumulativeCases=False, hos=None,u=None,yWeight=1,dWeight = 1,hosWeight=1,uWeight=1, kappa = 1/4,p = 0.2,gammaA = 1/3.5, gammaS = 1/4.001, muH = 0.15,
             muU = 0.4,xi = 0.53,omegaU = 0.29,omegaH=0.14 , bound = [[0,1/8,1/12,0,0],[2,1/4,1/3,0.7,0.35]],
-            stand_error = True, BetaChange = 1, dayBetaChange = None, particles = 300, itera = 1000, c1 = 1, c2 = 0.5, w = 0.9, k = 5, norm = 1):
+            stand_error = True, BetaChange = 1, dayBetaChange = None, particles = 350, itera = 2000, c1 = 1, c2 = 0.5, w = 0.9, k = 5, norm = 1):
         '''
         x = dias passados do dia inicial 1
         y = numero de casos
