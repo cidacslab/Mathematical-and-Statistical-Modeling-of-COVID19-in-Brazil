@@ -40,9 +40,11 @@ In particular, the raw data, depicted as dots, plotted in the figures 2, 3, 5, 6
 
 
 ## Compilation
-We performed our analysis using Python version 3. The codes are presented in the folder named “scripts”. The "modelo.py" file contains the class with the SEIRUHD model. Complementary to that, the reader can find three Jupyter Notebook codes:
+We performed our analysis using Python version 3. The codes are presented in the folder named “scripts”. The "modelo.py" file contains the class with the SEIRUHD model, the 'model_seiihurd.py' contains a different implementation of the model that takes into account the ICU and Hospitalization data. Complementary to that, the reader can find three Jupyter Notebook codes:
 
 * SEIRUHD.ipynb compiles the mathematical model for the whole state;
+* seiihurd_ba.py compiles the mathematical model for the whole state, with the ICU and Hospitalization fitted, using data up to May 5;
+* seiihurd_ba_up_to_september.py compiles the mathematical model for the whole state, with the ICU and Hospitalization fitted, using data up to September 13;
 * SEIRHUDInterior.ipynb compiles the mathematical model for the inland cities;
 * SEIRHUDSalvador.ipynb compiles the mathematical model for the capital city.
 
