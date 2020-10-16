@@ -2,7 +2,7 @@
 ![](images/cidacs.png)
 
 
-# Evaluating the burden of COVID-19 in Bahia, Brazil: A modeling analysis of 14.8 million individuals                               
+# Mathematical modelling of COVID-19 in 14.8 million individuals in Bahia, Brazil                               
 
 ## Table of contents
 * [General info](#general-info)
@@ -11,7 +11,7 @@
 * [References](#references)
 
 ## General info
-In this folder the reader can find the code used to produce the results in the manuscript (preprint [1]) entitled "Evaluating the burden of COVID-19 in Bahia, Brazil: A modeling analysis of 14.8 million individuals".
+In this folder the reader can find the code used to produce the results in the manuscript  entitled "Mathematical modelling of COVID-19 in 14.8 million individuals in Bahia, Brazil" (see also preprint [1]).
 
 ## Input data
 
@@ -19,7 +19,7 @@ The models produced in this study were informed by data from multiple sources: t
 
 Our data is available in the folder named "Data". They are described as follow:
 
-* pop_muni.csv contains the number of population for each Brazilian municipality. It was obtained by the Brazilian Institute of Geography and Statistics (IBGE). By aggregating the data, the population of the state of Bahia, estimated for 2020, is 14,930,424. The population of Salvador is 2,831,557 and the population of the inland cities is 12,098,867.
+* pop_muni.csv contains the number of population for each Brazilian municipality. It was obtained by the Brazilian Institute of Geography and Statistics (IBGE). By selecting and aggregating the data, the population of the state of Bahia, estimated for 2020, is 14,930,424. The population of Salvador is 2,831,557 and the population of the inland cities is 12,098,867.
 
 * data.csv contains variables of counts for the state of Bahia, they are:
 
@@ -30,11 +30,13 @@ Our data is available in the folder named "Data". They are described as follow:
    * dth: daily number of deaths caused by COVID-19;
    * dthcm: daily cumulative number of deaths.
 
+* data_up_to_september.csv: which has the same variables contained in data.csv, but with values updated up to September 13th.
+
 * dataInterior.csv contains the aggregated number of cases (variable name “cases”) and deaths (variable name “deaths”) for the inland cities of the state of Bahia;
 
 * salvador.csv contains the number of cases (variable name “cases”) and deaths (variable name “deaths”) for the capital city of the state of Bahia.
 
-In particular, the raw data, depicted as dots, plotted in the figures 2, 3, 5 and 6, in the manuscript [1] are provided by the datasets described above. 
+In particular, the raw data, depicted as dots, plotted in the figures 2, 3, 5, 6 and 7, in the manuscript [1] are provided by the datasets described above. Note that, the series of daily number of reported cases can be obtained by the series of cumulative cases.
 
 
 ## Compilation
